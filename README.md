@@ -64,8 +64,12 @@ Explain how to run the automated tests.
 # Authors
 
 Nguyen Nguyen - nguyentwotimes@gmail.com
-Zhymir Thompson - 
+
+Zhymir Thompson - dzhymir@gmail.com
+
 Justin Taylor -
+
 Clay Mallory - 
+
 Kristina Matthews - 
 
