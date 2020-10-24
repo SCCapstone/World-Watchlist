@@ -1,4 +1,4 @@
-# Project Name
+# World-Watchlist
 
 This first paragraph should be a short description of the app. You can add links
 to your wiki pages that have more detailed descriptions.
@@ -17,8 +17,6 @@ run in their laptop. For example:
 
 In order to build this project you first have to install:
 
-* [Node.js](https://nodejs.org/en/)
-* [MongoDB](https://www.mongodb.com/)
 
 If possible, list the actual commands you used to install these, so the reader
 can just cut-n-paste the commands and get everything setup.
@@ -65,5 +63,9 @@ Explain how to run the automated tests.
 
 # Authors
 
-Your names and emails
+Nguyen Nguyen - nguyentwotimes@gmail.com
+Zhymir Thompson - 
+Justin Taylor -
+Clay Mallory - 
+Kristina Matthews - 
 
