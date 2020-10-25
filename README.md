@@ -24,6 +24,7 @@ some first-time configuration from the developer, for example: setting up a
 database for running your webapp locally.
  ``` bash
  git clone https://github.com/SCCapstone/World-Watchlist.git
+ cd World-Watchlist/project-folder
  npm i 
  ```
 
