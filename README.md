@@ -71,7 +71,7 @@ Nguyen Nguyen - nguyentwotimes@gmail.com
 
 Zhymir Thompson - dzhymir@gmail.com
 
-Justin Taylor -
+Justin Taylor - justinelijahtaylor@gmail.com
 
 Clay Mallory - 
 
