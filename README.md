@@ -41,5 +41,5 @@ Justin Taylor - justinelijahtaylor@gmail.com
 
 Clay Mallory - 
 
-Kristina Matthews - 
+Kristina Matthews - kristinamatthews002@gmail.com
 
