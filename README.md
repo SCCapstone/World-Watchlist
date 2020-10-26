@@ -39,7 +39,7 @@ Zhymir Thompson - dzhymir@gmail.com
 
 Justin Taylor - justinelijahtaylor@gmail.com
 
-Clay Mallory - 
+Clay Mallory - claymallory34@googlemail.com
 
 Kristina Matthews - kristinamatthews002@gmail.com
 
