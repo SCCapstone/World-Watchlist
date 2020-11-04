@@ -1,16 +1,28 @@
 const http = require('http');
-
+var convert = require('xml-js');
 const hostname = '127.0.0.1';
 const port = 3000;
 
+// const request = require('request')
+// request('https://newsapi.org/v2/everything?q=bitcoin&apiKey=608f2a765753454fa4b75aea9f5c53f5', function (
+//   error,
+//   response,
+//   body
+// ) {
+//   console.error('error:', error)
+//   var info = JSON.parse(body)
+//   console.log('body:', info.articles)
+// })
+
 const request = require('request')
-request('https://www.reddit.com/r/programming.json', function (
+request('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', function (
   error,
   response,
   body
 ) {
-  console.error('error:', error)
-  console.log('body:', body)
+    var result1 = convert.xml2json(body, {compact: true, spaces: 4});
+  console.log(result1)
+  
 })
 
 

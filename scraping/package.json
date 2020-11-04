@@ -5,7 +5,8 @@
   "main": "app.js",
   "dependencies": {
     "request": "^2.88.2",
-    "website-scraper": "^4.2.3"
+    "website-scraper": "^4.2.3",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {},
   "scripts": {
