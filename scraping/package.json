@@ -4,9 +4,11 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "install": "^0.13.0",
     "request": "^2.88.2",
     "website-scraper": "^4.2.3",
-    "xml-js": "^1.6.11"
+    "xml-js": "^1.6.11",
+    "xml.js": "0.0.8"
   },
   "devDependencies": {},
   "scripts": {
