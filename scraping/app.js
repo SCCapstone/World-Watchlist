@@ -20,8 +20,9 @@ request('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', function (
   response,
   body
 ) {
-    var result1 = convert.xml2json(body, {compact: true, spaces: 4});
-  console.log(result1)
+  var result1 = convert.xml2json(body, {compact: true, spaces: 4});
+  var info = JSON.parse(result1)
+  console.log(info.rss.channel)
   
 })
 
