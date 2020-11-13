@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "axios": "^0.21.0",
     "install": "^0.13.0",
     "request": "^2.88.2",
     "website-scraper": "^4.2.3",
