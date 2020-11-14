@@ -5,11 +5,12 @@
   "main": "app.js",
   "dependencies": {
     "axios": "^0.21.0",
-    "install": "^0.13.0",
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.17.1",
     "request": "^2.88.2",
     "website-scraper": "^4.2.3",
     "xml-js": "^1.6.11",
-    "xml.js": "0.0.8"
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {},
   "scripts": {
