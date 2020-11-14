@@ -16,13 +16,6 @@ function removeEntries(list) {
       }
   }
 }
-
-function getArticles(rssFeed) {
-
-}
-function getRSS(rssFeed) {
-
-}
 // const request = require('request')
 // request('https://newsapi.org/v2/everything?q=bitcoin&apiKey=608f2a765753454fa4b75aea9f5c53f5', function (
 //   error,
@@ -32,8 +25,8 @@ function getRSS(rssFeed) {
 //   console.error('error:', error)
 //   var info = JSON.parse(body)
 //   console.log('body:', info.articles)
-// })'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml'
-axios.get("https://www.cbsnews.com/latest/rss/world").then(
+// })
+axios.get('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml').then(
   (response) => {
     // console.log(response);
     // console.log(response.data);
