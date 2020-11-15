@@ -75,9 +75,13 @@ function getImage(itemObj) {
   let image = null;
   if ( "media:content" in itemObj) {
     itemObj = itemObj["media:content"];
+  } else if ("media:thumbnail" in itemObj) {
+    itemObj = itemObj["media:thumbnail"];
   }
   if ( "image" in itemObj) {
     image = itemObj["image"];
+  } else if ("") {
+
   } else {
     console.log(itemObj);
   }
@@ -106,9 +110,9 @@ class article {
 // http://rss.cnn.com/rss/cnn_topstories.rss
 // https://www.cbsnews.com/latest/rss/world
 // https://abcnews.go.com/abcnews/internationalheadlines
+//http://feeds.washingtonpost.com/rss/sports?itid=lk_inline_manual_28
 //
-//
-axios.get("http://feeds.washingtonpost.com/rss/sports?itid=lk_inline_manual_28").then(
+axios.get("").then(
   (response) => {
     // console.log(response);
     // console.log(response.data);
