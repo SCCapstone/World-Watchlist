@@ -6,18 +6,14 @@ const app = express()
 var f = require("./scraper.js");
 let links2 = [];
 let article_info = [];
+const cors = require('cors');
+app.use(cors())
 /*
-reddit rss: https://www.reddit.com/r/worldnews/.rss
-washington post rss: http://feeds.washingtonpost.com/rss/world
-cnbc rss: https://www.cnbc.com/id/100727362/device/rss/rss.html
-abc rss: https://abcnews.go.com/abcnews/internationalheadlines
-cbs rss: https://www.cbsnews.com/latest/rss/world
-time rss breaking news: https://time.com/feed/
-vox rss: https://www.vox.com/rss/world/index.xml
 nytimes: https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml
+bbc: http://feeds.bbci.co.uk/news/rss.xml
 */
-app.post('/', (req, res) => {
-  url = ""
+app.post('/bbc', (req, res) => {
+  url = "http://feeds.bbci.co.uk/news/rss.xml"
   axios.get(url).then(
   (response) => {
     res.set('Cache-Control', 'public, max-age=300, s-maxage=600') // loads information quicker by caching the results to user.
@@ -30,8 +26,7 @@ app.post('/', (req, res) => {
       title = f.getTitle(item);
       link = f.getLink(item);
       description = f.getDesc(item);
-      image = f.getImage(item);
-      temp = new f.article(title, description, link, image);
+      temp = new f.article(title, description, link);
       article_info.push(temp);
       links2.push(info2.rss.channel.item[i].link._text);
     }
@@ -41,6 +36,5 @@ app.post('/', (req, res) => {
   }).catch((error) => {
     console.log(error);
   })
-  
 })
 exports.app = functions.https.onRequest(app)
