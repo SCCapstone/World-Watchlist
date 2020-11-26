@@ -1,25 +1,22 @@
 import React, { useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { IonButton, IonContent, IonHeader, IonPage, IonRouterOutlet, IonSearchbar, IonTitle, IonToolbar } from '@ionic/react';
 import './Tab1.css';
-import axios from 'axios'
-
+import { IonReactRouter } from '@ionic/react-router';
+import { Redirect, Route } from 'react-router';
+import Subscription from './Subscription';
 const Tab1: React.FC = () => {
   return (
     <IonPage>
+      <IonReactRouter>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Test Commit 4</IonTitle>
+        <IonRouterOutlet>
+          <Route path="/Subscription" component={Subscription} exact={true} />
+        </IonRouterOutlet>
+        <IonButton id="sub" color="light" href="/Subscription">add sub</IonButton>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Tab 1 Title</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer name="Tab 1 page" />
-      </IonContent>
+      </IonReactRouter>
     </IonPage>
   );
 };

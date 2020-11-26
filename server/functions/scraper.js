@@ -35,10 +35,6 @@ module.exports = {
         }
         return article_info;
     },
-    getRSS: function(rssFeed) {
-        
-    },
-
     getTitle: function(itemObj) {
         let title = null;
         if ( "title" in itemObj ) // check if item has title
@@ -103,28 +99,3 @@ module.exports = {
 };
 
 
-// axios.get('http://feeds.bbci.co.uk/news/rss.xml').then(
-//   (response) => {
-//     // console.log(response);
-//     // console.log(response.data);
-//     let result2 = convert.xml2json(response.data, {compact: true, spaces: 4});
-//     // console.log(result2);
-//     let info2 = JSON.parse(result2)
-//     // console.log(info2.rss.channel.item)
-//     for ( i = 0 ; i < info2.rss.channel.item.length ; ++i ) {
-//       item = info2.rss.channel.item[i];
-//       console.log(info2.rss.channel.item[i]);
-//       let title = link = description = image = null;
-//       title = getTitle(item);
-//       link = getLink(item);
-//       description = getDesc(item);
-//       image = getImage(item);
-//       temp = new article(title, description, link, image);
-//       article_info.push(temp);
-//       links2.push(info2.rss.channel.item[i].link._text);
-//     }
-//     console.log(article_info);
-//     // console.log(links2);
-//   }).catch((error) => {
-//     console.log(error);
-//   })
