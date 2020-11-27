@@ -13,11 +13,34 @@ app.use(cors())
 nytimes: https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml
 bbc: http://feeds.bbci.co.uk/news/rss.xml
 */
+const admin = require('firebase-admin');
+const serviceAccount = require('./world-watchlist-server-fa5a3-firebase-adminsdk-1gbjp-b433d05376.json');
 
-function getRSS(url, res) {
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+const db = admin.firestore();
+function writeDoc(articles, doc_name) {
+    let URL_ID, urlLink, title, description;
+    // let articles = data;
+    // console.log(articles.length);
+    let article_list = [];
+    for (i = 0; i < articles.length; i++) {
+        title = articles[i].title;
+        description = articles[i].description;
+        urlLink = articles[i].link;
+        article_list.push({'Title': title, 'Description': description, 'Link': urlLink});
+        URL_ID = (urlLink.split('/').pop());
+    }
+    db.collection('articles').doc(doc_name).set(
+        {articles: article_list}
+    )
+}
+
+
+function getRSS(url, doc_name) {
   axios.get(url).then(
     (response) => {
-      res.set('Cache-Control', 'public, max-age=300, s-maxage=600') // loads information quicker by caching the results to user.
       let article_info = [];
       let result2 = convert.xml2json(response.data, {compact: true, spaces: 4});
       let info2 = JSON.parse(result2);
@@ -33,10 +56,10 @@ function getRSS(url, res) {
         // links2.push(info2.rss.channel.item[i].link._text);
       }
       // getArticles(result2, article_info);
-      console.log(article_info)
-      res.send(article_info);
+      // console.log(article_info);
+      writeDoc(article_info, doc_name);
       // article_info = [];
-      // console.log(links2)
+      // console.log(links2);
     }).catch((error) => {
       console.log(error);
     })
@@ -50,4 +73,19 @@ app.post('/nyt', (req, res) => {
   url = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
   getRSS(url, res);
 })
+
+function bbcpost() {
+  url = "http://feeds.bbci.co.uk/news/rss.xml";
+  getRSS(url, 'BBCNews');
+}
+function nytpost() {
+  url = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
+  getRSS(url, "NYTNews");
+}
+function thisInterval() {
+  bbcpost();
+  nytpost();
+  console.log("Sending to firestore.")
+}
+setInterval(thisInterval, 60000);
 exports.app = functions.https.onRequest(app)

@@ -1,22 +1,21 @@
 import React, { useEffect } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonRouterOutlet, IonSearchbar, IonTitle, IonToolbar } from '@ionic/react';
+import { useHistory } from "react-router-dom";
+import { IonButton, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Tab1.css';
-import { IonReactRouter } from '@ionic/react-router';
-import { Redirect, Route } from 'react-router';
-import Subscription from './Subscription';
 const Tab1: React.FC = () => {
+  let history = useHistory();
   return (
     <IonPage>
-      <IonReactRouter>
       <IonHeader>
         <IonToolbar>
-        <IonRouterOutlet>
-          <Route path="/Subscription" component={Subscription} exact={true} />
-        </IonRouterOutlet>
-        <IonButton id="sub" color="light" href="/Subscription">add sub</IonButton>
+          <IonTitle id="title">
+            WW
+          </IonTitle>
+        <IonButton id='sub' color="light" onClick={(e) => {
+            e.preventDefault();
+            history.push('/Subscription')}}>+</IonButton>
         </IonToolbar>
       </IonHeader>
-      </IonReactRouter>
     </IonPage>
   );
 };

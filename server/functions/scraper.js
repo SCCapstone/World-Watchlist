@@ -7,9 +7,7 @@ function article(title, description, link, image) {
 
 // exporting functions and constructor
 module.exports = {
-
     article,
-
     removeEntries: function(list) {
         for( i = 0 ; i < list.length ; ++i ) {
             if (list[i].includes("puzzle") ||
