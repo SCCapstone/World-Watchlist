@@ -51,22 +51,27 @@ class Social extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props)
     this.addFriend = this.addFriend.bind(this);
+
     if(auth.currentUser) {
+      //gets the username of our user
       db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
         if(doc.data()) {
           this.setState({ourUsername: doc.data()!.username})
+          //creates a subscription to our user's friends list
           this.unsubscribeFriendsList = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
             if(snapshot.data()) {
               this.setState({friendsList: snapshot.data()!.friends})
             }
           })
 
+          //creates a subscription to our user's incoming friend requests
           this.unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
             if(snapshot.data()) {
               this.setState({incomingRequests: snapshot.data()!.incomingFriendRequests})
             }
           })
 
+          //creates a subscription to our user's outgoing friend requests
           this.unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
             if(snapshot.data()) {
               this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
@@ -84,7 +89,7 @@ class Social extends React.Component<MyProps, MyState> {
 
 
 
-  addFriend(username: string) {
+  addFriend(username: string) { //sends a friend request to a user
     if(username != "") {
       db.collection('usernames').doc(username).get().then(document => {
         if(document.exists) {
@@ -99,7 +104,7 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
-  acceptFriend(username: string) {
+  acceptFriend(username: string) { //accepts a friend request from a user
     if(username != "") {
       db.collection('outgoingFriendRequests').doc(username).update({
         outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername),
@@ -113,7 +118,7 @@ class Social extends React.Component<MyProps, MyState> {
 
   }
 
-  declineFriend(username: string) {
+  declineFriend(username: string) { //declines a friend request from a user
     if(username != "") {
       db.collection('outgoingFriendRequests').doc(username).update({
         outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername),
