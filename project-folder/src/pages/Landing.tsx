@@ -152,7 +152,15 @@ class Landing extends React.Component<MyProps, MyState> {
         outgoingFriendRequests: [],
         incomingFriendRequests: []
       })
+      db.collection("outgoingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+        outgoingFriendRequests: []
+      })
+      db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+        incomingFriendRequests: []
+      })
     })
+
+
   }
 
 
