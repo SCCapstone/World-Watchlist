@@ -22,12 +22,9 @@ type MyState = {
   ourUsername: string;
   targetUsername: string;
   friendsList: string[];
-<<<<<<< HEAD
   isPendingRequestsModalOpen: boolean;
   incomingRequests: string[];
   outgoingRequests: string[];
-=======
->>>>>>> 378f8cf3f17ef9ccfddb994bff29d83d48766083
 }
 
 type MyProps = {
@@ -39,7 +36,6 @@ class Social extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     isAddFriendModalOpen: false,
-<<<<<<< HEAD
     ourUsername: '',
     targetUsername: '',
     friendsList: [],
@@ -50,20 +46,11 @@ class Social extends React.Component<MyProps, MyState> {
   unsubscribeFriendsList: any;
   unsubscribeIncomingRequests: any;
   unsubscribeOutgoingRequests: any;
-=======
-    ourUsername: "clay34#0",
-    targetUsername: "",
-    friendsList: []
-  };
-
-  unsubscribeFriendsList: any;
->>>>>>> 378f8cf3f17ef9ccfddb994bff29d83d48766083
 
 
   constructor(props: MyProps) {
     super(props)
     this.addFriend = this.addFriend.bind(this);
-<<<<<<< HEAD
     if(auth.currentUser) {
       db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
         if(doc.data()) {
@@ -89,20 +76,6 @@ class Social extends React.Component<MyProps, MyState> {
       })
     }
 
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeFriendsList()
-=======
-
-    this.unsubscribeFriendsList = db.collection("usernames").doc(this.state.ourUsername).onSnapshot((snapshot) => {
-      if(snapshot.data()) {
-        this.setState({friendsList: snapshot.data()!.friends})
-        console.log(this.state.friendsList)
-      }
-
-    })
->>>>>>> 378f8cf3f17ef9ccfddb994bff29d83d48766083
   }
 
   componentWillUnmount() {
