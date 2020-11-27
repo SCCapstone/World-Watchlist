@@ -23,3 +23,9 @@
 #searchFriendItem {
   --inner-padding-top: 10px;
 }
+
+.friendListItem {
+  margin-left:20px;
+  color:F428CFF;
+
+}

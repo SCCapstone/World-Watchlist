@@ -10,7 +10,8 @@ import {
   IonIcon,
   IonModal,
   IonInput,
-  IonItem
+  IonItem,
+  IonLabel
 } from '@ionic/react'
 import firebase, {db} from '../firebase'
 import {personAddOutline, closeCircleOutline, addCircleOutline} from "ionicons/icons"
@@ -20,6 +21,7 @@ type MyState = {
   isAddFriendModalOpen: boolean;
   ourUsername: string;
   targetUsername: string;
+  friendsList: string[];
 }
 
 type MyProps = {
@@ -31,16 +33,32 @@ class Social extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     isAddFriendModalOpen: false,
-    ourUsername: "",
-    targetUsername: ""
+    ourUsername: "clay34#0",
+    targetUsername: "",
+    friendsList: []
   };
 
+  unsubscribeFriendsList: any;
 
 
   constructor(props: MyProps) {
     super(props)
     this.addFriend = this.addFriend.bind(this);
+
+    this.unsubscribeFriendsList = db.collection("usernames").doc(this.state.ourUsername).onSnapshot((snapshot) => {
+      if(snapshot.data()) {
+        this.setState({friendsList: snapshot.data()!.friends})
+        console.log(this.state.friendsList)
+      }
+
+    })
   }
+
+  componentWillUnmount() {
+    this.unsubscribeFriendsList()
+  }
+
+
 
   addFriend(username: string) {
     let usernameSplit = username.split("#")
@@ -76,9 +94,12 @@ class Social extends React.Component<MyProps, MyState> {
     })
   }
 
+
+
     render() {
       return (
       <IonPage>
+
         <IonModal isOpen={this.state.isAddFriendModalOpen}>
           <IonHeader>
             <IonToolbar>
@@ -100,6 +121,7 @@ class Social extends React.Component<MyProps, MyState> {
                 <IonIcon id='addFriendButtonIcon' icon={addCircleOutline} />
               </IonButton>
             </IonItem>
+
           </IonContent>
         </IonModal>
 
@@ -116,6 +138,13 @@ class Social extends React.Component<MyProps, MyState> {
           </IonToolbar>
         </IonHeader>
         <IonContent>
+        {
+          this.state.friendsList.map(Friend =>
+            <IonItem key={Friend.toString()}>
+              <IonButton class = 'friendListItem'>{Friend.toString()}</IonButton>
+              <IonIcon class = 'friendIcon' icon ={addCircleOutline}/>
+            </IonItem>
+        )}
 
         </IonContent>
       </IonPage>
