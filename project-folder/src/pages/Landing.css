@@ -1,0 +1,86 @@
+.landingContent {
+  --background: #93ccfa;
+}
+
+.loginInput {
+  width: 95%;
+  border-radius: 10px;
+  background-color: white;
+  --background: #93ccfa;
+  text-align:center;
+  margin-top: 10px;
+
+}
+.landingToolbar {
+    --background: #93ccfa;
+}
+
+.loginItem {
+  --background: transparent;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.loginButton {
+  width: 60%;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  --background: #ededed;
+  --color: #000000;
+}
+
+.loginLabel {
+  --background: #c4eeff;
+
+}
+
+#loginInputContainer {
+  margin-top: 25px;
+}
+
+.registerInput {
+  width: 95%;
+  border-radius: 10px;
+  background-color: white;
+  --background: #93ccfa;
+  text-align:center;
+  margin-top: 10px;
+}
+
+.registerItem {
+  --background: transparent;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.registerButton {
+  width: 60%;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  --background: #ededed;
+  --color: #000000;
+}
+
+.registerLabel {
+  --background: #c4eeff;
+
+}
+
+#registerInputContainer {
+  margin-top: 25px;
+}
+
+.landingSwitch {
+  position: fixed;
+  bottom: 5%;
+  text-align: center;
+  width: 100%;
+  font-size: 22px;
+
+}

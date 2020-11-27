@@ -1,0 +1,25 @@
+#addFriendModalCloseButton {
+  --color: #ff0000;
+}
+
+#addFriendModalCloseIcon {
+  font-size: 32px;
+}
+
+#addFriendSearch {
+  border: 1px solid black;
+  border-radius: 10px;
+  --padding-start: 10px;
+}
+
+#addFriendButton {
+
+}
+
+#addFriendButtonIcon {
+  font-size: 28px;
+}
+
+#searchFriendItem {
+  --inner-padding-top: 10px;
+}
