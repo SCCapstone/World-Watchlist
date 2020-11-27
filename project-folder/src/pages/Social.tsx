@@ -84,7 +84,10 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
   componentWillUnmount() {
+    //since we have subscriptions, we cancel them here to prevent a memory leak
     this.unsubscribeFriendsList()
+    this.unsubscribeIncomingRequests()
+    this.unsubscribeOutgoingRequests()
   }
 
 
