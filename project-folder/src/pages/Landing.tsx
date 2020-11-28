@@ -142,11 +142,13 @@ class Landing extends React.Component<MyProps, MyState> {
       }
       db.collection('users').doc(auth.currentUser?.uid).set({
         friends: [],
+        blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString()
       })
       db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         friends: [],
+        blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString(),
         outgoingFriendRequests: [],

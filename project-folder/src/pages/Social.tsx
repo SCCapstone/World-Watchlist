@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   IonPage,
   IonHeader,
@@ -16,6 +16,8 @@ import {
 import firebase, {db, auth} from '../firebase'
 import {personAddOutline, closeCircleOutline, addCircleOutline, listOutline} from 'ionicons/icons'
 import './Social.css'
+
+
 
 type MyState = {
   isAddFriendModalOpen: boolean;
@@ -135,6 +137,7 @@ class Social extends React.Component<MyProps, MyState> {
 
 
     render() {
+      
       return (
       <IonPage>
 

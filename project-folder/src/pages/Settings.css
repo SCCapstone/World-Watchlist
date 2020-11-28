@@ -1,0 +1,35 @@
+#closeBlockIcon {
+  font-size: 32px;
+  color:white;
+}
+
+#addBlockIcon {
+  font-size:32px;
+}
+
+#addSource {
+  background-color:white;
+  border-radius: 25px;
+  color:black;
+
+}
+
+#openBlockModal {
+  font-size:40px;
+}
+
+#blockedSourcesHeader {
+  margin-left:40px;
+}
+
+#blockedList {
+  list-style-type: none;
+}
+
+li {
+  margin-top: 20px;
+}
+
+#updateEmail {
+  float:left;
+}
