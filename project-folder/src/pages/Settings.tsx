@@ -44,7 +44,7 @@ class Settings extends React.Component<MyProps, MyState> {
     isBlockSourceModalOpen: false,
     isUpdateEmailModalOpen: false,
     blockedSources: [],
-    currentUserName :"",
+    currentUserName :'',
     sourceToBlock:"",
     sourceToUnBlock:"",
     localList: [],
@@ -79,9 +79,9 @@ class Settings extends React.Component<MyProps, MyState> {
       this.addToList(sourceName);
       this.state.blockedSources.push(sourceName);
       console.log(this.state.blockedSources);
-      db.collection('usernames').doc("purple#0#0").get().then(document => {
+      db.collection('usernames').doc(this.state.currentUserName).get().then(document => {
       if(document.exists && this.isValidSite(sourceName)) {
-        db.collection('usernames').doc("purple#0#0").update({
+        db.collection('usernames').doc(this.state.currentUserName).update({
         blockedSources : firebase.firestore.FieldValue.arrayUnion(sourceName)
         })
       }
@@ -91,9 +91,9 @@ class Settings extends React.Component<MyProps, MyState> {
 
 unBlockSource(sourceName:string) {
   if(sourceName!="" ) { //makes sure the source is a valid site and isn't blank
-    db.collection('usernames').doc("purple#0#0").get().then(document => {
+    db.collection('usernames').doc(this.state.currentUserName).get().then(document => {
     if(document.exists) {
-      db.collection('usernames').doc("purple#0#0").update({
+      db.collection('usernames').doc(this.state.currentUserName).update({
         blockedSources: firebase.firestore.FieldValue.arrayRemove(sourceName)
       })
     }
@@ -102,11 +102,11 @@ unBlockSource(sourceName:string) {
 }
 
 changeEmail(email:string) {
-  var user = firebase.auth().currentUser;
-  if(email!="" && email.length > 3) { //makes sure the source is a valid site and isn't blank
-    db.collection('usernames').doc("purple#0#0").get().then(document => { //works for one specific user currently
+
+  if(this.state.currentUserName!=undefined&& email.length > 3) { //makes sure the source is a valid site and isn't blank
+    db.collection('usernames').doc(this.state.currentUserName).get().then(document => { //works for one specific user currently
     if(document.exists) {
-      db.collection('usernames').doc("pruple#0#0").update({
+      db.collection('usernames').doc(this.state.currentUserName).update({
         "email.firebase" : email
       })
 
