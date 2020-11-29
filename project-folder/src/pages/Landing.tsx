@@ -213,7 +213,7 @@ class Landing extends React.Component<MyProps, MyState> {
 
                 <IonItem lines='none' className='registerItem'>
                   <IonLabel className='registerLabel' position='floating'>Username</IonLabel>
-                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Confirm Password' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
               <IonButton onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
