@@ -30,6 +30,13 @@ li {
   margin-top: 20px;
 }
 
-#updateEmail {
-  float:left;
+
+
+#emailChangeButton {
+  float:right;
+  font-size: 35px;
+}
+
+#contentFilterButton {
+  font-size: 35px;
 }

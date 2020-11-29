@@ -16,7 +16,7 @@ import {
 
 } from '@ionic/react'
 import firebase, {db, auth} from '../firebase'
-import {addCircleOutline, closeCircleOutline} from 'ionicons/icons'
+import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline} from 'ionicons/icons'
 
 
 import './Settings.css'
@@ -43,7 +43,7 @@ class Settings extends React.Component<MyProps, MyState> {
   state: MyState = {
     isBlockSourceModalOpen: false,
     isUpdateEmailModalOpen: false,
-    blockedSources: ['test'],
+    blockedSources: [],
     currentUserName :"",
     sourceToBlock:"",
     sourceToUnBlock:"",
@@ -79,15 +79,26 @@ class Settings extends React.Component<MyProps, MyState> {
       this.addToList(sourceName);
       this.state.blockedSources.push(sourceName);
       console.log(this.state.blockedSources);
-      db.collection('blockedSources').doc(sourceName).get().then(document => {
+      db.collection('usernames').doc("clayTest#0").get().then(document => {
       if(document.exists) {
-        db.collection('blockedSources').doc(sourceName).update({
-          sourceToBlock: firebase.firestore.FieldValue.arrayUnion(this.state.currentUserName)
+        db.collection('usernames').doc("clayTest#0").update({
+        blockedSources : firebase.firestore.FieldValue.arrayUnion(sourceName)
         })
-
       }
     })
   }
+}
+
+unBlockSource(sourceName:string) {
+  if(sourceName!="" ) { //makes sure the source is a valid site and isn't blank
+    db.collection('usernames').doc("clayTest#0").get().then(document => {
+    if(document.exists) {
+      db.collection('usernames').doc("clayTest#0").update({
+        blockedSources: firebase.firestore.FieldValue.arrayRemove(sourceName)
+      })
+    }
+  })
+}
 }
 
 changeEmail(email:string) {
@@ -108,20 +119,7 @@ changeEmail(email:string) {
 
 
 
-unBlockSource(sourceName:string) {
-  if(sourceName!="" &&this.state.blockedSources.includes(sourceName)) { //makes sure the source is a valid site and isn't blank
-    db.collection('blockedSources').doc(sourceName).get().then(document => {
-    if(document.exists) {
-      db.collection('blockedSources').doc(sourceName).update({
-        sourceToUnBlock: firebase.firestore.FieldValue.arrayRemove(this.state.currentUserName)
-      })
 
-    }
-  })
-}
-
-
-}
 
 addToList(name:string) {
   if(!this.state.localList.includes(name)) {
@@ -144,7 +142,7 @@ addToList(name:string) {
           <IonToolbar>
             <IonButtons>
               <IonButton onClick={() => {this.setState({isBlockSourceModalOpen: false})}} id='toBlock' fill='clear'>
-              <IonIcon id='closeBlockIcon' icon={closeCircleOutline}/>
+              <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
             <IonTitle>
@@ -161,7 +159,15 @@ addToList(name:string) {
           </IonButton>
         </IonItem>
         <br/>
-        <IonHeader id = 'blockedSourcesHeader'>Blocked Sources:</IonHeader>
+        Unblock
+        <IonItem lines='none' id='block'>
+          <IonInput id='addSource' onIonChange={(e) => {this.setState({sourceToUnBlock: (e.target as HTMLInputElement).value})}} />
+          <IonButton onClick={() => {this.unBlockSource(this.state.sourceToUnBlock)}}  fill='clear'>
+            <IonIcon id='addBlockIcon' icon={addCircleOutline} />
+          </IonButton>
+        </IonItem>
+        <br/>
+        <IonHeader id = 'blockedSourcesHeader'>You Won't See Content From:</IonHeader>
         <br/>
 
         <ul id = "blockedList"></ul>
@@ -179,7 +185,7 @@ addToList(name:string) {
           <IonToolbar>
             <IonButtons>
               <IonButton onClick={() => {this.setState({isUpdateEmailModalOpen: false})}} id='toBlock' fill='clear'>
-              <IonIcon id='closeBlockIcon' icon={closeCircleOutline}/>
+              <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
             <IonTitle>
@@ -192,7 +198,7 @@ addToList(name:string) {
         <IonItem lines='none' id='block'>
           <IonInput id='addSource' onIonChange={(e) => {this.setState({newEmail: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.changeEmail(this.state.newEmail)}}  fill='clear'>
-            <IonIcon id='addBlockIcon' icon={addCircleOutline} />
+            <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>
         </IonItem>
         </IonContent>
@@ -211,19 +217,20 @@ addToList(name:string) {
 
         <IonContent>
         <IonItem>
-        Block Sources
+        Content Filter
         <IonButtons slot='end'>
           <IonButton onClick={() => {this.setState({isBlockSourceModalOpen: true})}} fill='clear'>
-            <IonIcon id = 'openBlockModal' icon={addCircleOutline} />
+            <IonIcon id = 'contentFilterButton' icon={newspaperOutline} />
           </IonButton>
         </IonButtons>
         </IonItem>
 
         <IonItem id ='updateEmail'>
-
+          Update Email
         <IonButtons slot='end'>
           <IonButton onClick={() => {this.setState({isUpdateEmailModalOpen: true})}} fill='clear'>
-            Update Email
+
+            <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
           </IonButton>
           </IonButtons>
           </IonItem>
