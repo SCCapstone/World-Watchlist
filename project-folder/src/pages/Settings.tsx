@@ -16,7 +16,7 @@ import {
 
 } from '@ionic/react'
 import firebase, {db, auth} from '../firebase'
-import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline} from 'ionicons/icons'
+import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline} from 'ionicons/icons'
 
 
 import './Settings.css'
@@ -24,12 +24,14 @@ import './Settings.css'
 type MyState = {
   isBlockSourceModalOpen:boolean;
   isUpdateEmailModalOpen:boolean;
+  isChangeUsernameModalOpen:boolean;
   blockedSources:string[];
   currentUserName:string;
   sourceToBlock:string;
   sourceToUnBlock:string;
   localList:string[];
   newEmail:string;
+  newUsername:string;
 
 }
 
@@ -43,12 +45,14 @@ class Settings extends React.Component<MyProps, MyState> {
   state: MyState = {
     isBlockSourceModalOpen: false,
     isUpdateEmailModalOpen: false,
+    isChangeUsernameModalOpen: false,
     blockedSources: [],
     currentUserName :'',
     sourceToBlock:"",
     sourceToUnBlock:"",
     localList: [],
-    newEmail:''
+    newEmail:'',
+    newUsername:''
 
   };
 
@@ -102,7 +106,6 @@ unBlockSource(sourceName:string) {
 }
 
 changeEmail(email:string) {
-
   if(this.state.currentUserName!=undefined&& email.length > 3) { //makes sure the source is a valid site and isn't blank
     db.collection('usernames').doc(this.state.currentUserName).get().then(document => { //works for one specific user currently
     if(document.exists) {
@@ -114,6 +117,19 @@ changeEmail(email:string) {
   })
 }
   }
+
+  changeUsername(newName:string) {
+    if(this.state.currentUserName!=undefined&& newName.length > 3) { //makes sure the source is a valid site and isn't blank
+      db.collection('usernames').doc(this.state.currentUserName).get().then(document => { //works for one specific user currently
+      if(document.exists) {
+        db.collection('usernames').doc(this.state.currentUserName).update({
+          "username.firebase" : newName
+        })
+
+      }
+    })
+  }
+    }
 
 
 
@@ -201,12 +217,13 @@ isValidSite(siteName:string) {
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
+
             <IonTitle>
               Update Email
 
             </IonTitle>
-          </IonToolbar>
-        </IonHeader>
+            </IonToolbar>
+          </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
           <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newEmail: (e.target as HTMLInputElement).value})}} />
@@ -215,6 +232,32 @@ isValidSite(siteName:string) {
           </IonButton>
         </IonItem>
         </IonContent>
+      </IonModal>
+
+      <IonModal isOpen={this.state.isChangeUsernameModalOpen}>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons>
+              <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
+              </IonButton>
+            </IonButtons>
+
+            <IonTitle>
+              Change Username
+
+            </IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        <IonContent>
+        <IonItem lines='none' id='block'>
+          <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newUsername: (e.target as HTMLInputElement).value})}} />
+          <IonButton onClick={() => {this.changeUsername(this.state.newUsername)}}  fill='clear'>
+            <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
+          </IonButton>
+        </IonItem>
+        </IonContent>
+
       </IonModal>
         <IonHeader>
           <IonToolbar>
@@ -247,6 +290,16 @@ isValidSite(siteName:string) {
           </IonButton>
           </IonButtons>
           </IonItem>
+
+          <IonItem id ='changeUsername'>
+            Change Username
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} fill='clear'>
+
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
+              </IonButton>
+              </IonButtons>
+              </IonItem>
         </IonContent>
       </IonPage>
       )
