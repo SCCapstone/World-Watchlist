@@ -16,7 +16,7 @@ import {
 import firebase, {db, auth} from '../firebase'
 import {personAddOutline, closeCircleOutline, addCircleOutline, listOutline} from 'ionicons/icons'
 import './Social.css'
-
+import Messenger from './Messenger'
 
 
 type MyState = {
@@ -25,8 +25,10 @@ type MyState = {
   targetUsername: string;
   friendsList: string[];
   isPendingRequestsModalOpen: boolean;
+  isMessengerModalOpen: boolean;
   incomingRequests: string[];
   outgoingRequests: string[];
+  messageRef: string
 }
 
 type MyProps = {
@@ -35,15 +37,17 @@ type MyProps = {
 }
 
 class Social extends React.Component<MyProps, MyState> {
-
+  realtime_db = firebase.database();
   state: MyState = {
     isAddFriendModalOpen: false,
     ourUsername: '',
     targetUsername: '',
     friendsList: [],
     isPendingRequestsModalOpen: false,
+    isMessengerModalOpen: false,
     incomingRequests: [],
-    outgoingRequests: []
+    outgoingRequests: [],
+    messageRef: ''
   };
   unsubscribeFriendsList: any;
   unsubscribeIncomingRequests: any;
@@ -59,8 +63,8 @@ class Social extends React.Component<MyProps, MyState> {
     this.acceptFriend = this.acceptFriend.bind(this);
     this.declineFriend = this.declineFriend.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
-
-    //End Functin Bindings
+    this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
+    //End Function Bindings
 
     //Begin firebase data subscriptins
     if(auth.currentUser) {
@@ -136,18 +140,30 @@ class Social extends React.Component<MyProps, MyState> {
 
   acceptFriend(username: string) { //accepts a friend request from a user
     if(username != "") {
+
       db.collection('outgoingFriendRequests').doc(username).update({
         outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername),
       })
       db.collection('incomingFriendRequests').doc(this.state.ourUsername).update({
         incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(username),
       })
+      let friendMessageRef : any = new Object
+      friendMessageRef[username] =  btoa(this.state.ourUsername + '|' + username)
+      db.collection('friends').doc(this.state.ourUsername).update(
+        friendMessageRef
+      )
+      let friendMessageRef2 : any = new Object
+      friendMessageRef2[this.state.ourUsername] =  btoa(this.state.ourUsername + '|' + username)
+      db.collection('friends').doc(username).update(
+        friendMessageRef2
+      )
       db.collection('friends').doc(this.state.ourUsername).update({
         friendsList: firebase.firestore.FieldValue.arrayUnion(username)
       })
       db.collection('friends').doc(username).update({
-        friendsList: firebase.firestore.FieldValue.arrayUnion(this.state.ourUsername)
+        friendsList: firebase.firestore.FieldValue.arrayUnion(this.state.ourUsername),
       })
+      this.realtime_db.ref('/'+btoa(this.state.ourUsername + '|' + username)).push({message: 'This is the beginning of your message history.', sender: 'World-Watchlist'})
     }
 
   }
@@ -163,6 +179,19 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
+  loadMessages(username: string) {
+
+    db.collection('friends').doc(this.state.ourUsername).get().then((doc) => {
+      if(doc.data()) {
+        this.setState({messageRef: doc.get(username)})
+        this.setState({isMessengerModalOpen: true})
+      }
+    })
+  }
+
+  toggleMessengerModal() {
+    this.setState({isMessengerModalOpen: !this.state.isMessengerModalOpen})
+  }
 
 
     render() {
@@ -231,6 +260,10 @@ class Social extends React.Component<MyProps, MyState> {
           </IonContent>
         </IonModal>
 
+        <IonModal isOpen={this.state.isMessengerModalOpen}>
+          <Messenger {...this.props} messageRef={this.state.messageRef} toggleMessengerModal={this.toggleMessengerModal} username={this.state.ourUsername}/>
+        </IonModal>
+
         <IonHeader>
           <IonToolbar>
             <IonTitle>
@@ -251,7 +284,7 @@ class Social extends React.Component<MyProps, MyState> {
         <IonContent>
         {
           this.state.friendsList.map(Friend =>
-            <IonItem key={Friend.toString()}>
+            <IonItem onClick={() => {this.loadMessages(Friend.toString())}} key={Friend.toString()}>
               <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
         )}
