@@ -38,3 +38,19 @@
   color: #F428CFF;
 
 }
+
+.denyButton {
+  color: #f00;
+}
+
+.acceptButton {
+  color: #0f0;
+}
+
+.denyIcon {
+  font-size: 28px;
+}
+
+.addIcon {
+  font-size: 28px;
+}

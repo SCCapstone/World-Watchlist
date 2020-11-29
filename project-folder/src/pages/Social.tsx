@@ -52,17 +52,26 @@ class Social extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props)
-    this.addFriend = this.addFriend.bind(this);
 
+    //Begin Functin bindings
+
+    this.addFriend = this.addFriend.bind(this);
+    this.acceptFriend = this.acceptFriend.bind(this);
+    this.declineFriend = this.declineFriend.bind(this);
+    this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
+
+    //End Functin Bindings
+
+    //Begin firebase data subscriptins
     if(auth.currentUser) {
       //gets the username of our user
       db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
         if(doc.data()) {
           this.setState({ourUsername: doc.data()!.username})
           //creates a subscription to our user's friends list
-          this.unsubscribeFriendsList = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+          this.unsubscribeFriendsList = db.collection('friends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
             if(snapshot.data()) {
-              this.setState({friendsList: snapshot.data()!.friends})
+              this.setState({friendsList: snapshot.data()!.friendsList})
             }
           })
 
@@ -82,6 +91,7 @@ class Social extends React.Component<MyProps, MyState> {
         }
       })
     }
+    //End firebase data subscriptins
 
   }
 
@@ -95,7 +105,7 @@ class Social extends React.Component<MyProps, MyState> {
 
 
   addFriend(username: string) { //sends a friend request to a user
-    if(username != "") {
+    if(username !== "" && username !== this.state.ourUsername) {
       db.collection('usernames').doc(username).get().then(document => {
         if(document.exists) {
           db.collection('incomingFriendRequests').doc(username).update({
@@ -109,15 +119,34 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
+  cancelOutgingRequest(username: string) {
+    if(username !== "" && username !== this.state.ourUsername) {
+      db.collection('usernames').doc(username).get().then(document => {
+        if(document.exists) {
+          db.collection('incomingFriendRequests').doc(username).update({
+            incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+          })
+          db.collection('outgoingFriendRequests').doc(this.state.ourUsername).update({
+            outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(username)
+          })
+        }
+      })
+    }
+  }
+
   acceptFriend(username: string) { //accepts a friend request from a user
     if(username != "") {
       db.collection('outgoingFriendRequests').doc(username).update({
         outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername),
-        friends: firebase.firestore.FieldValue.arrayUnion(this.state.ourUsername)
       })
       db.collection('incomingFriendRequests').doc(this.state.ourUsername).update({
         incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(username),
-        friends: firebase.firestore.FieldValue.arrayUnion(username)
+      })
+      db.collection('friends').doc(this.state.ourUsername).update({
+        friendsList: firebase.firestore.FieldValue.arrayUnion(username)
+      })
+      db.collection('friends').doc(username).update({
+        friendsList: firebase.firestore.FieldValue.arrayUnion(this.state.ourUsername)
       })
     }
 
@@ -137,7 +166,7 @@ class Social extends React.Component<MyProps, MyState> {
 
 
     render() {
-      
+
       return (
       <IonPage>
 
@@ -184,11 +213,20 @@ class Social extends React.Component<MyProps, MyState> {
             {this.state.incomingRequests.map(IncomingFriend =>
               <IonItem key={IncomingFriend.toString()}>
                 <IonLabel>{IncomingFriend.toString()}</IonLabel>
+                <IonButton onClick={() => {this.acceptFriend(IncomingFriend.toString())}} className='acceptButton' slot='end' fill='clear'>
+                  <IonIcon className='addIcon' icon={addCircleOutline} />
+                </IonButton>
+                <IonButton onClick={() => {this.declineFriend(IncomingFriend.toString())}} className='denyButton' slot='end' fill='clear'>
+                  <IonIcon className='denyIcon' icon={closeCircleOutline} />
+                </IonButton>
               </IonItem>)}
             <h2 id='outgoingFriendRequestHeader'>Outgoing Friend Requests</h2>
             {this.state.outgoingRequests.map(OutgoingFriend =>
               <IonItem key={OutgoingFriend.toString()}>
                 <IonLabel>{OutgoingFriend.toString()}</IonLabel>
+                <IonButton onClick={() => {this.cancelOutgingRequest(OutgoingFriend.toString())}} className='denyButton' slot='end' fill='clear'>
+                  <IonIcon className='denyIcon' icon={closeCircleOutline} />
+                </IonButton>
               </IonItem>)}
           </IonContent>
         </IonModal>
@@ -214,8 +252,7 @@ class Social extends React.Component<MyProps, MyState> {
         {
           this.state.friendsList.map(Friend =>
             <IonItem key={Friend.toString()}>
-              <IonButton class = 'friendListItem'>{Friend.toString()}</IonButton>
-              <IonIcon class = 'friendIcon' icon ={addCircleOutline}/>
+              <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
         )}
 
