@@ -7,10 +7,11 @@
   font-size:32px;
 }
 
-#addSource {
+.addSource {
   background-color:white;
   border-radius: 25px;
   color:black;
+  text-indent: 10px;
 
 }
 
@@ -39,4 +40,8 @@ li {
 
 #contentFilterButton {
   font-size: 35px;
+}
+
+input {
+  text-align:right;
 }

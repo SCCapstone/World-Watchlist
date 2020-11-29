@@ -79,9 +79,9 @@ class Settings extends React.Component<MyProps, MyState> {
       this.addToList(sourceName);
       this.state.blockedSources.push(sourceName);
       console.log(this.state.blockedSources);
-      db.collection('usernames').doc("clayTest#0").get().then(document => {
-      if(document.exists) {
-        db.collection('usernames').doc("clayTest#0").update({
+      db.collection('usernames').doc("purple#0#0").get().then(document => {
+      if(document.exists && this.isValidSite(sourceName)) {
+        db.collection('usernames').doc("purple#0#0").update({
         blockedSources : firebase.firestore.FieldValue.arrayUnion(sourceName)
         })
       }
@@ -91,9 +91,9 @@ class Settings extends React.Component<MyProps, MyState> {
 
 unBlockSource(sourceName:string) {
   if(sourceName!="" ) { //makes sure the source is a valid site and isn't blank
-    db.collection('usernames').doc("clayTest#0").get().then(document => {
+    db.collection('usernames').doc("purple#0#0").get().then(document => {
     if(document.exists) {
-      db.collection('usernames').doc("clayTest#0").update({
+      db.collection('usernames').doc("purple#0#0").update({
         blockedSources: firebase.firestore.FieldValue.arrayRemove(sourceName)
       })
     }
@@ -104,9 +104,9 @@ unBlockSource(sourceName:string) {
 changeEmail(email:string) {
   var user = firebase.auth().currentUser;
   if(email!="" && email.length > 3) { //makes sure the source is a valid site and isn't blank
-    db.collection('usernames').doc("clayTest#0").get().then(document => { //works for one specific user currently
+    db.collection('usernames').doc("purple#0#0").get().then(document => { //works for one specific user currently
     if(document.exists) {
-      db.collection('usernames').doc("clayTest#0").update({
+      db.collection('usernames').doc("pruple#0#0").update({
         "email.firebase" : email
       })
 
@@ -134,6 +134,19 @@ addToList(name:string) {
 
 }
 
+isValidSite(siteName:string) {
+  if(siteName!='' && siteName.length>4) {
+    if(siteName.substring(siteName.length-4, siteName.length-3)=='.') {
+      var domainType = siteName.substring(siteName.length-3);
+      if(domainType == 'com'|| domainType=='org'||domainType == 'net')
+      return true;
+    }
+    }
+    return false;
+    }
+
+
+
     render() {
       return (
       <IonPage>
@@ -153,7 +166,7 @@ addToList(name:string) {
         </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput id='addSource' onIonChange={(e) => {this.setState({sourceToBlock: (e.target as HTMLInputElement).value})}} />
+          <IonInput class='addSource' onIonChange={(e) => {this.setState({sourceToBlock: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.blockSource(this.state.sourceToBlock)}}  fill='clear'>
             <IonIcon id='addBlockIcon' icon={addCircleOutline} />
           </IonButton>
@@ -161,7 +174,7 @@ addToList(name:string) {
         <br/>
         Unblock
         <IonItem lines='none' id='block'>
-          <IonInput id='addSource' onIonChange={(e) => {this.setState({sourceToUnBlock: (e.target as HTMLInputElement).value})}} />
+          <IonInput class='addSource' onIonChange={(e) => {this.setState({sourceToUnBlock: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.unBlockSource(this.state.sourceToUnBlock)}}  fill='clear'>
             <IonIcon id='addBlockIcon' icon={addCircleOutline} />
           </IonButton>
@@ -196,7 +209,7 @@ addToList(name:string) {
         </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput id='addSource' onIonChange={(e) => {this.setState({newEmail: (e.target as HTMLInputElement).value})}} />
+          <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newEmail: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.changeEmail(this.state.newEmail)}}  fill='clear'>
             <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>
