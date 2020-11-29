@@ -73,7 +73,9 @@ class Landing extends React.Component<MyProps, MyState> {
         //user successfully logs in
         //reroute here
         console.log(auth.currentUser)
-        this.props.history.push("/main")
+        if(auth.currentUser) {
+          this.props.history.push("/main")
+        }
       })
     }
   }
@@ -141,13 +143,11 @@ class Landing extends React.Component<MyProps, MyState> {
         this.setState({usernameIdentifier: 0})
       }
       db.collection('users').doc(auth.currentUser?.uid).set({
-        friends: [],
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString()
       })
       db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        friends: [],
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString(),
@@ -159,6 +159,9 @@ class Landing extends React.Component<MyProps, MyState> {
       })
       db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         incomingFriendRequests: []
+      })
+      db.collection("friends").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+        friendsList: []
       })
     })
 
