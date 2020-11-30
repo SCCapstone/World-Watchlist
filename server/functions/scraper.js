@@ -7,7 +7,9 @@ function article(title, description, link, image) {
 
 // exporting functions and constructor
 module.exports = {
+
     article,
+
     removeEntries: function(list) {
         for( i = 0 ; i < list.length ; ++i ) {
             if (list[i].includes("puzzle") ||
@@ -16,33 +18,13 @@ module.exports = {
             }
         }
     },
-    getArticles: function(rssFeed, article_info) {
-        // let article_info = [];
-        // let result2 = convert.xml2json(rssFeed.data, {compact: true, spaces: 4});
-        let info2 =  JSON.parse(rssFeed);
-        for ( i = 0 ; i < info2.rss.channel.item.length ; ++i ) {
-            item = info2.rss.channel.item[i];
-<<<<<<< HEAD
-            console.log(info2.rss.channel.item[i]);
-=======
-            //console.log(info2.rss.channel.item[i]);
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
-            let title = link = description = image = null;
-            title = this.getTitle(item);
-            link = this.getLink(item);
-            description = this.getDesc(item);
-            temp = new article(title, description, link);
-            article_info.push(temp);
-            // links2.push(info2.rss.channel.item[i].link._text);
-        }
-        return article_info;
-<<<<<<< HEAD
-=======
+    getArticles: function(rssFeed) {
+        
     },
     getRSS: function(rssFeed) {
         
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
     },
+
     getTitle: function(itemObj) {
         let title = null;
         if ( "title" in itemObj ) // check if item has title
@@ -53,12 +35,7 @@ module.exports = {
             title = itemObj._cdata;
         } 
         else {
-<<<<<<< HEAD
             console.log(itemObj);
-=======
-            //console.log(itemObj);
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
-            return null;
         }
         return title;
     },
@@ -71,12 +48,7 @@ module.exports = {
         } else if ( "_cdata" in itemObj) {
             link = itemObj._cdata;
         } else {
-<<<<<<< HEAD
             console.log(itemObj);
-=======
-            //console.log(itemObj);
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
-            return null;
         }
         return link;
     },
@@ -89,12 +61,7 @@ module.exports = {
         } else if ( "_cdata" in itemObj) {
             description = itemObj._cdata;
         } else {
-<<<<<<< HEAD
             console.log(itemObj);
-=======
-            //console.log(itemObj);
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
-            return null;
         }
         return description;
     },
@@ -111,18 +78,35 @@ module.exports = {
         } else if ("") {
 
         } else {
-<<<<<<< HEAD
             console.log(itemObj);
-=======
-            //console.log(itemObj);
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
-            return null;
         }
         return image;
     }
 };
-<<<<<<< HEAD
 
 
-=======
->>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
+// axios.get('').then(
+//   (response) => {
+//     // console.log(response);
+//     // console.log(response.data);
+//     let result2 = convert.xml2json(response.data, {compact: true, spaces: 4});
+//     // console.log(result2);
+//     let info2 = JSON.parse(result2)
+//     // console.log(info2.rss.channel.item)
+//     for ( i = 0 ; i < info2.rss.channel.item.length ; ++i ) {
+//       item = info2.rss.channel.item[i];
+//       console.log(info2.rss.channel.item[i]);
+//       let title = link = description = image = null;
+//       title = getTitle(item);
+//       link = getLink(item);
+//       description = getDesc(item);
+//       image = getImage(item);
+//       temp = new article(title, description, link, image);
+//       article_info.push(temp);
+//       links2.push(info2.rss.channel.item[i].link._text);
+//     }
+//     console.log(article_info);
+//     // console.log(links2);
+//   }).catch((error) => {
+//     console.log(error);
+//   })

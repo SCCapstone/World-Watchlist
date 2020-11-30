@@ -73,9 +73,7 @@ class Landing extends React.Component<MyProps, MyState> {
         //user successfully logs in
         //reroute here
         console.log(auth.currentUser)
-        if(auth.currentUser) {
-          this.props.history.push("/main")
-        }
+        this.props.history.push("/main")
       })
     }
   }
@@ -143,11 +141,13 @@ class Landing extends React.Component<MyProps, MyState> {
         this.setState({usernameIdentifier: 0})
       }
       db.collection('users').doc(auth.currentUser?.uid).set({
+        friends: [],
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString()
       })
       db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+        friends: [],
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString(),
@@ -159,9 +159,6 @@ class Landing extends React.Component<MyProps, MyState> {
       })
       db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         incomingFriendRequests: []
-      })
-      db.collection("friends").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        friendsList: []
       })
     })
 
@@ -216,7 +213,7 @@ class Landing extends React.Component<MyProps, MyState> {
 
                 <IonItem lines='none' className='registerItem'>
                   <IonLabel className='registerLabel' position='floating'>Username</IonLabel>
-                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Confirm Password' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
               <IonButton onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>

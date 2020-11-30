@@ -7,11 +7,10 @@
   font-size:32px;
 }
 
-.addSource {
+#addSource {
   background-color:white;
   border-radius: 25px;
   color:black;
-  text-indent: 10px;
 
 }
 
@@ -31,21 +30,6 @@ li {
   margin-top: 20px;
 }
 
-
-
-#emailChangeButton {
-  float:right;
-  font-size: 35px;
-}
-
-#contentFilterButton {
-  font-size: 35px;
-}
-
-input {
-  text-align:right;
-}
-
-#userNameChangeButton {
-  font-size: 35px;
+#updateEmail {
+  float:left;
 }
