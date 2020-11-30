@@ -30,7 +30,6 @@ type MyState = {
   sourceToUnBlock:string;
   localList:string[];
   newEmail:string;
-
 }
 
 type MyProps = {
