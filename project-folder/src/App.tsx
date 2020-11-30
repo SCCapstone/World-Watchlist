@@ -6,6 +6,8 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Landing from './pages/Landing'
+import Weather from './pages/Weather'
+import Feed from './pages/Feed'
 import Tabs from './pages/Tabs'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -30,6 +32,9 @@ const App: React.FC = () => (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
+        <Route path="/main" component={Tabs}/>
+          <Route path="/Weather" component={Weather}/>
+          <Route path="/feed" component={Feed}/>
           <Route path="/main" component={Tabs}/>
           <Route path="/landing" component={Landing} exact={true} />
           <Route exact path="/" render={() => <Redirect to="/landing" />} />

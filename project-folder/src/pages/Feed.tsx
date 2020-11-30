@@ -9,6 +9,7 @@ import {
 } from '@ionic/react'
 
 import './Feed.css'
+import { db } from '../API/config';
 
 type MyState = {
 
@@ -32,6 +33,19 @@ class Feed extends React.Component<MyProps, MyState> {
 
   }
 
+  getUserData = () => {
+  db.collection("BBCNews")
+    .doc('51180282')
+    .get()
+    .then(doc => {
+      const data = doc.data();
+      console.log(data);
+    });
+  };
+
+  componentDidMount() {
+   this.getUserData()
+  }
     render() {
       return (
       <IonPage>

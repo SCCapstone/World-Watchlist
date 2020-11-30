@@ -8,14 +8,8 @@ const cors = require('cors');
 const { getArticles } = require('./scraper.js');
 app.use(cors())
 /*
-reddit rss: https://www.reddit.com/r/worldnews/.rss
-washington post rss: http://feeds.washingtonpost.com/rss/world
-cnbc rss: https://www.cnbc.com/id/100727362/device/rss/rss.html
-abc rss: https://abcnews.go.com/abcnews/internationalheadlines
-cbs rss: https://www.cbsnews.com/latest/rss/world
-time rss breaking news: https://time.com/feed/
-vox rss: https://www.vox.com/rss/world/index.xml
 nytimes: https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml
+bbc: http://feeds.bbci.co.uk/news/rss.xml
 */
 const admin = require('firebase-admin');
 const serviceAccount = require('./world-watchlist-server-fa5a3-firebase-adminsdk-1gbjp-b433d05376.json');
