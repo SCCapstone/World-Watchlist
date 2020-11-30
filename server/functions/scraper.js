@@ -22,7 +22,11 @@ module.exports = {
         let info2 =  JSON.parse(rssFeed);
         for ( i = 0 ; i < info2.rss.channel.item.length ; ++i ) {
             item = info2.rss.channel.item[i];
+<<<<<<< HEAD
             console.log(info2.rss.channel.item[i]);
+=======
+            //console.log(info2.rss.channel.item[i]);
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
             let title = link = description = image = null;
             title = this.getTitle(item);
             link = this.getLink(item);
@@ -32,6 +36,12 @@ module.exports = {
             // links2.push(info2.rss.channel.item[i].link._text);
         }
         return article_info;
+<<<<<<< HEAD
+=======
+    },
+    getRSS: function(rssFeed) {
+        
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
     },
     getTitle: function(itemObj) {
         let title = null;
@@ -43,7 +53,11 @@ module.exports = {
             title = itemObj._cdata;
         } 
         else {
+<<<<<<< HEAD
             console.log(itemObj);
+=======
+            //console.log(itemObj);
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
             return null;
         }
         return title;
@@ -57,7 +71,11 @@ module.exports = {
         } else if ( "_cdata" in itemObj) {
             link = itemObj._cdata;
         } else {
+<<<<<<< HEAD
             console.log(itemObj);
+=======
+            //console.log(itemObj);
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
             return null;
         }
         return link;
@@ -71,7 +89,11 @@ module.exports = {
         } else if ( "_cdata" in itemObj) {
             description = itemObj._cdata;
         } else {
+<<<<<<< HEAD
             console.log(itemObj);
+=======
+            //console.log(itemObj);
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
             return null;
         }
         return description;
@@ -89,11 +111,18 @@ module.exports = {
         } else if ("") {
 
         } else {
+<<<<<<< HEAD
             console.log(itemObj);
+=======
+            //console.log(itemObj);
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d
             return null;
         }
         return image;
     }
 };
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> f60420dbce4869e59238dc2005c81721df5dd23d

@@ -1,0 +1,56 @@
+#addFriendModalCloseButton {
+  --color: #ff0000;
+}
+
+#addFriendModalCloseIcon {
+  font-size: 32px;
+}
+
+#addFriendSearch {
+  border: 1px solid black;
+  border-radius: 10px;
+  --padding-start: 10px;
+}
+
+#addFriendButton {
+
+}
+
+#addFriendButtonIcon {
+  font-size: 28px;
+}
+
+#searchFriendItem {
+  --inner-padding-top: 10px;
+}
+
+
+#incomingFriendRequestHeader {
+  font-size: 24px;
+}
+
+#outgoingFriendRequestHeader {
+  font-size: 24px;
+  margin-top: 50px;
+}
+.friendListItem {
+  margin-left:20px;
+  color: #F428CFF;
+
+}
+
+.denyButton {
+  color: #f00;
+}
+
+.acceptButton {
+  color: #0f0;
+}
+
+.denyIcon {
+  font-size: 28px;
+}
+
+.addIcon {
+  font-size: 28px;
+}
