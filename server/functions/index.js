@@ -87,5 +87,5 @@ function thisInterval() {
   nytpost();
   console.log("Sending to firestore.")
 }
-setInterval(thisInterval, 60000);
+setInterval(thisInterval, 36000000);
 exports.app = functions.https.onRequest(app)
