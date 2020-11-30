@@ -103,7 +103,7 @@ class Feed extends React.Component<MyProps, MyState> {
       });
       return aList;
   };
-
+  
   componentDidMount() {
    this.setState({articles: this.getBBCNews()})
   }
