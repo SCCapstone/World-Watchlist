@@ -45,3 +45,7 @@ li {
 input {
   text-align:right;
 }
+
+#userNameChangeButton {
+  font-size: 35px;
+}
