@@ -9,12 +9,9 @@ import {
 } from '@ionic/react'
 
 import './Feed.css'
-<<<<<<< Updated upstream
-=======
 import { db } from '../API/config';
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/articleTypes';
->>>>>>> Stashed changes
 
 type MyState = {
   articles: articleList
@@ -70,19 +67,6 @@ class Feed extends React.Component<MyProps, MyState> {
 
   }
 
-<<<<<<< Updated upstream
-    render() {
-      return (
-      <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>
-              Feed
-            </IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-=======
   // getUserData = () => {
   // db.collection("BBCNews")
   //   .doc('55118880')
@@ -123,7 +107,6 @@ class Feed extends React.Component<MyProps, MyState> {
   componentDidMount() {
    this.setState({articles: this.getBBCNews()})
   }
->>>>>>> Stashed changes
 
   render() {
     console.log(this.state.articles);
