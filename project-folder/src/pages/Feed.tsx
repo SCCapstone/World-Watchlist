@@ -15,12 +15,13 @@ import {
 import './Feed.css'
 import { db } from '../API/config';
 import ArticleList from '../components/ArticleList';
-import { article, articleList } from '../components/articleTypes';
+import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
 import { Redirect, Route } from 'react-router';
 import { cloud } from 'ionicons/icons';
 type MyState = {
-  articles: articleList
+  articles: articleList;
+  unsubscribeArticles: any;
 }
 
 type MyProps = {
@@ -65,11 +66,23 @@ type MyProps = {
 class Feed extends React.Component<MyProps, MyState> {
 
   state: MyState = {
-    articles: []
+    articles: [],
+    unsubscribeArticles: undefined
   };
 
   constructor(props: MyProps) {
     super(props)
+    let aList : articleList = [];
+    let unsubscribeArticles = db.collection('BBCNews').get().then((snapshot) => {
+      aList = []
+
+      snapshot.forEach(doc => {
+        let articleItem = doc.data();
+        aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+      })
+      this.setState({articles: aList})
+    })
+    this.setState({unsubscribeArticles: unsubscribeArticles})
   }
 
   // getUserData = () => {
@@ -110,7 +123,11 @@ class Feed extends React.Component<MyProps, MyState> {
   };
 
   componentDidMount() {
-    this.setState({articles: this.getBBCNews()})
+    //this.setState({articles: this.getBBCNews()})
+  }
+
+  componentWillUnmount() {
+    this.state.unsubscribeArticles()
   }
 
   render() {

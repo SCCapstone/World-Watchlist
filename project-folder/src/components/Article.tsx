@@ -1,5 +1,5 @@
 import React from 'react';
-import { article } from './articleTypes';
+import { article } from './ArticleTypes';
 
 
 function Article(props: {theArticle: article}) {
