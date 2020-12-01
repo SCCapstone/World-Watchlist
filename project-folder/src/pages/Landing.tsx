@@ -65,15 +65,17 @@ class Landing extends React.Component<MyProps, MyState> {
       guard = false
     }
     if(guard) {
-      auth.signInWithEmailAndPassword(this.state.loginEmail, this.state.loginPassword).catch((error) => {
-        //error handling
-        console.log(error.message)
-
-      }).then(() => {
+      auth.signInWithEmailAndPassword(this.state.loginEmail, this.state.loginPassword).then(() => {
         //user successfully logs in
         //reroute here
         console.log(auth.currentUser)
-        this.props.history.push("/main")
+        if(auth.currentUser) {
+          this.props.history.push("/main")
+        }
+      }).catch((error) => {
+        //error handling
+        console.log(error.message)
+
       })
     }
   }
@@ -92,16 +94,16 @@ class Landing extends React.Component<MyProps, MyState> {
     //attempts to register a user
     //field checks
 
-    auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).catch((error) => {
-      //error handling
-      console.log(error.message)
-    }).then(() => {
+    auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
       //user successfully registers
       //reroute here
       this.getUsernameIdentifier().then(() => {
         this.props.history.push("/main")
       })
 
+    }).catch((error) => {
+      //error handling
+      console.log(error.message)
     })
   }
 
@@ -141,13 +143,11 @@ class Landing extends React.Component<MyProps, MyState> {
         this.setState({usernameIdentifier: 0})
       }
       db.collection('users').doc(auth.currentUser?.uid).set({
-        friends: [],
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString()
       })
       db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        friends: [],
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString(),
@@ -159,6 +159,9 @@ class Landing extends React.Component<MyProps, MyState> {
       })
       db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         incomingFriendRequests: []
+      })
+      db.collection("friends").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+        friendsList: []
       })
     })
 
@@ -213,7 +216,7 @@ class Landing extends React.Component<MyProps, MyState> {
 
                 <IonItem lines='none' className='registerItem'>
                   <IonLabel className='registerLabel' position='floating'>Username</IonLabel>
-                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Confirm Password' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
               <IonButton onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>

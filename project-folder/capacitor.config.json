@@ -1,6 +1,6 @@
 {
-  "appId": "io.ionic.starter",
-  "appName": "project-folder",
+  "appId": "com.WorldWatchList.app",
+  "appName": "WorldWatchList",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "build",

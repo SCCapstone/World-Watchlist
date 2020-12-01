@@ -77,7 +77,7 @@ class Feed extends React.Component<MyProps, MyState> {
   //     return data;
   //   });
   // };
-  
+
   // saveBBCNews = (someVar: articleList) => {
   //   let BBCNews = db.collection("BBCNews");
   //   let allNews = BBCNews.get()
