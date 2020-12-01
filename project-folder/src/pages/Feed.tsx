@@ -5,6 +5,10 @@ import {
   IonToolbar,
   IonContent,
   IonTitle,
+  IonRouterOutlet,
+  IonIcon,
+  IonLabel,
+  IonButton,
 
 } from '@ionic/react'
 
@@ -12,7 +16,9 @@ import './Feed.css'
 import { db } from '../API/config';
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/articleTypes';
-
+import Weather from './Weather'
+import { Redirect, Route } from 'react-router';
+import { cloud } from 'ionicons/icons';
 type MyState = {
   articles: articleList
 }
@@ -59,12 +65,11 @@ type MyProps = {
 class Feed extends React.Component<MyProps, MyState> {
 
   state: MyState = {
-    articles: this.getBBCNews()
+    articles: []
   };
 
   constructor(props: MyProps) {
     super(props)
-
   }
 
   // getUserData = () => {
@@ -98,18 +103,17 @@ class Feed extends React.Component<MyProps, MyState> {
         snapshot.forEach(doc => {
           let articleItem = doc.data();
           aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-          console.log(doc.id, '=>', doc.data());
+          //console.log(doc.id, '=>', doc.data());
         });
       });
       return aList;
   };
 
   componentDidMount() {
-   this.setState({articles: this.getBBCNews()})
+    this.setState({articles: this.getBBCNews()})
   }
 
   render() {
-    console.log(this.state.articles);
     return (
     <IonPage>
       <IonHeader>
@@ -117,6 +121,12 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonTitle>
             Feed
           </IonTitle>
+          <IonRouterOutlet>
+          <Route path="/Weather" component={Weather} exact={true} />
+      </IonRouterOutlet>
+        <IonButton href="/Weather">
+            <IonIcon icon={cloud} />
+        </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent>

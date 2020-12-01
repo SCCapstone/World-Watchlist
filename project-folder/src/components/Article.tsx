@@ -1,6 +1,6 @@
 import React from 'react';
 import { article } from './articleTypes';
-import './Article.css';
+
 
 function Article(props: {theArticle: article}) {
     //console.log(props.theArticle);
