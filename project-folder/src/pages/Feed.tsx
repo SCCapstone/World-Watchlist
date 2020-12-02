@@ -20,7 +20,8 @@ import Weather from './Weather'
 import { Redirect, Route } from 'react-router';
 import { cloud } from 'ionicons/icons';
 type MyState = {
-  articles: articleList
+  articles: articleList;
+  unsubscribeArticles: any;
 }
 
 type MyProps = {
@@ -65,7 +66,8 @@ type MyProps = {
 class Feed extends React.Component<MyProps, MyState> {
 
   state: MyState = {
-    articles: []
+    articles: [],
+    unsubscribeArticles: undefined
   };
 
   constructor(props: MyProps) {
@@ -80,6 +82,7 @@ class Feed extends React.Component<MyProps, MyState> {
       })
       this.setState({articles: aList})
     })
+    this.setState({unsubscribeArticles: unsubscribeArticles})
   }
 
   // getUserData = () => {
@@ -121,6 +124,10 @@ class Feed extends React.Component<MyProps, MyState> {
 
   componentDidMount() {
     //this.setState({articles: this.getBBCNews()})
+  }
+
+  componentWillUnmount() {
+    this.state.unsubscribeArticles()
   }
 
   render() {
