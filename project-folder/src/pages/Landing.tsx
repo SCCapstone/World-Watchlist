@@ -65,17 +65,17 @@ class Landing extends React.Component<MyProps, MyState> {
       guard = false
     }
     if(guard) {
-      auth.signInWithEmailAndPassword(this.state.loginEmail, this.state.loginPassword).catch((error) => {
-        //error handling
-        console.log(error.message)
-
-      }).then(() => {
+      auth.signInWithEmailAndPassword(this.state.loginEmail, this.state.loginPassword).then(() => {
         //user successfully logs in
         //reroute here
         console.log(auth.currentUser)
         if(auth.currentUser) {
           this.props.history.push("/main")
         }
+      }).catch((error) => {
+        //error handling
+        console.log(error.message)
+
       })
     }
   }
@@ -94,16 +94,16 @@ class Landing extends React.Component<MyProps, MyState> {
     //attempts to register a user
     //field checks
 
-    auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).catch((error) => {
-      //error handling
-      console.log(error.message)
-    }).then(() => {
+    auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
       //user successfully registers
       //reroute here
       this.getUsernameIdentifier().then(() => {
         this.props.history.push("/main")
       })
 
+    }).catch((error) => {
+      //error handling
+      console.log(error.message)
     })
   }
 
