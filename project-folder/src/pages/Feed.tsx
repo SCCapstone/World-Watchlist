@@ -70,6 +70,16 @@ class Feed extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props)
+    let aList : articleList = [];
+    let unsubscribeArticles = db.collection('BBCNews').get().then((snapshot) => {
+      aList = []
+
+      snapshot.forEach(doc => {
+        let articleItem = doc.data();
+        aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+      })
+      this.setState({articles: aList})
+    })
   }
 
   // getUserData = () => {
@@ -110,7 +120,7 @@ class Feed extends React.Component<MyProps, MyState> {
   };
 
   componentDidMount() {
-    this.setState({articles: this.getBBCNews()})
+    //this.setState({articles: this.getBBCNews()})
   }
 
   render() {
