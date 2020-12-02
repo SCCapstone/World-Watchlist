@@ -1,6 +1,6 @@
 import React from 'react';
 import Article from './Article';
-import { article, articleList } from './articleTypes';
+import { article, articleList } from './ArticleTypes';
 
 function ArticleList(props: {theArticleList: articleList}) {
     //console.log(props.theArticleList);

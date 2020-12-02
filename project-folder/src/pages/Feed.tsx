@@ -15,7 +15,7 @@ import {
 import './Feed.css'
 import { db } from '../API/config';
 import ArticleList from '../components/ArticleList';
-import { article, articleList } from '../components/articleTypes';
+import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
 import { Redirect, Route } from 'react-router';
 import { cloud } from 'ionicons/icons';
