@@ -18,19 +18,23 @@ cd World-Watchlist/project-folder
 npm i
 ionic serve
 ```
- #### Node Server
+#### Deploying on Android
+```
+ionic build
+ionic cap add android
+ionic cap copy
+ionic cap sync
+ionic cap open android
+```
+In the Android menu, go to Build > Build Bundle(s) / APK (s) > Build APK(s).
+
+#### Node Server
 
 ``` 
 cd World-Watchlist/server
 npm i
 firebase serve
 ```
-
-#### Deployment
-
- ```
- 
- ```
 
 #### Authors
 
