@@ -227,7 +227,7 @@ class Social extends React.Component<MyProps, MyState> {
         <IonModal isOpen={this.state.isPendingRequestsModalOpen}>
           <IonHeader>
             <IonToolbar>
-              <IonButtons>
+              <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({isPendingRequestsModalOpen: false})}} id='addFriendModalCloseButton' fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>

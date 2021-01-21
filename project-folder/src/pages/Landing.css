@@ -10,7 +10,9 @@
   text-align:center;
   margin-top: 10px;
   color:black;
-
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .landingToolbar {
     --background: #93ccfa;
@@ -31,6 +33,7 @@
   margin-top: 20px;
   --background: #ededed;
   --color: #000000;
+  max-width: 600px;
 }
 
 .loginLabel {

@@ -26,13 +26,16 @@
 
 
 #incomingFriendRequestHeader {
-  font-size: 24px;
+  font-size: 22px;
+  margin-left: 10px;
 }
 
 #outgoingFriendRequestHeader {
-  font-size: 24px;
+  font-size: 22px;
   margin-top: 50px;
+  margin-left: 10px;
 }
+
 .friendListItem {
   margin-left:20px;
   color: #F428CFF;

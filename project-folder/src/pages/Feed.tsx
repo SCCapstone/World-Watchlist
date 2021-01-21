@@ -9,7 +9,7 @@ import {
   IonIcon,
   IonLabel,
   IonButton,
-
+  IonButtons
 } from '@ionic/react'
 
 import './Feed.css'
@@ -141,9 +141,11 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonRouterOutlet>
           <Route path="/Weather" component={Weather} exact={true} />
       </IonRouterOutlet>
-        <IonButton href="/Weather">
-            <IonIcon icon={cloud} />
-        </IonButton>
+        <IonButtons slot='start'>
+          <IonButton href="/Weather">
+              <IonIcon icon={cloud} />
+          </IonButton>
+        </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
