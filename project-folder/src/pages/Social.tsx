@@ -44,6 +44,7 @@ type MyState = {
   isSocialPopoverOpen: boolean;
   socialPopoverEvent: any;
   isCreateGroupModalOpen: boolean;
+  groupNickname: string;
 }
 
 type MyProps = {
@@ -65,7 +66,8 @@ class Social extends React.Component<MyProps, MyState> {
     messageRef: '',
     isSocialPopoverOpen: false,
     socialPopoverEvent: undefined,
-    isCreateGroupModalOpen: false
+    isCreateGroupModalOpen: false,
+    groupNickname: ''
   };
   unsubscribeFriendsList: any;
   unsubscribeIncomingRequests: any;
@@ -239,7 +241,8 @@ class Social extends React.Component<MyProps, MyState> {
         })
       })
       db.collection('usernames').doc(this.state.ourUsername).update({
-        groups: firebase.firestore.FieldValue. arrayUnion(code)
+        groups: firebase.firestore.FieldValue. arrayUnion(code),
+        nickname: this.state.groupNickname
       })
     })
   }
@@ -343,8 +346,8 @@ class Social extends React.Component<MyProps, MyState> {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonInput className='createGroupInput' placeholder='Group Nickname'/>
-            <IonButton id='createGroupButton'>Create</IonButton>
+            <IonInput className='createGroupInput' placeholder='Group Nickname' onIonChange={(e) => {this.setState({groupNickname: (e.target as HTMLInputElement).value})}}/>
+            <IonButton onClick={() => {this.createGroup()}} id='createGroupButton'>Create</IonButton>
           </IonContent>
         </IonModal>
 
