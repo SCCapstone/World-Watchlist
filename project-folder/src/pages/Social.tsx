@@ -45,11 +45,18 @@ type MyState = {
   socialPopoverEvent: any;
   isCreateGroupModalOpen: boolean;
   groupNickname: string;
+  groupArray: Group[]
 }
 
 type MyProps = {
   history: any;
   location: any;
+}
+
+type Group = {
+  nickname: string;
+  members: string[];
+  id: string;
 }
 
 class Social extends React.Component<MyProps, MyState> {
@@ -67,11 +74,13 @@ class Social extends React.Component<MyProps, MyState> {
     isSocialPopoverOpen: false,
     socialPopoverEvent: undefined,
     isCreateGroupModalOpen: false,
-    groupNickname: ''
+    groupNickname: '',
+    groupArray: []
   };
   unsubscribeFriendsList: any;
   unsubscribeIncomingRequests: any;
   unsubscribeOutgoingRequests: any;
+  unsubscribeGroups: any;
 
 
   constructor(props: MyProps) {
@@ -114,6 +123,40 @@ class Social extends React.Component<MyProps, MyState> {
               this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
             }
           })
+
+          //crate a subscription to the list of a users groups
+          this.unsubscribeGroups = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            if(snapshot.data()) {
+              let groupList = snapshot.data()!.groups
+              //create a subscription to all groups a user is in
+              let groupArray : Group[] = []
+              for(let i = 0; i < groupList.length; i++) {
+                groupArray.push({
+                  nickname: '',
+                  members: [],
+                  id: ''
+                })
+              }
+              this.setState({groupArray: groupArray})
+               let unsubcribeAllGroups = groupList.map((groupCode : string, index : number) => {
+                 db.collection('groups').doc(groupCode).onSnapshot((snapshot) => {
+                   let groupArray = [...this.state.groupArray]
+                   if(snapshot.data()) {
+                     let group : Group = {
+                       nickname: snapshot.data()!.nickname,
+                       members: snapshot.data()!.members,
+                       id: snapshot.data()!.id
+                     }
+                     groupArray[index] = group
+                     this.setState({groupArray: groupArray})
+                     console.log(groupArray[index])
+                   }
+
+                 })
+               })
+            }
+
+          })
         }
       })
     }
@@ -128,6 +171,9 @@ class Social extends React.Component<MyProps, MyState> {
     this.unsubscribeOutgoingRequests()
   }
 
+  subscribeGroups() {
+
+  }
 
 
   addFriend(username: string) { //sends a friend request to a user
@@ -234,7 +280,9 @@ class Social extends React.Component<MyProps, MyState> {
     this.generateUniqueGroupId().then((code) => {
       db.collection('groups').doc(code).set({
         owner: this.state.ourUsername,
-        members: [this.state.ourUsername]
+        members: [this.state.ourUsername],
+        nickname: this.state.groupNickname,
+        id: code
       }).then(() => {
         this.setState({
           isCreateGroupModalOpen: true
@@ -242,7 +290,6 @@ class Social extends React.Component<MyProps, MyState> {
       })
       db.collection('usernames').doc(this.state.ourUsername).update({
         groups: firebase.firestore.FieldValue. arrayUnion(code),
-        nickname: this.state.groupNickname
       })
     })
   }
@@ -375,6 +422,12 @@ class Social extends React.Component<MyProps, MyState> {
               <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
         )}
+        {
+          this.state.groupArray.map((displayGroup : Group) => {
+            return <IonItem>{displayGroup.nickname}</IonItem>
+          })
+        }
+
 
         </IonContent>
       </IonPage>
