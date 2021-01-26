@@ -11,10 +11,22 @@ import {
   IonModal,
   IonInput,
   IonItem,
-  IonLabel
+  IonLabel,
+  IonPopover,
+  IonList,
+  IonListHeader
 } from '@ionic/react'
+
 import firebase, {db, auth} from '../firebase'
-import {personAddOutline, closeCircleOutline, addCircleOutline, listOutline} from 'ionicons/icons'
+import {
+  personAddOutline,
+  closeCircleOutline,
+  listOutline,
+  addOutline,
+  addCircleOutline,
+  sendOutline
+} from 'ionicons/icons'
+
 import './Social.css'
 import Messenger from './Messenger'
 
@@ -28,12 +40,23 @@ type MyState = {
   isMessengerModalOpen: boolean;
   incomingRequests: string[];
   outgoingRequests: string[];
-  messageRef: string
+  messageRef: string;
+  isSocialPopoverOpen: boolean;
+  socialPopoverEvent: any;
+  isCreateGroupModalOpen: boolean;
+  groupNickname: string;
+  groupArray: Group[]
 }
 
 type MyProps = {
   history: any;
   location: any;
+}
+
+type Group = {
+  nickname: string;
+  members: string[];
+  id: string;
 }
 
 class Social extends React.Component<MyProps, MyState> {
@@ -47,11 +70,17 @@ class Social extends React.Component<MyProps, MyState> {
     isMessengerModalOpen: false,
     incomingRequests: [],
     outgoingRequests: [],
-    messageRef: ''
+    messageRef: '',
+    isSocialPopoverOpen: false,
+    socialPopoverEvent: undefined,
+    isCreateGroupModalOpen: false,
+    groupNickname: '',
+    groupArray: []
   };
   unsubscribeFriendsList: any;
   unsubscribeIncomingRequests: any;
   unsubscribeOutgoingRequests: any;
+  unsubscribeGroups: any;
 
 
   constructor(props: MyProps) {
@@ -64,6 +93,8 @@ class Social extends React.Component<MyProps, MyState> {
     this.declineFriend = this.declineFriend.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
     this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
+    this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
+    this.createGroup = this.createGroup.bind(this);
     //End Function Bindings
 
     //Begin firebase data subscriptins
@@ -92,6 +123,40 @@ class Social extends React.Component<MyProps, MyState> {
               this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
             }
           })
+
+          //crate a subscription to the list of a users groups
+          this.unsubscribeGroups = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            if(snapshot.data()) {
+              let groupList = snapshot.data()!.groups
+              //create a subscription to all groups a user is in
+              let groupArray : Group[] = []
+              for(let i = 0; i < groupList.length; i++) {
+                groupArray.push({
+                  nickname: '',
+                  members: [],
+                  id: ''
+                })
+              }
+              this.setState({groupArray: groupArray})
+               let unsubcribeAllGroups = groupList.map((groupCode : string, index : number) => {
+                 db.collection('groups').doc(groupCode).onSnapshot((snapshot) => {
+                   let groupArray = [...this.state.groupArray]
+                   if(snapshot.data()) {
+                     let group : Group = {
+                       nickname: snapshot.data()!.nickname,
+                       members: snapshot.data()!.members,
+                       id: snapshot.data()!.id
+                     }
+                     groupArray[index] = group
+                     this.setState({groupArray: groupArray})
+                     console.log(groupArray[index])
+                   }
+
+                 })
+               })
+            }
+
+          })
         }
       })
     }
@@ -106,6 +171,9 @@ class Social extends React.Component<MyProps, MyState> {
     this.unsubscribeOutgoingRequests()
   }
 
+  subscribeGroups() {
+
+  }
 
 
   addFriend(username: string) { //sends a friend request to a user
@@ -193,6 +261,39 @@ class Social extends React.Component<MyProps, MyState> {
     this.setState({isMessengerModalOpen: !this.state.isMessengerModalOpen})
   }
 
+  async generateUniqueGroupId() : Promise<string> {
+  let generateUniqueGroupIdPromise = new Promise<string>((resolve, reject) => {
+      let code = Math.random().toString(36);
+      db.collection('groudIds').doc(code).get().then((doc) => {
+        if(!doc.exists) {
+          resolve(code)
+        } else {
+          this.generateUniqueGroupId()
+        }
+      })
+    })
+
+    return await generateUniqueGroupIdPromise
+  }
+
+  createGroup() {
+    this.generateUniqueGroupId().then((code) => {
+      db.collection('groups').doc(code).set({
+        owner: this.state.ourUsername,
+        members: [this.state.ourUsername],
+        nickname: this.state.groupNickname,
+        id: code
+      }).then(() => {
+        this.setState({
+          isCreateGroupModalOpen: true
+        })
+      })
+      db.collection('usernames').doc(this.state.ourUsername).update({
+        groups: firebase.firestore.FieldValue. arrayUnion(code),
+      })
+    })
+  }
+
 
     render() {
 
@@ -202,7 +303,7 @@ class Social extends React.Component<MyProps, MyState> {
         <IonModal isOpen={this.state.isAddFriendModalOpen}>
           <IonHeader>
             <IonToolbar>
-              <IonButtons>
+              <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({isAddFriendModalOpen: false})}} id='addFriendModalCloseButton' fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
@@ -264,6 +365,39 @@ class Social extends React.Component<MyProps, MyState> {
           <Messenger {...this.props} messageRef={this.state.messageRef} toggleMessengerModal={this.toggleMessengerModal} username={this.state.ourUsername}/>
         </IonModal>
 
+        <IonPopover
+          cssClass='socialPopover'
+          event={this.state.socialPopoverEvent}
+          isOpen={this.state.isSocialPopoverOpen}
+          onDidDismiss={() => {this.setState({isSocialPopoverOpen: false, socialPopoverEvent: undefined})}}
+        >
+          <IonContent>
+            <IonList>
+              <IonListHeader id='socialPopoverListHeader'><b>Social Options</b></IonListHeader>
+              <IonItem button={true} onClick={() => {this.setState({isSocialPopoverOpen: false, isAddFriendModalOpen: true})}}><IonLabel>Add Friend</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={personAddOutline}/></IonItem>
+              <IonItem button={true}  onClick={() => {this.setState({isSocialPopoverOpen: false, isCreateGroupModalOpen: true})}}><IonLabel>Create Group</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={addCircleOutline}/></IonItem>
+              <IonItem button={true}><IonLabel>New Message</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={sendOutline}/></IonItem>
+            </IonList>
+          </IonContent>
+        </IonPopover>
+
+        <IonModal isOpen={this.state.isCreateGroupModalOpen}>
+          <IonHeader>
+            <IonToolbar>
+            <IonButtons slot='start'>
+              <IonButton onClick={() => {this.setState({isCreateGroupModalOpen: false})}} fill='clear'>
+                <IonIcon id='closeCreateGroupModalIcon' icon={closeCircleOutline} />
+              </IonButton>
+            </IonButtons>
+              <IonTitle>Create Group</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonInput className='createGroupInput' placeholder='Group Nickname' onIonChange={(e) => {this.setState({groupNickname: (e.target as HTMLInputElement).value})}}/>
+            <IonButton onClick={() => {this.createGroup()}} id='createGroupButton'>Create</IonButton>
+          </IonContent>
+        </IonModal>
+
         <IonHeader>
           <IonToolbar>
             <IonTitle>
@@ -275,8 +409,8 @@ class Social extends React.Component<MyProps, MyState> {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton onClick={() => {this.setState({isAddFriendModalOpen: true})}} fill='clear'>
-                <IonIcon icon={personAddOutline} />
+              <IonButton onClick={(event : any) => {event.persist(); this.setState({isSocialPopoverOpen: true, socialPopoverEvent: event})}} fill='clear'>
+                <IonIcon icon={addOutline} />
               </IonButton>
             </IonButtons>
           </IonToolbar>
@@ -288,6 +422,12 @@ class Social extends React.Component<MyProps, MyState> {
               <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
         )}
+        {
+          this.state.groupArray.map((displayGroup : Group) => {
+            return <IonItem>{displayGroup.nickname}</IonItem>
+          })
+        }
+
 
         </IonContent>
       </IonPage>

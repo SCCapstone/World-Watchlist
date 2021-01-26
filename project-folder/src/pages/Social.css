@@ -6,6 +6,10 @@
   font-size: 32px;
 }
 
+#openSocialPopover {
+  font-size: 32px;
+}
+
 #addFriendSearch {
   border: 1px solid black;
   border-radius: 10px;
@@ -36,6 +40,26 @@
   margin-left: 10px;
 }
 
+#socialPopoverListHeader {
+  font-size: 20px;
+  color: #3880ff;
+}
+
+#closeCreateGroupModalIcon {
+  font-size: 32px;
+  color: #ff0000;
+}
+
+.socialPopover {
+  --min-width: 250px;
+  --min-height: 200px;
+
+}
+
+.socialPopoverIcon {
+  color: #3880ff;
+}
+
 .friendListItem {
   margin-left:20px;
   color: #F428CFF;
@@ -56,4 +80,26 @@
 
 .addIcon {
   font-size: 28px;
+}
+
+.createGroupInput {
+  --padding-start: 5px;
+  border: 1px solid #222222;
+  width: 90vw;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 50px;
+  border-radius: 7px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+#createGroupButton {
+  width: 80vw;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
 }
