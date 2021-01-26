@@ -60,6 +60,20 @@
   color: #3880ff;
 }
 
+.socialGroupItem {
+  border-bottom: 1px solid #aaaaaa;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.socialGroupLabel {
+
+}
+
+.socialGroupAvatar {
+
+}
+
 .friendListItem {
   margin-left:20px;
   color: #F428CFF;
