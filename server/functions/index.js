@@ -28,8 +28,13 @@ function writeDoc(articles, collection_name) {
         description = articles[i].description;
         urlLink = articles[i].link;
         article_list.push({'Title': title, 'Description': description, 'Link': urlLink});
-        URL_ID = (urlLink.split('/').pop());
-        db.collection(collection_name).doc(URL_ID).set(
+        /* making title ID because NYTIMES has issues.*/
+
+        //URL_ID = (urlLink.split('/').pop());
+        // console.log("title: " + title)
+        // console.log("url: " + urlLink)
+        // console.log("description: " + description)
+        db.collection(collection_name).doc(title).set(
           {
               Title: title,
               Description: description,
@@ -37,7 +42,7 @@ function writeDoc(articles, collection_name) {
           })
         }
 }
-
+/* go through rss feed and get article information*/
 function getRSS(url, collection_name) {
   axios.get(url).then(
     (response) => {
@@ -54,6 +59,7 @@ function getRSS(url, collection_name) {
         temp = new f.article(title, description, link);
         article_info.push(temp);
       }
+      // console.log(article_info)
       writeDoc(article_info, collection_name);
     }).catch((error) => {
       console.log(error);
@@ -78,9 +84,9 @@ function nytpost() {
   getRSS(url, "NYTNews");
 }
 function thisInterval() {
-  bbcpost();
+  //bbcpost();
   nytpost();
   console.log("Sending to firestore.")
 }
-setInterval(thisInterval, 60000);
+setInterval(thisInterval, 2880000000);
 exports.app = functions.https.onRequest(app)

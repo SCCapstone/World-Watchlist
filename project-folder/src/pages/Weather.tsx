@@ -25,9 +25,10 @@ type MyState = {
     long: any,
     name: any,
     req: any,
-    pending: boolean,
     temp: any,
-    weather_code: any
+    weather_code: any,
+    showLoading: boolean,
+    showLocation: any
 }
 
 type MyProps = {
@@ -40,9 +41,10 @@ class Weather extends React.Component<MyProps, MyState> {
       long: null,
       name: null,
       req: null,
-      pending: false,
       temp: null,
-      weather_code: null
+      weather_code: null,
+      showLoading: false,
+      showLocation: null
   };
   
   constructor(props: MyProps) {
@@ -57,19 +59,21 @@ class Weather extends React.Component<MyProps, MyState> {
       let lat = data.lat
       let long = data.lon
       let display_name = data.display_name
+      console.log(display_name)
       this.setState({lat: lat, long: long, name: display_name})
     });
   }
   
   async getWeatherData(lat: any, long: any) {
-    await fetch("https://api.climacell.co/v3/weather/realtime?lat="+lat+"&lon="+long+"&unit_system=us&fields=temp%2Cweather_code&apikey=YSpFrL7B389Ssy8msuqnPT3oY7keeAXf", {
+    await fetch("https://api.climacell.co/v3/weather/forecast/daily?lat="+ lat + "&lon="+ long +"&unit_system=us&start_time=now&fields=feels_like&fields=wind_speed&fields=precipitation_probability&fields=weather_code&fields=humidity&apikey=YSpFrL7B389Ssy8msuqnPT3oY7keeAXf", {
       "method": "GET",
       "headers": {}
     })
       .then(response => {
         response.json().then((data) => {
-            this.setState({temp:data.temp.value+' '+data.temp.units})
-            this.setState({weather_code: data.weather_code.value})
+            console.log(data[1])
+            this.setState({temp:data[0].feels_like[0].min.value+' '+data[0].feels_like[0].min.units})
+            this.setState({weather_code: data[0].weather_code.value})
             //console.log(data.weather_code.value);
           });
       })
@@ -77,14 +81,6 @@ class Weather extends React.Component<MyProps, MyState> {
         console.error(err);
       });
   } 
-
-  componentDidUpdate() {
-    //this.geocode(this.state.name)
-    if (this.state.pending === true){
-      setTimeout(() => {this.getWeatherData(this.state.lat, this.state.long)},800);
-      this.setState({pending:false})
-    }
-  }
     render() {
       return (
       <IonPage>
@@ -104,19 +100,24 @@ class Weather extends React.Component<MyProps, MyState> {
         <IonContent>
         <IonSearchbar value={this.state.req} placeholder="place" onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
               {/* onclick show loading and on dismiss show news. */}
-              <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req) && this.setState({pending: true})}>
+              <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req) && this.setState({showLoading: true, weather_code: null, temp: null})}>
             search
           </IonButton>
-          <p>
-            place: {this.state.name}
-          </p>
-          <p>
+          <IonLoading
+        isOpen={this.state.showLoading}
+        onDidDismiss={() => this.getWeatherData(this.state.lat, this.state.long) && this.setState({showLoading: false, showLocation: this.state.name})}
+        message={'Getting data from API'}
+        duration={350}
+      />
+
+          <h3 id="content">
+            place: {this.state.showLocation}
+            <p>
             weather: {this.state.weather_code}
-          </p>
-          <p>
+            </p>
             temp: {this.state.temp}
-          </p>
-          
+          </h3>
+
           </IonContent>
       </IonPage>
       )

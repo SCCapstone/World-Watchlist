@@ -14,7 +14,7 @@ clone repo, change to project-folder directory, and install modules.
 
 ``` 
 git clone https://github.com/SCCapstone/World-Watchlist.git
-cd World-Watchlist/project-folder
+cd project-folder
 npm i
 ionic serve
 ```
@@ -31,9 +31,21 @@ In the Android menu, go to Build > Build Bundle(s) / APK (s) > Build APK(s).
 #### Node Server
 
 ``` 
-cd World-Watchlist/server
+cd server
 npm i
 firebase serve
+```
+
+
+#### Testing
+
+unit tests using Jest for server-side are in '/server/functions' 
+
+##### Running Tests
+``` 
+cd server/functions
+npm i
+npm run test
 ```
 
 #### Authors
