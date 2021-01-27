@@ -32,7 +32,7 @@ def login(driver, email, password):
         print('exiting login attempt')
         driver.close()
 
-if __name__=='__main__':
+if __name__ == '__main__':
     # driver = webdriver.Chrome('/mnt/c/tools/chromedriver_win32/chromedriver.exe')
     print('Getting driver')
     driver = get_driver(input("enter driver name: "))

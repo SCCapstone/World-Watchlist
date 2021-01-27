@@ -105,6 +105,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
     this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
     this.blockFriend = this.blockFriend.bind(this);
+    this.unblockFriend = this.blockFriend.bind(this);
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
     this.createGroup = this.createGroup.bind(this);
     //End Function Bindings
@@ -274,6 +275,14 @@ class Social extends React.Component<MyProps, MyState> {
       let chosenFriend = db.collection('friends').doc(username);
       db.collection('blockedFriends').add(chosenFriend);
       // db.collection('friends').doc(username).delete() // remove user once added to blocked list, line included for future possibility
+    }
+  }
+
+  unblockFriend(username: string) {
+    if(username != "") {
+      let chosenFriend = db.collection('blockedFriends').doc(username);
+      // db.collection('friends').add(chosenFriend);
+      db.collection('blockedFriends').doc(username).delete() // remove user once added to blocked list, line included for future possibility
     }
   }
 
