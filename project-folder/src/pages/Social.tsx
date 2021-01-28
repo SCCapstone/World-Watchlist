@@ -97,8 +97,7 @@ class Social extends React.Component<MyProps, MyState> {
     unsubscribeOutgoingRequests: () => {}
   };
 
-  unsubscribeIncomingRequests: any;
-  unsubscribeOutgoingRequests: any;
+
   unsubscribeGroups: any;
 
 
