@@ -8,7 +8,7 @@ test('testing getTitle() returns a string.', () => {
           let result2 = convert.xml2json(response.data, {compact: true, spaces: 4});
           let info2 = JSON.parse(result2);
             item = info2.rss.channel.item[0];
-            let title = link = description = image = null;
+            let title = null;
             title = scraper_function.getTitle(item);
             expect(typeof title).toBe('string')
         })
