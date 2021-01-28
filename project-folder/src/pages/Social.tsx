@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   IonPage,
   IonHeader,
@@ -18,6 +18,7 @@ import {
   IonAvatar
 } from '@ionic/react'
 
+import GroupView from './GroupView'
 import Placeholder from '../images/placeholder.png'
 
 import firebase, {db, auth} from '../firebase'
@@ -50,7 +51,12 @@ type MyState = {
   groupNickname: string;
   groupArray: Group[],
   numGroups: number,
-  unsubscribeGroupArray: any[]
+  unsubscribeGroupArray: any[],
+  groupDetails: Group | undefined,
+  isGroupModalOpen: boolean,
+  unsubscribeFriendsList: any,
+  unsubscribeIncomingRequests: any,
+  unsubscribeOutgoingRequests: any
 }
 
 type MyProps = {
@@ -83,9 +89,14 @@ class Social extends React.Component<MyProps, MyState> {
     groupNickname: '',
     groupArray: [],
     numGroups: 0,
-    unsubscribeGroupArray: []
+    unsubscribeGroupArray: [],
+    groupDetails: undefined,
+    isGroupModalOpen: false,
+    unsubscribeFriendsList: () => {},
+    unsubscribeIncomingRequests: () => {},
+    unsubscribeOutgoingRequests: () => {}
   };
-  unsubscribeFriendsList: any;
+
   unsubscribeIncomingRequests: any;
   unsubscribeOutgoingRequests: any;
   unsubscribeGroups: any;
@@ -103,6 +114,8 @@ class Social extends React.Component<MyProps, MyState> {
     this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
     this.createGroup = this.createGroup.bind(this);
+    this.toggleGroupModal = this.toggleGroupModal.bind(this);
+
     //End Function Bindings
 
     //Begin firebase data subscriptins
@@ -114,21 +127,21 @@ class Social extends React.Component<MyProps, MyState> {
             console.log('social debug username: ' + doc.data()!.username)
             this.setState({ourUsername: doc.data()!.username})
             //creates a subscription to our user's friends list
-            this.unsubscribeFriendsList = db.collection('friends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            let unsubscribeFriendsList = db.collection('friends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
               if(snapshot.data()) {
                 this.setState({friendsList: snapshot.data()!.friendsList})
               }
             })
 
             //creates a subscription to our user's incoming friend requests
-            this.unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            let unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
               if(snapshot.data()) {
                 this.setState({incomingRequests: snapshot.data()!.incomingFriendRequests})
               }
             })
 
             //creates a subscription to our user's outgoing friend requests
-            this.unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            let unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
               if(snapshot.data()) {
                 this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
               }
@@ -164,6 +177,12 @@ class Social extends React.Component<MyProps, MyState> {
               }
 
             })
+
+            this.setState({
+              unsubscribeFriendsList: unsubscribeFriendsList,
+              unsubscribeIncomingRequests: unsubscribeIncomingRequests,
+              unsubscribeOutgoingRequests: unsubscribeOutgoingRequests
+            })
           }
         })
       }
@@ -175,9 +194,9 @@ class Social extends React.Component<MyProps, MyState> {
 
   componentWillUnmount() {
     //since we have subscriptions, we cancel them here to prevent a memory leak
-    this.unsubscribeFriendsList()
-    this.unsubscribeIncomingRequests()
-    this.unsubscribeOutgoingRequests()
+    this.state.unsubscribeFriendsList()
+    this.state.unsubscribeIncomingRequests()
+    this.state.unsubscribeOutgoingRequests()
     for(let i = 0; i < this.state.unsubscribeGroupArray.length; i++) {
       this.state.unsubscribeGroupArray[i]()
     }
@@ -303,6 +322,9 @@ class Social extends React.Component<MyProps, MyState> {
     })
   }
 
+  toggleGroupModal() {
+    this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
+  }
 
     render() {
 
@@ -431,10 +453,11 @@ class Social extends React.Component<MyProps, MyState> {
               <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
         )}
+        <GroupView isGroupModalOpen={this.state.isGroupModalOpen} groupDetails={this.state.groupDetails} {...this.props} toggleGroupModal={this.toggleGroupModal} />
         {
           this.state.groupArray.map((displayGroup : Group) => {
             return (
-              <IonItem lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
+              <IonItem onClick={() => {this.setState({groupDetails: displayGroup, isGroupModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
                 <IonAvatar slot='start' className='socialGroupAvatar'>
                   <img src={displayGroup.profilePicture !== '' ? displayGroup.profilePicture : Placeholder} />
                 </IonAvatar>
