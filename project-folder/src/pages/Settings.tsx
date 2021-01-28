@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   IonPage,
   IonHeader,
@@ -12,14 +13,22 @@ import {
   IonToggle,
   IonIcon,
   IonModal,
-  IonInput
+  IonInput,
+  IonAvatar,
+  IonChip
 
 } from '@ionic/react'
 import firebase, {db, auth} from '../firebase'
 import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline} from 'ionicons/icons'
-
-
+import { Capacitor, Plugins, CameraResultType, FilesystemDirectory } from '@capacitor/core';
 import './Settings.css'
+const { Camera, Filesystem } = Plugins;
+const PHOTO_STORAGE = "photos";
+export function usePhotoGallery() {}
+
+
+
+
 
 type MyState = {
   isBlockSourceModalOpen:boolean;
@@ -32,6 +41,7 @@ type MyState = {
   localList:string[];
   newEmail:string;
   newUsername:string;
+
 
 }
 
@@ -52,7 +62,8 @@ class Settings extends React.Component<MyProps, MyState> {
     sourceToUnBlock:"",
     localList: [],
     newEmail:'',
-    newUsername:''
+    newUsername:'',
+
 
   };
 
@@ -74,6 +85,7 @@ class Settings extends React.Component<MyProps, MyState> {
             }
           })
         }
+       this.pullImage();
   }
 
   blockSource(sourceName:string) {
@@ -130,6 +142,50 @@ changeEmail(email:string) {
     })
   }
     }
+
+    pullImage() {
+      var storage = firebase.storage();
+      var storageRef = firebase.storage().ref();
+      var pathReference = storageRef.child('Images/iceland-16-860x484.jpg');
+      pathReference.getDownloadURL().then((url)=> {
+         var img = document.getElementById('myimg');
+         if(img!=null)
+          img.setAttribute('src', url);
+      })
+      .catch((error) => {
+  // A full list of error codes is available at
+  // https://firebase.google.com/docs/storage/web/handle-errors
+  switch (error.code) {
+    case 'storage/object-not-found':
+      // File doesn't exist
+      break;
+    case 'storage/unauthorized':
+      // User doesn't have permission to access the object
+      break;
+    case 'storage/canceled':
+      // User canceled the upload
+      break;
+    case 'storage/unknown':
+      // Unknown error occurred, inspect the server response
+      break;
+  }
+});
+    }
+
+
+
+   uploadImage() {
+    const i = document.getElementById('image');
+      var storage = firebase.storage();
+      var storageRef = firebase.storage().ref();
+      var newPicRef = storageRef.child('images/new.jpg');
+     
+        // var file = (document.getElementById('image') as HTMLInputElement).files[0];
+      
+    }
+
+   
+
 
 
 
@@ -209,6 +265,8 @@ isValidSite(siteName:string) {
         </IonContent>
       </IonModal>
 
+
+
       <IonModal isOpen={this.state.isUpdateEmailModalOpen}>
         <IonHeader>
           <IonToolbar>
@@ -266,6 +324,9 @@ isValidSite(siteName:string) {
             </IonTitle>
           </IonToolbar>
         </IonHeader>
+        <IonAvatar>
+          <img id = 'myimg' />
+        </IonAvatar>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
             <IonToggle value="Notifications" />
@@ -300,6 +361,14 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
+
+               <IonItem id ='updateEmail'>
+          Change Profile Picture
+      
+          <input type = 'file' id = 'image'></input>
+        
+          </IonItem>
+          
         </IonContent>
       </IonPage>
       )
