@@ -1,4 +1,4 @@
-# selenium web driver
+import selenium web driver
 import time
 
 from selenium import webdriver
@@ -30,6 +30,16 @@ def login(driver, email, password):
         time.sleep(10)
     finally:
         print('exiting login attempt')
+        driver.close()
+
+def add_friend(driver, username):
+    try:
+        driver.find_element_by_xpath('//*[@id="tab-button-social"]').click()
+        driver.find_element_by_xpath('//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)').click()
+        driver.find_element_by_xpath('//*[@id="ion-overlay-4"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[1]').click()
+        driver.find_element_by_xpath('//*[@id="addFriendSearch"]').send_keys(username)
+        driver.find_element_by_xpath('//*[@id="addFriendButton"]//button').click()
+    finally:
         driver.close()
 
 if __name__ == '__main__':
