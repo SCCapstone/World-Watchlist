@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   IonPage,
   IonHeader,
@@ -14,8 +14,12 @@ import {
   IonLabel,
   IonPopover,
   IonList,
-  IonListHeader
+  IonListHeader,
+  IonAvatar
 } from '@ionic/react'
+
+import GroupView from './GroupView'
+import Placeholder from '../images/placeholder.png'
 
 import firebase, {db, auth} from '../firebase'
 import {
@@ -36,6 +40,7 @@ type MyState = {
   ourUsername: string;
   targetUsername: string;
   friendsList: string[];
+  blockedFriends: [];
   isPendingRequestsModalOpen: boolean;
   isMessengerModalOpen: boolean;
   incomingRequests: string[];
@@ -45,7 +50,15 @@ type MyState = {
   socialPopoverEvent: any;
   isCreateGroupModalOpen: boolean;
   groupNickname: string;
-  groupArray: Group[]
+  groupArray: Group[];
+  numGroups: number;
+  unsubscribeGroupArray: any[];
+  groupDetails: Group | undefined;
+  isGroupModalOpen: boolean;
+  unsubscribeFriendsList: any;
+  unsubscribeBlockedFriends: any;
+  unsubscribeIncomingRequests: any;
+  unsubscribeOutgoingRequests: any;
 }
 
 type MyProps = {
@@ -57,6 +70,7 @@ type Group = {
   nickname: string;
   members: string[];
   id: string;
+  profilePicture: string;
 }
 
 class Social extends React.Component<MyProps, MyState> {
@@ -66,6 +80,7 @@ class Social extends React.Component<MyProps, MyState> {
     ourUsername: '',
     targetUsername: '',
     friendsList: [],
+    blockedFriends: [],
     isPendingRequestsModalOpen: false,
     isMessengerModalOpen: false,
     incomingRequests: [],
@@ -75,11 +90,18 @@ class Social extends React.Component<MyProps, MyState> {
     socialPopoverEvent: undefined,
     isCreateGroupModalOpen: false,
     groupNickname: '',
-    groupArray: []
+    groupArray: [],
+    numGroups: 0,
+    unsubscribeGroupArray: [],
+    groupDetails: undefined,
+    isGroupModalOpen: false,
+    unsubscribeFriendsList: () => {},
+    unsubscribeBlockedFriends: null,
+    unsubscribeIncomingRequests: () => {},
+    unsubscribeOutgoingRequests: () => {}
   };
-  unsubscribeFriendsList: any;
-  unsubscribeIncomingRequests: any;
-  unsubscribeOutgoingRequests: any;
+
+
   unsubscribeGroups: any;
 
 
@@ -91,84 +113,106 @@ class Social extends React.Component<MyProps, MyState> {
     this.addFriend = this.addFriend.bind(this);
     this.acceptFriend = this.acceptFriend.bind(this);
     this.declineFriend = this.declineFriend.bind(this);
+    this.blockFriend = this.blockFriend.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
     this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
     this.createGroup = this.createGroup.bind(this);
+    this.toggleGroupModal = this.toggleGroupModal.bind(this);
+
     //End Function Bindings
 
     //Begin firebase data subscriptins
-    if(auth.currentUser) {
-      //gets the username of our user
-      db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
-        if(doc.data()) {
-          this.setState({ourUsername: doc.data()!.username})
-          //creates a subscription to our user's friends list
-          this.unsubscribeFriendsList = db.collection('friends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
-            if(snapshot.data()) {
-              this.setState({friendsList: snapshot.data()!.friendsList})
-            }
-          })
+    auth.onAuthStateChanged(() => {
+      if(auth.currentUser) {
+        //gets the username of our user
+        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+          if(doc.data()) {
+            console.log('social debug username: ' + doc.data()!.username)
+            this.setState({ourUsername: doc.data()!.username})
+            //creates a subscription to our user's friends list
+            let unsubscribeFriendsList = db.collection('friends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+              if(snapshot.data()) {
+                this.setState({friendsList: snapshot.data()!.friendsList})
+              }
+            })
 
-          //creates a subscription to our user's incoming friend requests
-          this.unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
-            if(snapshot.data()) {
-              this.setState({incomingRequests: snapshot.data()!.incomingFriendRequests})
-            }
-          })
+            // create subscription to user's blocked friends list
+            this.state.unsubscribeBlockedFriends = db.collection('blockedFriends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+              if(snapshot.exists) {
+                this.setState({blockedFriends: snapshot.data()!.blockedFriends})
+              } else {
+                this.setState({blockedFriends: []})
+              }
+            })
 
-          //creates a subscription to our user's outgoing friend requests
-          this.unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
-            if(snapshot.data()) {
-              this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
-            }
-          })
+            //creates a subscription to our user's incoming friend requests
+            let unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+              if(snapshot.data()) {
+                this.setState({incomingRequests: snapshot.data()!.incomingFriendRequests})
+              }
+            })
 
-          //crate a subscription to the list of a users groups
-          this.unsubscribeGroups = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
-            if(snapshot.data()) {
-              let groupList = snapshot.data()!.groups
-              //create a subscription to all groups a user is in
-              let groupArray : Group[] = []
-              for(let i = 0; i < groupList.length; i++) {
-                groupArray.push({
-                  nickname: '',
-                  members: [],
-                  id: ''
+            //creates a subscription to our user's outgoing friend requests
+            let unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+              if(snapshot.data()) {
+                this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
+              }
+            })
+
+            //crate a subscription to the list of a users groups
+            this.unsubscribeGroups = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+              if(snapshot.data()) {
+                this.setState({
+                  numGroups: snapshot.data()!.groups.length
+                })
+                let unsubscribeGroupArray = []
+                for(let i = 0; i < this.state.numGroups; i++) {
+                  let unsubscribeIndividualGroup = db.collection('groups').doc(snapshot.data()!.groups[i]).onSnapshot((snapshot) => {
+                    let groupArray = [...this.state.groupArray]
+                    if(snapshot.data()) {
+                      let group : Group = {
+                        nickname: snapshot.data()!.nickname,
+                        members: snapshot.data()!.members,
+                        id: snapshot.data()!.id,
+                        profilePicture: snapshot.data()!.profilePicture
+                      }
+                      groupArray[i] = group
+                      this.setState({groupArray: groupArray})
+                      console.log(group)
+                    }
+                  })
+                  unsubscribeGroupArray.push(unsubscribeIndividualGroup)
+                }
+                this.setState({
+                  unsubscribeGroupArray: unsubscribeGroupArray
                 })
               }
-              this.setState({groupArray: groupArray})
-               let unsubcribeAllGroups = groupList.map((groupCode : string, index : number) => {
-                 db.collection('groups').doc(groupCode).onSnapshot((snapshot) => {
-                   let groupArray = [...this.state.groupArray]
-                   if(snapshot.data()) {
-                     let group : Group = {
-                       nickname: snapshot.data()!.nickname,
-                       members: snapshot.data()!.members,
-                       id: snapshot.data()!.id
-                     }
-                     groupArray[index] = group
-                     this.setState({groupArray: groupArray})
-                     console.log(groupArray[index])
-                   }
 
-                 })
-               })
-            }
+            })
 
-          })
-        }
-      })
-    }
+            this.setState({
+              unsubscribeFriendsList: unsubscribeFriendsList,
+              unsubscribeIncomingRequests: unsubscribeIncomingRequests,
+              unsubscribeOutgoingRequests: unsubscribeOutgoingRequests
+            })
+          }
+        })
+      }
+    })
+
     //End firebase data subscriptins
 
   }
 
   componentWillUnmount() {
     //since we have subscriptions, we cancel them here to prevent a memory leak
-    this.unsubscribeFriendsList()
-    this.unsubscribeIncomingRequests()
-    this.unsubscribeOutgoingRequests()
+    this.state.unsubscribeFriendsList()
+    this.state.unsubscribeIncomingRequests()
+    this.state.unsubscribeOutgoingRequests()
+    for(let i = 0; i < this.state.unsubscribeGroupArray.length; i++) {
+      this.state.unsubscribeGroupArray[i]()
+    }
   }
 
   subscribeGroups() {
@@ -247,6 +291,14 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
+  blockFriend(username: string) { // adds given friend to blocked list, users on blocked list are excluded from stuff
+    if(username !== "") {
+      let chosenFriend = db.collection('friends').doc(username);
+      db.collection('blockedFriends').add(chosenFriend);
+      // db.collection('friends').doc(username).delete() // remove user once added to blocked list, line included for future possibility
+    }
+  }
+
   loadMessages(username: string) {
 
     db.collection('friends').doc(this.state.ourUsername).get().then((doc) => {
@@ -282,11 +334,8 @@ class Social extends React.Component<MyProps, MyState> {
         owner: this.state.ourUsername,
         members: [this.state.ourUsername],
         nickname: this.state.groupNickname,
-        id: code
-      }).then(() => {
-        this.setState({
-          isCreateGroupModalOpen: true
-        })
+        id: code,
+        profilePicture: ''
       })
       db.collection('usernames').doc(this.state.ourUsername).update({
         groups: firebase.firestore.FieldValue. arrayUnion(code),
@@ -294,6 +343,9 @@ class Social extends React.Component<MyProps, MyState> {
     })
   }
 
+  toggleGroupModal() {
+    this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
+  }
 
     render() {
 
@@ -394,7 +446,7 @@ class Social extends React.Component<MyProps, MyState> {
           </IonHeader>
           <IonContent>
             <IonInput className='createGroupInput' placeholder='Group Nickname' onIonChange={(e) => {this.setState({groupNickname: (e.target as HTMLInputElement).value})}}/>
-            <IonButton onClick={() => {this.createGroup()}} id='createGroupButton'>Create</IonButton>
+            <IonButton onClick={() => {this.createGroup(); this.setState({isCreateGroupModalOpen: false})}} id='createGroupButton'>Create</IonButton>
           </IonContent>
         </IonModal>
 
@@ -422,9 +474,20 @@ class Social extends React.Component<MyProps, MyState> {
               <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
         )}
+        <GroupView isGroupModalOpen={this.state.isGroupModalOpen} groupDetails={this.state.groupDetails} {...this.props} toggleGroupModal={this.toggleGroupModal} />
         {
           this.state.groupArray.map((displayGroup : Group) => {
-            return <IonItem>{displayGroup.nickname}</IonItem>
+            return (
+              <IonItem onClick={() => {this.setState({groupDetails: displayGroup, isGroupModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
+                <IonAvatar slot='start' className='socialGroupAvatar'>
+                  <img src={displayGroup.profilePicture !== '' ? displayGroup.profilePicture : Placeholder} />
+                </IonAvatar>
+                <IonLabel className='socialGroupLabel'>
+                  {displayGroup.nickname}
+                </IonLabel>
+
+              </IonItem>
+            )
           })
         }
 
