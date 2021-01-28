@@ -30,7 +30,7 @@ function writeDoc(articles, collection_name) {
         article_list.push({'Title': title, 'Description': description, 'Link': urlLink});
         /* making title ID because NYTIMES has issues.*/
 
-        //URL_ID = (urlLink.split('/').pop());
+        // URL_ID = (urlLink.split('/').pop());
         // console.log("title: " + title)
         // console.log("url: " + urlLink)
         // console.log("description: " + description)
@@ -84,9 +84,10 @@ function nytpost() {
   getRSS(url, "NYTNews");
 }
 function thisInterval() {
-  //bbcpost();
+  bbcpost();
   nytpost();
   console.log("Sending to firestore.")
 }
+/*refresh every 8 hours*/
 setInterval(thisInterval, 2880000000);
 exports.app = functions.https.onRequest(app)
