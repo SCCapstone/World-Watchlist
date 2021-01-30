@@ -73,16 +73,21 @@ class Weather extends React.Component<MyProps,MyState> {
             console.log('social debug username: ' + doc.data()!.username)
             this.setState({CurrentUser:doc.data()!.username})
           }
+          // go into weatherSubscription collection
           const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
+          // Check weather subscription array exist for user
           dbSubscription.get().then((doc) => {
+            // use existing array
             if (doc.exists) {
               var subscriptionField = doc.data()
               if (subscriptionField) {
                 this.setState({subscription:subscriptionField.subscription})
               }
-            } else {
-              db.collection("weatherSubscription").doc(this.state.CurrentUser).set({
-                subscription:[]
+            } 
+            // create an array for the user.
+              else {
+                db.collection("weatherSubscription").doc(this.state.CurrentUser).set({
+                  subscription:[]
             })
             }
         }).catch(function(error) {
@@ -91,8 +96,6 @@ class Weather extends React.Component<MyProps,MyState> {
         
         })
       }
-
-      //this.setState({subscription: dbSubscription})
   })
     
   }
@@ -127,35 +130,35 @@ class Weather extends React.Component<MyProps,MyState> {
   }
 
   /* add new current weather location to subscribed array */
-
   async subscribe(lat: any, long: any) {
-    await fetch(
-      "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+long+"&APPID=853ea8c8d782be685ad81ace7b65291a&units=imperial"
-    )
-      .then(res => res.json())
-      .then(data => {
-        /* Pushes new location weather data onto subscription array */
-        const new_location = this.state.name
-        const found = this.state.subscription.some(el => el.location === new_location);
-        console.log(found)
-        if (found === true) {
-          console.log("already subscribed")
-        } else {
-          this.state.subscription.push({location: this.state.name, temp:data.main.temp+' F', weather_code: data.weather[0].description})
-        }
-        this.setState({temp:data.main.temp+'F',weather_code: data.weather[0].description, location: this.state.name})
-        /* Add data to firebase firestore */
-        db.collection('weatherSubscription').doc(this.state.CurrentUser).update({
-          subscription: this.state.subscription
-        })
-      }).catch(err => {
-        console.error(err);
-      });
+    await axios.get("http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+long+"&APPID=853ea8c8d782be685ad81ace7b65291a&units=imperial")
+    .then((response) => {
+      const data = response.data
+      console.log(data)
+      const new_location = this.state.name
+      const found = this.state.subscription.some(el => el.location === new_location);
+      if (found === true) {
+        console.log("already subscribed")
+      } else {
+        console.log("adding to subscription")
+        this.state.subscription.push({location: this.state.name, temp:data.main.temp+' F', weather_code: data.weather[0].description})
+      }
+      this.setState({temp:data.main.temp+'F',weather_code: data.weather[0].description, location: this.state.name})
+      /* Add data to firebase firestore */
+      db.collection('weatherSubscription').doc(this.state.CurrentUser).update({
+        subscription: this.state.subscription
+      })
+    }).catch((error) => {
+      console.log(error)
+    });
   }
 
   /* get latitude and longitude of location */
   async geocode(location: any) {
-    await axios.get('https://us1.locationiq.com/v1/search.php?key=pk.180fdf6168d1230db0cc5c937b7eaa98&q&q='+location+'&limit=1&countrycodes=US&namedetails=1&format=json')
+    if (location === null) {
+      console.log("Please enter a valid location")
+    } else {
+      await axios.get('https://us1.locationiq.com/v1/search.php?key=pk.180fdf6168d1230db0cc5c937b7eaa98&q&q='+location+'&limit=1&countrycodes=US&namedetails=1&format=json')
     .then((response) => {
       let data = response.data[0]
       console.log(data)
@@ -163,7 +166,10 @@ class Weather extends React.Component<MyProps,MyState> {
       let long = data.lon
       let display_name = data.display_name
       this.setState({lat: lat, long: long, name: display_name})
+    }).catch(err => {
+      console.error(err);
     });
+    }
   }
   
   /* ClimaCell API (currently not in used because ran out of request) */
