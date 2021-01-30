@@ -19,9 +19,9 @@ import {
   IonCardTitle,
 
 } from '@ionic/react'
-
 import './Weather.css'
-import { Redirect, Route } from 'react-router';
+import firebase, {db, auth} from '../firebase'
+import { Redirect, Route } from 'react-router-dom';
 import { arrowBack } from 'ionicons/icons';
 import Tabs from './Tabs'
 
@@ -36,11 +36,16 @@ type MyState = {
   location: any,
   subscription: any[],
   isUnsubscribing: boolean,
-  numChildren:number
+  CurrentUser:any
+}
+
+type MyProps = {
+  history: any;
+  location: any;
 }
 
 
-class Weather extends React.Component<MyState> {
+class Weather extends React.Component<MyProps,MyState> {
   state: MyState = {
       lat: null, 
       long: null,
@@ -52,16 +57,45 @@ class Weather extends React.Component<MyState> {
       location: null,
       subscription: [],
       isUnsubscribing: false,
-      numChildren:0
+      CurrentUser:null
   };
 
+  
+  constructor(props: MyProps) {
+    super(props)
+    
+    auth.onAuthStateChanged(async () => {
+      console.log(this.state.subscription)
+      if(auth.currentUser) {
+        //gets the username of our user
+        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+          if(doc.data()) {
+            console.log('social debug username: ' + doc.data()!.username)
+            this.setState({CurrentUser:doc.data()!.username})
+          }
+          const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
+          dbSubscription.get().then((doc) => {
+            if (doc.exists) {
+              var subscriptionField = doc.data()
+              if (subscriptionField) {
+                this.setState({subscription:subscriptionField.subscription})
+              }
+            } else {
+              db.collection("weatherSubscription").doc(this.state.CurrentUser).set({
+                subscription:[]
+            })
+            }
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+        
+        })
+      }
 
-  /* remove item from subscribed based on index */
-  async unsubscribe(index:any) {
-    console.log(index)
-    this.state.subscription.splice(index,1)
+      //this.setState({subscription: dbSubscription})
+  })
+    
   }
-
   ParentComponent = (props:any) => (
     <div className="card calculator">
       <div id="children-pane">
@@ -73,8 +107,7 @@ class Weather extends React.Component<MyState> {
   ChildComponent = (props: {weather_code:any, temp:any, location: any, index:any}) => 
   <IonCard>
         <IonCardHeader >
-          #{props.index}
-          <IonButton onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
+          <IonButton size="small" color="dark" type="submit" expand="full" shape="round" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
           <IonCardSubtitle>{props.location}</IonCardSubtitle>
           <IonCardTitle >{props.temp}</IonCardTitle>
         </IonCardHeader>
@@ -83,9 +116,19 @@ class Weather extends React.Component<MyState> {
         </IonCardContent>
       </IonCard>  
 
+  
+  /* remove item from subscribed based on index */
+  async unsubscribe(index:any) {
+    console.log(index)
+    this.state.subscription.splice(index,1)
+    db.collection('weatherSubscription').doc(this.state.CurrentUser).update({
+      subscription: this.state.subscription
+    })
+  }
 
-  /* testing openWeather API, may use later */
-  async openWeather(lat: any, long: any) {
+  /* add new current weather location to subscribed array */
+
+  async subscribe(lat: any, long: any) {
     await fetch(
       "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+long+"&APPID=853ea8c8d782be685ad81ace7b65291a&units=imperial"
     )
@@ -101,12 +144,16 @@ class Weather extends React.Component<MyState> {
           this.state.subscription.push({location: this.state.name, temp:data.main.temp+' F', weather_code: data.weather[0].description})
         }
         this.setState({temp:data.main.temp+'F',weather_code: data.weather[0].description, location: this.state.name})
-        console.log(this.state.subscription[this.state.subscription.length-1].location)
+        /* Add data to firebase firestore */
+        db.collection('weatherSubscription').doc(this.state.CurrentUser).update({
+          subscription: this.state.subscription
+        })
       }).catch(err => {
         console.error(err);
       });
   }
 
+  /* get latitude and longitude of location */
   async geocode(location: any) {
     await axios.get('https://us1.locationiq.com/v1/search.php?key=pk.180fdf6168d1230db0cc5c937b7eaa98&q&q='+location+'&limit=1&countrycodes=US&namedetails=1&format=json')
     .then((response) => {
@@ -119,26 +166,26 @@ class Weather extends React.Component<MyState> {
     });
   }
   
-  /* ClimaCell API */
-  async getWeatherData(lat: any, long: any) {
-    await fetch("https://api.climacell.co/v3/weather/forecast/daily?lat="+ lat + "&lon="+ long +"&unit_system=us&start_time=now&fields=feels_like&fields="+
-    "wind_speed&fields=precipitation_probability&fields=weather_code&fields=humidity&apikey=YSpFrL7B389Ssy8msuqnPT3oY7keeAXf", {
-      "method": "GET",
-      "headers": {}
-    })
-      .then(response => {
-        response.json().then((data) => {
-          var wlist = []
-          wlist.push({location: this.state.name, temp:data[0].feels_like[0].min.value +' '+data[0].feels_like[0].min.units, weather_code: data[0].weather_code.value})
-          this.state.subscription.push(wlist)
-          // console.log(this.state.subscription)
-          this.setState({temp:data[0].feels_like[0].min.value+data[0].feels_like[0].min.units+' ',weather_code: data[0].weather_code.value, location: this.state.name})
-          });
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  } 
+  /* ClimaCell API (currently not in used because ran out of request) */
+  // async getWeatherData(lat: any, long: any) {
+  //   await fetch("https://api.climacell.co/v3/weather/forecast/daily?lat="+ lat + "&lon="+ long +"&unit_system=us&start_time=now&fields=feels_like&fields="+
+  //   "wind_speed&fields=precipitation_probability&fields=weather_code&fields=humidity&apikey=YSpFrL7B389Ssy8msuqnPT3oY7keeAXf", {
+  //     "method": "GET",
+  //     "headers": {}
+  //   })
+  //     .then(response => {
+  //       response.json().then((data) => {
+  //         var wlist = []
+  //         wlist.push({location: this.state.name, temp:data[0].feels_like[0].min.value +' '+data[0].feels_like[0].min.units, weather_code: data[0].weather_code.value})
+  //         this.state.subscription.push(wlist)
+  //         // console.log(this.state.subscription)
+  //         this.setState({temp:data[0].feels_like[0].min.value+data[0].feels_like[0].min.units+' ',weather_code: data[0].weather_code.value, location: this.state.name})
+  //         });
+  //     })
+  //     .catch(err => {
+  //       console.error(err);
+  //     });
+  // } 
 
     render() {
       const weatherDisplay = [];
@@ -154,7 +201,7 @@ class Weather extends React.Component<MyState> {
               Weather
             </IonTitle>
             <IonRouterOutlet>
-            <Route path="/main" component={Tabs}/>
+            <Route path="/main" component={Tabs} exact={true}/>
       </IonRouterOutlet>
         <IonButton href="/main">
             <IonIcon icon={arrowBack} />
@@ -163,14 +210,13 @@ class Weather extends React.Component<MyState> {
         </IonHeader>
         <IonContent>
         <IonSearchbar value={this.state.req} placeholder="place" onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
-              {/* onclick show loading and on dismiss show news. */}
               <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req) 
                 && this.setState({showLoading: true })}>
             search
           </IonButton>
           <IonLoading
         isOpen={this.state.showLoading}
-        onDidDismiss={() =>  this.openWeather(this.state.lat, this.state.long) && this.setState({showLoading: false})}
+        onDidDismiss={() =>  this.subscribe(this.state.lat, this.state.long) && this.setState({showLoading: false})}
         message={'Getting data from API'}
         duration={750}
       />

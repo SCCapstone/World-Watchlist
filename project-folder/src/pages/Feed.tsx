@@ -17,7 +17,7 @@ import { db } from '../API/config';
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
-import { Redirect, Route } from 'react-router';
+import { Redirect, Route } from 'react-router-dom';
 import { cloud } from 'ionicons/icons';
 type MyState = {
   articles: articleList;
