@@ -8,9 +8,11 @@ from selenium.webdriver.common.keys import Keys
 
 def get_driver(driver_path):
     if 'gecko' in driver_path:
-        return get_firefox_driver(driver_path)
+        return webdriver.Firefox(executable_path=driver_path)
+        # return get_firefox_driver(driver_path)
     elif 'chrome' in driver_path:
-        return get_chrome_driver(driver_path)
+        return webdriver.Chrome(driver_path)
+        # return get_chrome_driver(driver_path)
     print('Unknown driver "{}"'.format(driver_path))
     return None
 
@@ -30,26 +32,22 @@ def go_to_site(driver, url):
 
 def click_tab(driver, tab_name):
     if tab_name == 'feed':
-        driver.find_element_by_xpath('//*[@id="tab-button-feed"]').click()
+        click_button_xpath(driver, '//*[@id="tab-button-feed"]')
+        # driver.find_element_by_xpath('//*[@id="tab-button-feed"]').click()
     elif tab_name == 'social':
-        driver.find_element_by_xpath('//*[@id="tab-button-social"]').click()
+        click_button_xpath(driver, '//*[@id="tab-button-social"]')
+        # driver.find_element_by_xpath('//*[@id="tab-button-social"]').click()
     elif tab_name == 'settings':
-        driver.find_element_by_xpath('//*[@id="tab-button-settings"]').click()
+        click_button_xpath(driver, '//*[@id="tab-button-settings"]')
+        # driver.find_element_by_xpath('//*[@id="tab-button-settings"]').click()
     return driver.current_url
-
-
 
 def login(driver, email, password):
     # try:
-    # email_input = driver.find_element_by_name('ion-input-0')
+    print('Logging in')
     write_to_bar(driver, '//*[@id="loginInputContainer"]/ion-item[1]/ion-input/input', email)
-    # email_input = driver.find_element_by_xpath('//*[@id="loginInputContainer"]/ion-item[1]/ion-input/input')
-    # email_input.send_keys(email)
     write_to_bar(driver, '//*[@id="loginInputContainer"]/ion-item[2]/ion-input/input', password)
-    # password_input = driver.find_element_by_xpath('//*[@id="loginInputContainer"]/ion-item[2]/ion-input/input')
-    # password_input.send_keys(password)
     click_button_xpath(driver, '/html/body/div/ion-app/ion-router-outlet/div/ion-content/div/ion-button')
-    driver.find_element_by_xpath('/html/body/div/ion-app/ion-router-outlet/div/ion-content/div/ion-button').click()
     print('Finished login attempt')
     time.sleep(2)
     # finally:
@@ -59,21 +57,50 @@ def login(driver, email, password):
 def logout():
     pass
 
+def go_to_requests(driver):
+    click_tab(driver, 'social')
+    click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div[2]/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[1]/ion-button')
+
 def add_friend(driver, username):
-    try:
-        driver.find_element_by_xpath('//*[@id="tab-button-social"]').click()
-        driver.find_element_by_xpath('//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)').click()
-        driver.find_element_by_xpath('//*[@id="ion-overlay-4"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[1]').click()
-        driver.find_element_by_xpath('//*[@id="addFriendSearch"]').send_keys(username)
-        driver.find_element_by_xpath('//*[@id="addFriendButton"]//button').click()
-    finally:
-        driver.close()
+    click_tab('social')
+    click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)')
+    click_button_xpath(driver, '//*[@id="ion-overlay-4"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[1]')
+    write_to_bar(driver, '//*[@id="addFriendSearch"]', username)
+    click_button_xpath(driver, '//*[@id="addFriendButton"]//button')
+    click_button_xpath(driver, '//*[@id="addFriendModalCloseButton"]//button')
+
+    # try:
+    #     driver.find_element_by_xpath('//*[@id="tab-button-social"]').click()
+    #     driver.find_element_by_xpath('//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)').click()
+    #     driver.find_element_by_xpath('//*[@id="ion-overlay-4"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[1]').click()
+    #     driver.find_element_by_xpath('//*[@id="addFriendSearch"]').send_keys(username)
+    #     driver.find_element_by_xpath('//*[@id="addFriendButton"]//button').click()
+    # finally:
+    #     driver.close()
 
 def remove_friend(driver, username):
     pass
 
 def block_user(driver, username):
     pass
+
+def create_group(driver, group_name):
+    click_tab('social')
+    click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)')
+    click_button_xpath(driver, '//*[@id="ion-overlay-9"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[2]')
+    write_to_bar(driver, '//*[@id="ion-overlay-10"]/div[2]/div/ion-content/ion-input/input', group_name)
+    click_button_xpath(driver, '//*[@id="createGroupButton"]//button')
+
+def new_message():
+    click_tab('social')
+    click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)')
+    click_button_xpath(driver, '//*[@id="ion-overlay-9"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[3]')
+
+def get_incoming_outcoming(driver):
+    go_to_requests(driver)
+    incoming = driver.find_elements_by_css_selector('#ion-overlay-5 > div.modal-wrapper.ion-overlay-wrapper.sc-ion-modal-md > div > ion-content > ion-item')
+    outcoming = driver.find_elements_by_css_selector('#ion-overlay-4 > div.modal-wrapper.ion-overlay-wrapper.sc-ion-modal-md > div > ion-content > ion-item')
+    return incoming, outcoming
 
 def go_to_weather(driver):
     click_tab(driver, 'feed')
@@ -88,6 +115,9 @@ def clear_bar(driver, xpath):
 
 def click_button_xpath(driver, xpath):
     driver.find_element_by_xpath(xpath).click()
+
+def click_button_css_selector(driver, selector):
+    driver.find_element_by_css_selector(selector)
 
 def weather_test(driver):
     go_to_weather(driver)
@@ -107,7 +137,9 @@ def weather_test(driver):
     click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-header/ion-toolbar/ion-button')
 
 def social_test(driver):
-    pass
+    add_friend()
+    create_group()
+    new_message()
 
 def settings_test(driver):
     pass
