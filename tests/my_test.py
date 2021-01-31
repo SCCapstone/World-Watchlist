@@ -54,13 +54,13 @@ def click_tab(driver, tab_name):
     return driver.current_url
 
 def login(driver, email, password):
-    # try:
     print('Logging in')
     write_to_bar(driver, '//*[@id="loginInputContainer"]/ion-item[1]/ion-input/input', email)
     write_to_bar(driver, '//*[@id="loginInputContainer"]/ion-item[2]/ion-input/input', password)
     click_button_xpath(driver, '/html/body/div/ion-app/ion-router-outlet/div/ion-content/div/ion-button')
     print('Finished login attempt')
     time.sleep(2)
+    return '/main' in driver.current_url
     # finally:
     #     print('exiting login attempt')
     #     driver.close()
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         login(driver, email, password)
         main_page = driver.current_url
         weather_test(driver)
-        print(dir(driver))
+        # print(dir(driver))
         social_test(driver)
         settings_test(driver)
     finally:
