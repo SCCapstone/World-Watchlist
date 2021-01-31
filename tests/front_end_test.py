@@ -54,6 +54,7 @@ class FrontEndTest(unittest.TestCase):
         self.driver.implicitly_wait(wait_time)
         self.email, self.password = 'test@email.com', 'TestPassword'
         self.url = 'http://localhost:8100'
+        my_test.go_to_site(self.driver, self.url)
         my_test.login(self.driver, self.email, self.password)
 
     def test_go_to_weather(self):
