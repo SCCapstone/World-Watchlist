@@ -89,10 +89,11 @@ npm i
 npm run test
 ```
 ##### Running behavoiral tests through SeleniumIDE
-ionic serve
-Open SeleniumIDE and press CMD+O
-Select WorldWatchlistSettingsTests.side from \World-Watchlist\tests
-In SeleniumIDE, select one of the available tests and hit the play button.
+* ionic serve
+* Open SeleniumIDE and press CMD+O
+* Select WorldWatchlistSettingsTests.side from \World-Watchlist\tests
+* In SeleniumIDE, select one of the available tests and hit the play button.
+
 Information about a running test can be found in the 'Log' section.
 #### Authors
 
