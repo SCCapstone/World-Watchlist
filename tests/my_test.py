@@ -5,11 +5,19 @@ import argparse
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-def get_driver(driver_path):
+def get_driver(driver_path, set_headless=False):
     if 'gecko' in driver_path:
-        return webdriver.Firefox(executable_path=driver_path)
+        if set_headless:
+            option = webdriver.FirefoxOptions().set_headless()
+            return webdriver.Firefox(executable_path=driver_path, firefox_options=option)
+        else:
+            return webdriver.Firefox(executable_path=driver_path)
         # return get_firefox_driver(driver_path)
     elif 'chrome' in driver_path:
+        if set_headless:
+            option = webdriver.chrome.options.Options()
+            option.headless = True
+            return webdriver.Chrome(executable_path=driver_path, options=option)
         return webdriver.Chrome(driver_path)
         # return get_chrome_driver(driver_path)
     print('Unknown driver "{}"'.format(driver_path))
