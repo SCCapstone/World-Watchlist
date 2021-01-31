@@ -88,11 +88,16 @@ cd server/functions
 npm i
 npm run test
 ```
-##### Running through SeleniumIDE
+##### Running behavioral tests through SeleniumIDE
+``` 
+cd project-folder
 ionic serve
-Open SeleniumIDE and press CMD+O
-Choose a .side file from the tests directory
-Run press the play button in SeleniumIDE to run the desired test
+```
+* Open SeleniumIDE and press CMD+O
+* Select WorldWatchlistSettingsTests.side from \World-Watchlist\tests
+* In SeleniumIDE, select one of the available tests and hit the play button.
+
+Information about a running test can be found in the 'Log' section.
 #### Authors
 
 Nguyen Nguyen - nguyentwotimes@gmail.com
