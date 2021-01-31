@@ -30,6 +30,18 @@ def go_to_site(driver, url):
         print(driver.current_url)
     print('Succeeded in getting to site' if driver.current_url == url else 'Failed to get to site')
 
+def write_to_bar(driver, xpath, string_to_send):
+    driver.find_element_by_xpath(xpath).send_keys(string_to_send)
+
+def clear_bar(driver, xpath):
+    driver.find_element_by_xpath(xpath).clear()
+
+def click_button_xpath(driver, xpath):
+    driver.find_element_by_xpath(xpath).click()
+
+def click_button_css_selector(driver, selector):
+    driver.find_element_by_css_selector(selector)
+
 def click_tab(driver, tab_name):
     if tab_name == 'feed':
         click_button_xpath(driver, '//*[@id="tab-button-feed"]')
@@ -91,7 +103,7 @@ def create_group(driver, group_name):
     write_to_bar(driver, '//*[@id="ion-overlay-10"]/div[2]/div/ion-content/ion-input/input', group_name)
     click_button_xpath(driver, '//*[@id="createGroupButton"]//button')
 
-def new_message():
+def new_message(driver, message):
     click_tab('social')
     click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-header/ion-toolbar/ion-buttons[2]/ion-button//button)')
     click_button_xpath(driver, '//*[@id="ion-overlay-9"]/div[2]/div[2]/div/ion-content/ion-list/ion-item[3]')
@@ -107,17 +119,17 @@ def go_to_weather(driver):
     click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-header/ion-toolbar/ion-buttons/ion-button')
     # should be at url/Weather
 
-def write_to_bar(driver, xpath, string_to_send):
-    driver.find_element_by_xpath(xpath).send_keys(string_to_send)
+def toggle_notifications(driver):
+    pass
 
-def clear_bar(driver, xpath):
-    driver.find_element_by_xpath(xpath).clear()
+def add_content_filter(driver, filter):
+    pass
 
-def click_button_xpath(driver, xpath):
-    driver.find_element_by_xpath(xpath).click()
+def change_username(driver):
+    pass
 
-def click_button_css_selector(driver, selector):
-    driver.find_element_by_css_selector(selector)
+def change_profile_pic(driver):
+    pass
 
 def weather_test(driver):
     go_to_weather(driver)
@@ -137,12 +149,15 @@ def weather_test(driver):
     click_button_xpath(driver, '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-header/ion-toolbar/ion-button')
 
 def social_test(driver):
-    add_friend()
-    create_group()
-    new_message()
+    add_friend(driver, 'TheGreatMagi#0')
+    create_group(driver, 'Test1')
+    # new_message(driver, 'New message')
 
 def settings_test(driver):
-    pass
+    toggle_notifications()
+    add_content_filter()
+    change_username()
+    change_profile_pic()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Selenium and web testing')
