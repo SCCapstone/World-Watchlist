@@ -88,7 +88,11 @@ cd server/functions
 npm i
 npm run test
 ```
-
+##### Running through SeleniumIDE
+ionic serve
+Open SeleniumIDE and press CMD+O
+Choose a .side file from the tests directory
+Run press the play button in SeleniumIDE to run the desired test
 #### Authors
 
 Nguyen Nguyen - nguyentwotimes@gmail.com

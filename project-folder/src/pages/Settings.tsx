@@ -174,13 +174,22 @@ changeEmail(email:string) {
 
 
 
+
    uploadImage() {
     const i = document.getElementById('image');
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
       var newPicRef = storageRef.child('images/new.jpg');
-     
-        // var file = (document.getElementById('image') as HTMLInputElement).files[0];
+      var file = document.getElementById('image');
+      if(file!=null) {
+      file.addEventListener('change', function(evt) {
+        if(evt.target!=null) {
+     // let firstFile = evt.target.files[0] // upload the first file only
+      //let uploadTask = storageRef.put(firstFile)
+      }
+  })
+  }
+        
       
     }
 
@@ -368,7 +377,13 @@ isValidSite(siteName:string) {
           <input type = 'file' id = 'image'></input>
         
           </IonItem>
+            <IonItem>
+            
+            
+           
+
           
+          </IonItem>
         </IonContent>
       </IonPage>
       )
