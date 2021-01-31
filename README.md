@@ -61,7 +61,14 @@ Install webdrivers if you are not on windows (Drivers currently in the 'test/dri
 		
 Optional: Moved drivers you downloaded to '/tests/drivers' to avoid typing long pathname.
 
-##### Running Tests in 'tests'
+##### Running Unit Tests in '/server/functions/tests' 
+``` 
+cd server/functions
+npm i
+npm run test
+```
+
+##### Running behaviorial Tests in 'tests'
 
 First go to 'project-folder' and run the localhost.
 
@@ -82,12 +89,6 @@ Tutorials used:
 - https://linuxhint.com/using\_selenium\_firefox\_driver/
 
 
-##### Running Tests in '/server/functions/tests' 
-``` 
-cd server/functions
-npm i
-npm run test
-```
 ##### Running behavioral tests through SeleniumIDE
 ``` 
 cd project-folder
