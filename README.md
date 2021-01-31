@@ -88,7 +88,7 @@ cd server/functions
 npm i
 npm run test
 ```
-##### Running behavoiral tests through SeleniumIDE
+##### Running behavioral tests through SeleniumIDE
 ``` 
 cd project-folder
 ionic serve
