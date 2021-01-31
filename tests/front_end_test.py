@@ -81,19 +81,19 @@ class FrontEndTest(unittest.TestCase):
     def test_delete_group(self):
         self.skipTest('Not complete')
 
-    def toggle_notifications(self):
+    def test_toggle_notifications(self):
         self.skipTest('Not complete')
 
-    def add_content_filter(self):
+    def test_add_content_filter(self):
         self.skipTest('Not complete')
 
-    def remove_content_filter(self):
+    def test_remove_content_filter(self):
         self.skipTest('Not complete')
 
-    def change_username(self):
+    def test_change_username(self):
         self.skipTest('Not complete')
 
-    def change_profile_picture(self):
+    def test_change_profile_picture(self):
         self.skipTest('Not complete')
 
     def tearDown(self):
