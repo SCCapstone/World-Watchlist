@@ -1,4 +1,3 @@
-from typing import final
 import selenium
 import time
 import argparse
@@ -23,12 +22,12 @@ def get_firefox_driver(driver_path):
     return webdriver.Firefox(executable_path=driver_path)
 
 def go_to_site(driver, url):
-    print('Current url: {}'.format(driver.current_url))
+    # print('Current url: {}'.format(driver.current_url))
     if driver.current_url != url:
-        print('Changing url')
+        # print('Changing url')
         driver.get(url)
-        print(driver.current_url)
-    print('Succeeded in getting to site' if driver.current_url == url else 'Failed to get to site')
+        # print(driver.current_url)
+    # print('Succeeded in getting to site' if driver.current_url == url else 'Failed to get to site')
 
 def write_to_bar(driver, xpath, string_to_send):
     driver.find_element_by_xpath(xpath).send_keys(string_to_send)
@@ -55,13 +54,13 @@ def click_tab(driver, tab_name):
     return driver.current_url
 
 def login(driver, email, password):
-    # try:
-    print('Logging in')
+    # print('Logging in')
     write_to_bar(driver, '//*[@id="loginInputContainer"]/ion-item[1]/ion-input/input', email)
     write_to_bar(driver, '//*[@id="loginInputContainer"]/ion-item[2]/ion-input/input', password)
     click_button_xpath(driver, '/html/body/div/ion-app/ion-router-outlet/div/ion-content/div/ion-button')
-    print('Finished login attempt')
-    time.sleep(2)
+    # print('Finished login attempt')
+    # time.sleep(2)
+    return '/main' in driver.current_url
     # finally:
     #     print('exiting login attempt')
     #     driver.close()
@@ -131,6 +130,13 @@ def change_username(driver):
 def change_profile_pic(driver):
     pass
 
+def add_weather_card(driver, location):
+    search_bar_xpath, search_submit_xpath = '//*[@id="root"]/ion-app/ion-router-outlet/div/ion-content/ion-searchbar/div/input', '//*[@id="searchButton"]'
+    card_container_xpath = '//*[@id="children-pane"]'
+    write_to_bar(driver, search_bar_xpath, location)
+    click_button_xpath(driver, search_submit_xpath)
+    return len(driver.find_element_by_xpath(card_container_xpath).find_elements_by_tag_name('ion-card'))
+
 def weather_test(driver):
     go_to_weather(driver)
     time.sleep(2)
@@ -178,7 +184,7 @@ if __name__ == '__main__':
         login(driver, email, password)
         main_page = driver.current_url
         weather_test(driver)
-        print(dir(driver))
+        # print(dir(driver))
         social_test(driver)
         settings_test(driver)
     finally:
