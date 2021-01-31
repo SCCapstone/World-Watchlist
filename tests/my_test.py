@@ -1,4 +1,3 @@
-from typing import final
 import selenium
 import time
 import argparse
