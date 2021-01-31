@@ -59,7 +59,7 @@ What I did:
 To run the program:
 	[python (with selenium) or ./my_test.sh (if python3 has selenium installed) ] path/to/driver url email password
 	Ex. python3 foo/bar/driver.exe http://localhost:1001 user@email.com password1234
-
+	\* There is a test account: email=test@email.com, password=TestPassword, username=test#0
 Tutorials used:
 https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
 https://linuxhint.com/using\_selenium\_firefox\_driver/
