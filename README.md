@@ -37,7 +37,7 @@ firebase serve
 ```
 
 
-#### Testing
+### Testing
 
 unit tests using Jest for server-side are in '/server/functions/tests' 
 
