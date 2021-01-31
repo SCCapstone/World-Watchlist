@@ -61,8 +61,8 @@ tests requirements:
 	* Ex. python3 foo/bar/driver.exe http://localhost:1001 user@email.com password1234
 	* \* There is a test account: email=test@email.com, password=TestPassword, username=test#0
 * Tutorials used:
-* https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
-* https://linuxhint.com/using\_selenium\_firefox\_driver/
+	* https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
+	* https://linuxhint.com/using\_selenium\_firefox\_driver/
 
 
 ##### Running Tests
