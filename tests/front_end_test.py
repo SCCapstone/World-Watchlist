@@ -1,5 +1,6 @@
 import unittest
 import my_test
+import time
 
 driver_path = './drivers/chromedriver.exe'
 
@@ -18,6 +19,8 @@ class Login_Test(unittest.TestCase):
         print('yes')
         self.assertTrue('/landing' in self.driver.current_url)
         my_test.login(self.driver, self.email, self.password)
+        time.sleep(1)
+        print(self.driver.current_url)
         self.assertTrue('/main' in self.driver.current_url)
 
     def test_invalid_email_login(self):
