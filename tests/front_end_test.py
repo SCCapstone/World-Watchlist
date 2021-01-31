@@ -2,18 +2,17 @@ import unittest
 import my_test
 
 driver_path = './drivers/chromedriver.exe'
-print('hi')
+
 class Login_Test(unittest.TestCase):
 
     def setUp(self):
-        print('yes')
         super().setUp()
         self.driver = None
         self.driver = my_test.get_driver(driver_path)
         self.email, self.password = 'test@email.com', 'TestPassword'
         self.url = 'http://localhost:8100'
         my_test.go_to_site(self.driver, self.url)
-        print(self.driver.current_url)
+        # print(self.driver.current_url)
 
     def test_login(self):
         print('yes')
@@ -40,8 +39,6 @@ class Login_Test(unittest.TestCase):
         del(self.url)
 
 
-
-
 class FrontEndTest(unittest.TestCase):
 
     def setUp(self):
@@ -51,7 +48,6 @@ class FrontEndTest(unittest.TestCase):
         self.email, self.password = 'test@email.com', 'TestPassword'
         self.url = 'http://localhost:8100'
         my_test.login(self.driver, self.email, self.password)
-        
 
     def test_go_to_weather(self):
         my_test.go_to_weather(self.driver)
@@ -59,6 +55,8 @@ class FrontEndTest(unittest.TestCase):
 
     def test_add_weather_card(self):
         self.skipTest('Not complete')
+        count = my_test.add_weather_card(self.driver, 'charleston, SC')
+        self.assertEqual(count, 1)
 
     def test_remove_weather_card(self):
         self.skipTest('Not complete')
@@ -67,6 +65,27 @@ class FrontEndTest(unittest.TestCase):
         self.skipTest('Not complete')
 
     def test_remove_friend(self):
+        self.skipTest('Not complete')
+
+    def test_create_group(self):
+        self.skipTest('Not complete')
+
+    def test_delete_group(self):
+        self.skipTest('Not complete')
+
+    def toggle_notifications(self):
+        self.skipTest('Not complete')
+
+    def add_content_filter(self):
+        self.skipTest('Not complete')
+
+    def remove_content_filter(self):
+        self.skipTest('Not complete')
+
+    def change_username(self):
+        self.skipTest('Not complete')
+
+    def change_profile_picture(self):
         self.skipTest('Not complete')
 
     def tearDown(self):
