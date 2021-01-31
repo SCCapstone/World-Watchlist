@@ -48,21 +48,21 @@ tests requirements:
 - compatible web browser: Chrome, Firefox, Safari, Edge, etc.
 - web driver for web browser
 
-What I did:
-	Installed python if not already installed
-	Installed selenium via pip
-	Had chrome browser installed already, installed firefox browser
-	Installed webdrivers, locations below:
-		Chrome - https://sites.google.com/a/chromium.org/chromedriver/downloads
-		Firefox - https://github.com/mozilla/geckodriver/releases/tag/v0.29.0
-	optional: Moved drivers to program directory to avoid typing long path
-To run the program:
-	[python (with selenium) or ./my_test.sh (if python3 has selenium installed) ] path/to/driver url email password
-	Ex. python3 foo/bar/driver.exe http://localhost:1001 user@email.com password1234
-	\* There is a test account: email=test@email.com, password=TestPassword, username=test#0
-Tutorials used:
-https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
-https://linuxhint.com/using\_selenium\_firefox\_driver/
+* What I did:
+	* Installed python if not already installed
+	* Installed selenium via pip
+	* Had chrome browser installed already, installed firefox browser
+	* Installed webdrivers, locations below:
+		* Chrome - https://sites.google.com/a/chromium.org/chromedriver/downloads
+		* Firefox - https://github.com/mozilla/geckodriver/releases/tag/v0.29.0
+	* Optional: Moved drivers to program directory to avoid typing long path
+* To run the program:
+	* [python (with selenium) or ./my_test.sh (if python3 has selenium installed) ] path/to/driver url email password
+	* Ex. python3 foo/bar/driver.exe http://localhost:1001 user@email.com password1234
+	* \* There is a test account: email=test@email.com, password=TestPassword, username=test#0
+* Tutorials used:
+* https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
+* https://linuxhint.com/using\_selenium\_firefox\_driver/
 
 
 ##### Running Tests
