@@ -3,13 +3,16 @@ import my_test
 import time
 
 driver_path = './drivers/chromedriver.exe'
+wait_time = 5
+
 
 class Login_Test(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
         self.driver = None
-        self.driver = my_test.get_driver(driver_path)
+        self.driver = my_test.get_driver(driver_path, set_headless=True)
+        self.driver.implicitly_wait(wait_time)
         self.email, self.password = 'test@email.com', 'TestPassword'
         self.url = 'http://localhost:8100'
         my_test.go_to_site(self.driver, self.url)
@@ -47,7 +50,8 @@ class FrontEndTest(unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.driver = None
-        self.driver = my_test.get_driver(driver_path)
+        self.driver = my_test.get_driver(driver_path, set_headless=True)
+        self.driver.implicitly_wait(wait_time)
         self.email, self.password = 'test@email.com', 'TestPassword'
         self.url = 'http://localhost:8100'
         my_test.login(self.driver, self.email, self.password)
