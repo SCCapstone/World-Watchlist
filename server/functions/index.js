@@ -83,11 +83,21 @@ function nytpost() {
   url = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
   getRSS(url, "NYTNews");
 }
+function bbctechpost() {
+  url = "http://feeds.bbci.co.uk/news/technology/rss.xml";
+  getRSS(url, "BBCTechnology");
+}
+function ignpost() {
+  url = "http://feeds.feedburner.com/ign/all";
+  getRSS(url, "IGNMain");
+}
 function thisInterval() {
   bbcpost();
   nytpost();
+  bbctechpost();
+  ignpost();
   console.log("Sending to firestore.")
 }
 /*refresh every 8 hours*/
-setInterval(thisInterval, 2880000000);
+setInterval(thisInterval, 2147483647);
 exports.app = functions.https.onRequest(app)
