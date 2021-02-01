@@ -15,7 +15,8 @@ import {
   IonPopover,
   IonList,
   IonListHeader,
-  IonAvatar
+  IonAvatar,
+  IonItemGroup
 } from '@ionic/react'
 
 import GroupView from './GroupView'
@@ -40,7 +41,7 @@ type MyState = {
   ourUsername: string;
   targetUsername: string;
   friendsList: string[];
-  blockedFriends: [];
+  blockedUsers: [];
   isPendingRequestsModalOpen: boolean;
   isMessengerModalOpen: boolean;
   incomingRequests: string[];
@@ -56,7 +57,7 @@ type MyState = {
   groupDetails: Group | undefined;
   isGroupModalOpen: boolean;
   unsubscribeFriendsList: any;
-  unsubscribeBlockedFriends: any;
+  unsubscribeBlockedUsers: any;
   unsubscribeIncomingRequests: any;
   unsubscribeOutgoingRequests: any;
 }
@@ -80,7 +81,7 @@ class Social extends React.Component<MyProps, MyState> {
     ourUsername: '',
     targetUsername: '',
     friendsList: [],
-    blockedFriends: [],
+    blockedUsers: [],
     isPendingRequestsModalOpen: false,
     isMessengerModalOpen: false,
     incomingRequests: [],
@@ -96,7 +97,7 @@ class Social extends React.Component<MyProps, MyState> {
     groupDetails: undefined,
     isGroupModalOpen: false,
     unsubscribeFriendsList: () => {},
-    unsubscribeBlockedFriends: null,
+    unsubscribeBlockedUsers: null,
     unsubscribeIncomingRequests: () => {},
     unsubscribeOutgoingRequests: () => {}
   };
@@ -113,7 +114,8 @@ class Social extends React.Component<MyProps, MyState> {
     this.addFriend = this.addFriend.bind(this);
     this.acceptFriend = this.acceptFriend.bind(this);
     this.declineFriend = this.declineFriend.bind(this);
-    this.blockFriend = this.blockFriend.bind(this);
+    this.removeFriend = this.removeFriend.bind(this);
+    this.blockUser = this.blockUser.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
     this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
@@ -137,12 +139,13 @@ class Social extends React.Component<MyProps, MyState> {
               }
             })
 
-            // create subscription to user's blocked friends list
-            this.state.unsubscribeBlockedFriends = db.collection('blockedFriends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            // create subscription to user's blocked users list
+            this.state.unsubscribeBlockedUsers = db.collection('blockedUsers').doc(this.state.ourUsername).onSnapshot((snapshot) => {
               if(snapshot.exists) {
-                this.setState({blockedFriends: snapshot.data()!.blockedFriends})
+                this.setState({blockedUsers: snapshot.data()!.blockedFriends})
               } else {
-                this.setState({blockedFriends: []})
+                db.collection("blockedUsers").doc(this.state.ourUsername).set({blocked: []})
+                this.setState({blockedUsers: []})
               }
             })
 
@@ -291,14 +294,38 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
-  blockFriend(username: string) { // adds given friend to blocked list, users on blocked list are excluded from stuff
-    if(username !== "") {
-      let chosenFriend = db.collection('friends').doc(username);
-      db.collection('blockedFriends').add(chosenFriend);
-      // db.collection('friends').doc(username).delete() // remove user once added to blocked list, line included for future possibility
-    }
+  removeFriend(username: string) {
+    console.log("Removing friend "+username);
+    if (username !== "")
+      if (this.state.friendsList.includes(username)) {
+        let friends = db.collection('friends');
+        friends.doc(this.state.ourUsername).update({friendsList: firebase.firestore.FieldValue.arrayRemove(username)});
+        friends.doc(username).update({friendsList: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)})
+        friends.doc(this.state.ourUsername).update({[username]: firebase.firestore.FieldValue.delete()})
+        friends.doc(username).update({[this.state.ourUsername]: firebase.firestore.FieldValue.delete()})
+        console.log("Successfully removed friend");
+      }
   }
 
+  blockUser(username: string) { // adds given friend to blocked list, users on blocked list are excluded from stuff
+    if(username !== "") {
+      let chosenUser = db.collection('usernames').doc(username);
+      if( chosenUser === undefined)
+        return;
+      console.log("User exists, attempting to block");
+      db.collection('blockedUsers').doc(this.state.ourUsername).update({blocked: firebase.firestore.FieldValue.arrayUnion(username)});
+      console.log("User should be added to blocked list");
+      /*if ( this.isFriend(username))
+       *  this.removeFriend(username); // remove user once added to blocked list, line included for future possibility
+       */
+    }
+  }
+  isFriend(username: string) {
+    return username !== "" && this.state.friendsList.includes(username);
+  }
+  exists(username: string) {
+    return username !== "" //&& db.collection('usernames').doc(username) !== undefined
+  }
   loadMessages(username: string) {
 
     db.collection('friends').doc(this.state.ourUsername).get().then((doc) => {
@@ -470,9 +497,13 @@ class Social extends React.Component<MyProps, MyState> {
         <IonContent>
         {
           this.state.friendsList.map(Friend =>
-            <IonItem onClick={() => {this.loadMessages(Friend.toString())}} key={Friend.toString()}>
+            <IonItemGroup>
+            <IonItem button slot="start" onClick={() => {this.loadMessages(Friend.toString())}} key={Friend.toString()}>
               <IonLabel>{Friend.toString()}</IonLabel>
             </IonItem>
+              <IonItem button slot="end" onClick={() => {this.removeFriend(Friend)}}>Remove Friend</IonItem>
+              <IonButton onClick={() => {this.blockUser(Friend)}}>Block Friend</IonButton>
+            </IonItemGroup>
         )}
         <GroupView isGroupModalOpen={this.state.isGroupModalOpen} groupDetails={this.state.groupDetails} {...this.props} toggleGroupModal={this.toggleGroupModal} />
         {
