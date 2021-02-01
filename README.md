@@ -51,7 +51,7 @@ Testing Technology:
 
 Install python if not already installed
 	
-Install selenium via pip
+Install selenium via pip - i.e. python3 -m pip install selenium
 	
 Install webdrivers if you are not on windows (Drivers currently in the 'test/driver' folder are specifically for windows), locations below:
 	
@@ -79,7 +79,7 @@ ionic serve
 open up new terminal to go into 'tests'
 
 ```
-./unit_tests.sh
+./behavioral_tests.sh
 ```
 	
 Tutorials used:
