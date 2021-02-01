@@ -67,10 +67,15 @@ class Settings extends React.Component<MyProps, MyState> {
 
   };
 
+ //private fileInput: React.RefObject<HTMLInputElement>;
 
+//onst inputElement = document.getElementById('image').files[0];
 
   constructor(props: MyProps) {
-    super(props)
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+   // this.fileInput = React.createRef();
+     this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
 
         if(auth.currentUser) { // gets the name of the current user
@@ -87,6 +92,21 @@ class Settings extends React.Component<MyProps, MyState> {
         }
        this.pullImage();
   }
+
+  async handleChange(selectorFiles: FileList)
+    {
+        console.log(selectorFiles);
+        var storage = firebase.storage();
+        var storageRef = firebase.storage().ref();
+        var file = selectorFiles[0];
+        
+        var newPicRef = storageRef.child('images/new.jpg');
+        newPicRef.put(file);
+        await new Promise(r => setTimeout(r, 1000));
+        this.pullImage();
+    }
+
+
 
   blockSource(sourceName:string) {
     if(sourceName!="" && sourceName.length > 3) { //makes sure the source is a valid site and isn't blank
@@ -143,10 +163,17 @@ changeEmail(email:string) {
   }
     }
 
+    handleSubmit(){
+      
+      
+    }
+
+ 
+
     pullImage() {
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
-      var pathReference = storageRef.child('Images/iceland-16-860x484.jpg');
+      var pathReference = storageRef.child('images/new.jpg');
       pathReference.getDownloadURL().then((url)=> {
          var img = document.getElementById('myimg');
          if(img!=null)
@@ -176,11 +203,13 @@ changeEmail(email:string) {
 
 
    uploadImage() {
-    const i = document.getElementById('image');
+   // const i = document.getElementById('image')!.files[0];
+    var y = React.createRef();
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
       var newPicRef = storageRef.child('images/new.jpg');
       var file = document.getElementById('image');
+     // var v = file.files;
       if(file!=null) {
       file.addEventListener('change', function(evt) {
         if(evt.target!=null) {
@@ -370,11 +399,11 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
-
+<input type="file" onChange={ (e) => (this.handleChange(e.target.files!)) } />
                <IonItem id ='updateEmail'>
           Change Profile Picture
       
-          <input type = 'file' id = 'image'></input>
+         
         
           </IonItem>
             <IonItem>
