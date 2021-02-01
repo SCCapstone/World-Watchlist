@@ -370,6 +370,34 @@ class Social extends React.Component<MyProps, MyState> {
     })
   }
 
+  removeGroupMember(groupId: string, username: string) {
+    // need to implement checks
+    db.collection("groups").doc(groupId).update({members: firebase.firestore.FieldValue.arrayRemove(username)});
+    // can't remove group info from user account without knowing identity
+  }
+
+  deleteGroup(groupId: string) {
+    console.log("Attempting to delete group");
+    let group = db.collection("groups").doc(groupId);
+    group.get().then(groupInfo => {
+      if (groupInfo.exists) {
+        let data = groupInfo.data();
+        if (data !== undefined && data.owner === this.state.ourUsername) {
+          // remove all members
+          data.members.forEach((member: string) => {
+            this.removeGroupMember(groupId, member);
+          });
+          // delete group
+          groupInfo.ref.delete();
+          return;
+        } else if (data === undefined) {
+          console.log("Data was undefined");
+        } else {
+          console.log(this.state.ourUsername + " is not the owner :-(");
+        }
+      }
+    });
+  }
   toggleGroupModal() {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
