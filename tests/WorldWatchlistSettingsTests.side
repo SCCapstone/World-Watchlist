@@ -4,96 +4,6 @@
   "name": "WorldWatchlist",
   "url": "http://localhost:8100",
   "tests": [{
-    "id": "f245c7f3-6755-41f2-964b-2e3ccc65690f",
-    "name": "Test1",
-    "commands": [{
-      "id": "eadacd37-cc04-4b9e-814d-70dc7cff0004",
-      "comment": "",
-      "command": "open",
-      "target": "/main/settings",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "10d44699-19e0-46d2-8e60-ad827104629b",
-      "comment": "",
-      "command": "setWindowSize",
-      "target": "1536x824",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "f81a693d-1348-4ced-95fc-8acbaabd0aae",
-      "comment": "",
-      "command": "click",
-      "target": "css=.in-item",
-      "targets": [
-        ["css=.in-item", "css:finder"],
-        ["xpath=//ion-toggle[@value='Notifications']", "xpath:attributes"],
-        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-item/ion-toggle", "xpath:idRelative"],
-        ["xpath=//ion-toggle", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "f15bd8ca-43f3-4fd5-a69e-ba8d32c5200e",
-      "comment": "",
-      "command": "click",
-      "target": "css=.in-item",
-      "targets": [
-        ["css=.in-item", "css:finder"],
-        ["xpath=//ion-toggle[@value='Notifications']", "xpath:attributes"],
-        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-item/ion-toggle", "xpath:idRelative"],
-        ["xpath=//ion-toggle", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "901e763a-cb50-46a9-87de-abab28eb4031",
-      "comment": "",
-      "command": "click",
-      "target": "css=.ion-activated",
-      "targets": [
-        ["css=.ion-activated", "css:finder"],
-        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-content/ion-item/ion-buttons/ion-button", "xpath:idRelative"],
-        ["xpath=//ion-button", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "4c17dc4b-f7e5-44a2-8d36-377a0bfbfd46",
-      "comment": "",
-      "command": "click",
-      "target": "name=ion-input-0",
-      "targets": [
-        ["name=ion-input-0", "name"],
-        ["css=.has-focus > .native-input", "css:finder"],
-        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
-        ["xpath=//ion-item[@id='block']/ion-input/input", "xpath:idRelative"],
-        ["xpath=//ion-input/input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "e3f9f22a-02c4-423e-8992-53fed42dcd59",
-      "comment": "",
-      "command": "type",
-      "target": "name=ion-input-0",
-      "targets": [
-        ["name=ion-input-0", "name"],
-        ["css=.has-focus > .native-input", "css:finder"],
-        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
-        ["xpath=//ion-item[@id='block']/ion-input/input", "xpath:idRelative"],
-        ["xpath=//ion-input/input", "xpath:position"]
-      ],
-      "value": "cnn.com"
-    }, {
-      "id": "b773c02d-c42b-441f-8c1c-66c92b099700",
-      "comment": "",
-      "command": "click",
-      "target": "css=.ion-activated",
-      "targets": [
-        ["css=.ion-activated", "css:finder"],
-        ["xpath=//ion-item[@id='block']/ion-button", "xpath:idRelative"],
-        ["xpath=//ion-item/ion-button", "xpath:position"]
-      ],
-      "value": ""
-    }]
-  }, {
     "id": "be38bc57-a99a-4696-82af-138da7ea0c04",
     "name": "Test2",
     "commands": [{
@@ -390,7 +300,7 @@
     "persistSession": false,
     "parallel": false,
     "timeout": 300,
-    "tests": ["f245c7f3-6755-41f2-964b-2e3ccc65690f"]
+    "tests": []
   }],
   "urls": ["http://localhost:8100/"],
   "plugins": []
