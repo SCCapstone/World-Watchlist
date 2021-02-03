@@ -70,7 +70,7 @@ class Weather extends React.Component<MyProps,MyState> {
         //gets the username of our user
         db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
           if(doc.data()) {
-            console.log('social debug username: ' + doc.data()!.username)
+            console.log('current user: ' + doc.data()!.username)
             this.setState({CurrentUser:doc.data()!.username})
           }
           // go into weatherSubscription collection
@@ -215,7 +215,7 @@ class Weather extends React.Component<MyProps,MyState> {
           </IonToolbar>
         </IonHeader>
         <IonContent>
-        <IonSearchbar value={this.state.req} placeholder="place" onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
+        <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
               <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req) 
                 && this.setState({showLoading: true })}>
             search

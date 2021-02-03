@@ -91,13 +91,27 @@ function ignpost() {
   url = "http://feeds.feedburner.com/ign/all";
   getRSS(url, "IGNMain");
 }
+
+function espnpost() {
+  url = "https://www.espn.com/espn/rss/news";
+  getRSS(url, "ESPN");
+}
+function politicopost() {
+  url = "https://www.politico.com/rss/politicopicks.xml";
+  getRSS(url, "Politico");
+}
+
+
+
 function thisInterval() {
   bbcpost();
+  espnpost();
+  politicopost();
   nytpost();
   bbctechpost();
   ignpost();
   console.log("Sending to firestore.")
 }
 /*refresh every 8 hours*/
-setInterval(thisInterval, 2147483647);
+setInterval(thisInterval, 28800000);
 exports.app = functions.https.onRequest(app)

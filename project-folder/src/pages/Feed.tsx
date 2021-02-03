@@ -9,19 +9,26 @@ import {
   IonIcon,
   IonLabel,
   IonButton,
-  IonButtons
+  IonButtons,
+  IonSearchbar,
+  IonLoading
 } from '@ionic/react'
 
 import './Feed.css'
-import { db } from '../API/config';
+import { NewsDB } from '../API/config';
+import firebase, {db,auth} from '../firebase'
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
 import { Redirect, Route } from 'react-router-dom';
 import { cloud } from 'ionicons/icons';
+
 type MyState = {
   articles: articleList;
   unsubscribeArticles: any;
+  CurrentUser:any;
+  topicSearched:any;
+  showLoading:boolean
 }
 
 type MyProps = {
@@ -64,16 +71,64 @@ type MyProps = {
 // export default FeedFunc;
 
 class Feed extends React.Component<MyProps, MyState> {
-
   state: MyState = {
     articles: [],
-    unsubscribeArticles: undefined
+    unsubscribeArticles: undefined,
+    CurrentUser: null,
+    topicSearched:null,
+    showLoading:false
   };
 
   constructor(props: MyProps) {
     super(props)
+    auth.onAuthStateChanged(async () => {
+      if(auth.currentUser) {
+        //gets the username of our user
+        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+          if(doc.data()) {
+            console.log('current user: ' + doc.data()!.username)
+            this.setState({CurrentUser:doc.data()!.username})
+          }
+          // go into weatherSubscription collection
+          // const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
+              
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+      }
+    })
+
+      
+  }
+
+  // getUserData = () => {
+  // NewsDB.collection("BBCNews")
+  //   .doc('55118880')
+  //   .get()
+  //   .then(doc => {
+  //     const data = doc.data();
+  //     console.log(data);
+  //     return data;
+  //   });
+  // };
+
+  // saveBBCNews = (someVar: articleList) => {
+  //   let BBCNews = NewsDB.collection("BBCNews");
+  //   let allNews = BBCNews.get()
+  //     .then(snapshot => {
+  //       someVar.list = [];
+  //       snapshot.forEach(doc => {
+  //         let articleItem = doc.data();
+  //         let newArticle = {title: articleItem.Title, link: articleItem.Link, description: articleItem.Description};
+  //         someVar.list.push(newArticle);
+  //       });
+  //     });
+  // }
+
+  /* search firebase database for topic*/
+  async searchTopic(topic:any) {
     let aList : articleList = [];
-    let unsubscribeArticles = db.collection('BBCNews').get().then((snapshot) => {
+    let unsubscribeArticles = NewsDB.collection(topic).get().then((snapshot) => {
       aList = []
 
       snapshot.forEach(doc => {
@@ -85,31 +140,12 @@ class Feed extends React.Component<MyProps, MyState> {
     this.setState({unsubscribeArticles: unsubscribeArticles})
   }
 
-  // getUserData = () => {
-  // db.collection("BBCNews")
-  //   .doc('55118880')
-  //   .get()
-  //   .then(doc => {
-  //     const data = doc.data();
-  //     console.log(data);
-  //     return data;
-  //   });
-  // };
+  async subscribe(topic:any) {
+    console.log("topic is: " + topic)
+  }
 
-  // saveBBCNews = (someVar: articleList) => {
-  //   let BBCNews = db.collection("BBCNews");
-  //   let allNews = BBCNews.get()
-  //     .then(snapshot => {
-  //       someVar.list = [];
-  //       snapshot.forEach(doc => {
-  //         let articleItem = doc.data();
-  //         let newArticle = {title: articleItem.Title, link: articleItem.Link, description: articleItem.Description};
-  //         someVar.list.push(newArticle);
-  //       });
-  //     });
-  // }
-  getBBCNews() {
-    let BBCNews = db.collection("BBCNews")
+  async getBBCNews() {
+    let BBCNews = NewsDB.collection("BBCNews")
     let aList: articleList = [];// {list: []};
     let allNews = BBCNews.get()
       .then(snapshot => {
@@ -122,13 +158,13 @@ class Feed extends React.Component<MyProps, MyState> {
       return aList;
   };
 
-  componentDidMount() {
-    //this.setState({articles: this.getBBCNews()})
-  }
+  // componentDidMount() {
+  //   this.setState({articles: this.getBBCNews()})
+  // }
 
-  componentWillUnmount() {
-    this.state.unsubscribeArticles()
-  }
+  // componentWillUnmount() {
+  //   this.state.unsubscribeArticles()
+  // }
 
   render() {
     return (
@@ -141,14 +177,29 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonRouterOutlet>
           <Route path="/Weather" component={Weather} exact={true} />
       </IonRouterOutlet>
-        <IonButtons slot='start'>
           <IonButton href="/Weather">
               <IonIcon icon={cloud} />
           </IonButton>
-        </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
+        
+      <IonSearchbar placeholder="Topic" onIonInput={(e: any) => this.setState({topicSearched:e.target.value})} animated>
+      </IonSearchbar>
+      <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=>this.setState({showLoading: true})}>
+          search
+      </IonButton>
+      <IonLoading
+        isOpen={this.state.showLoading}
+        onDidDismiss={() => this.searchTopic(this.state.topicSearched) && this.setState({showLoading: false})}
+        message={'Getting data from database'}
+        duration={150}
+      />
+      <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=>this.subscribe(this.state.topicSearched)}>
+          subscribe
+      </IonButton>
+      
+              
     <ArticleList theArticleList={this.state.articles}></ArticleList>
       </IonContent>
     </IonPage>

@@ -9,5 +9,5 @@ var config = {
     appId: "1:354505895223:web:3eb1d4a5850a9cabbe7eb2",
 };
 var secondaryApp = firebase.initializeApp(config, "Secondary");
-export const db = secondaryApp.firestore();
+export const NewsDB = secondaryApp.firestore();
 export default secondaryApp;
