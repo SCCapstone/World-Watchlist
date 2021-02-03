@@ -25,6 +25,7 @@ import { cloud } from 'ionicons/icons';
 
 type MyState = {
   articles: articleList;
+  subs: string[];
   unsubscribeArticles: any;
   CurrentUser:any;
   topicSearched:any;
@@ -73,6 +74,7 @@ type MyProps = {
 class Feed extends React.Component<MyProps, MyState> {
   state: MyState = {
     articles: [],
+    subs: [],
     unsubscribeArticles: undefined,
     CurrentUser: null,
     topicSearched:null,
@@ -91,7 +93,15 @@ class Feed extends React.Component<MyProps, MyState> {
           }
           // go into weatherSubscription collection
           // const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
-              
+        // get subscription list
+        db.collection("topicSubscription").doc(this.state.CurrentUser).get().then(sub_list => {
+          if (doc.exists && doc.data() !== undefined && doc.data()!.subList !== undefined) {
+            this.setState({subs: doc.data()!.subList});
+          } else {
+            db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: []});
+            this.setState({subs: []})
+          }
+        })
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
@@ -144,19 +154,33 @@ class Feed extends React.Component<MyProps, MyState> {
     console.log("topic is: " + topic)
   }
 
-  async getBBCNews() {
-    let BBCNews = NewsDB.collection("BBCNews")
-    let aList: articleList = [];// {list: []};
-    let allNews = BBCNews.get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          let articleItem = doc.data();
-          aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-          //console.log(doc.id, '=>', doc.data());
-        });
-      });
-      return aList;
-  };
+  // async getBBCNews() {
+  //   let BBCNews = NewsDB.collection("BBCNews")
+  //   let aList: articleList = [];// {list: []};
+  //   let allNews = BBCNews.get()
+  //     .then(snapshot => {
+  //       snapshot.forEach(doc => {
+  //         let articleItem = doc.data();
+  //         aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+  //         //console.log(doc.id, '=>', doc.data());
+  //       });
+  //     });
+  //     return aList;
+  // };
+
+  // async getSubArticles(sub_name: string) {
+  //   let sub_collection = NewsDB.collection(sub_name);
+  //   let aList: articleList = [];// {list: []};
+  //   let allNews = sub_collection.get()
+  //     .then(snapshot => {
+  //       snapshot.forEach(doc => {
+  //         let articleItem = doc.data();
+  //         aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+  //         //console.log(doc.id, '=>', doc.data());
+  //       });
+  //     });
+  //     return aList;
+  // };
 
   // componentDidMount() {
   //   this.setState({articles: this.getBBCNews()})
