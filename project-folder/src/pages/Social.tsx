@@ -141,8 +141,8 @@ class Social extends React.Component<MyProps, MyState> {
 
             // create subscription to user's blocked users list
             this.state.unsubscribeBlockedUsers = db.collection('blockedUsers').doc(this.state.ourUsername).onSnapshot((snapshot) => {
-              if(snapshot.exists) {
-                this.setState({blockedUsers: snapshot.data()!.blockedFriends})
+              if(snapshot.exists && snapshot.data()!.blocked !== undefined) {
+                this.setState({blockedUsers: snapshot.data()!.blocked})
               } else {
                 db.collection("blockedUsers").doc(this.state.ourUsername).set({blocked: []})
                 this.setState({blockedUsers: []})

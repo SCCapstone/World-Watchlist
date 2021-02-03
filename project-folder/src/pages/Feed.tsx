@@ -94,14 +94,15 @@ class Feed extends React.Component<MyProps, MyState> {
           // go into weatherSubscription collection
           // const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
         // get subscription list
-        db.collection("topicSubscription").doc(this.state.CurrentUser).get().then(sub_list => {
-          if (doc.exists && doc.data() !== undefined && doc.data()!.subList !== undefined) {
-            this.setState({subs: doc.data()!.subList});
+        db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot(sub_list => {
+          if (sub_list.exists ) {
+            this.setState({subs: sub_list.data()!.subList});
           } else {
             db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: []});
             this.setState({subs: []})
           }
         })
+
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
@@ -111,6 +112,17 @@ class Feed extends React.Component<MyProps, MyState> {
       
   }
 
+  addSubscription(sub: string) {
+    if ( sub !== "") {
+      db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
+    }
+  }
+
+  removeSubscription(sub: string) {
+    if ( sub !== "") {
+      db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayRemove(sub)})
+    }
+  }
   // getUserData = () => {
   // NewsDB.collection("BBCNews")
   //   .doc('55118880')
@@ -152,6 +164,7 @@ class Feed extends React.Component<MyProps, MyState> {
 
   async subscribe(topic:any) {
     console.log("topic is: " + topic)
+    this.addSubscription(topic);
   }
 
   // async getBBCNews() {
