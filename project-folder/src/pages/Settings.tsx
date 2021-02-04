@@ -19,7 +19,7 @@ import {
 
 } from '@ionic/react'
 import firebase, {db, auth} from '../firebase'
-import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline} from 'ionicons/icons'
+import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import { Capacitor, Plugins, CameraResultType, FilesystemDirectory } from '@capacitor/core';
 import './Settings.css'
 const { Camera, Filesystem } = Plugins;
@@ -89,7 +89,9 @@ class Settings extends React.Component<MyProps, MyState> {
               })
             }
           })
+          
         }
+      
        this.pullImage();
   }
 
@@ -109,6 +111,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
 
   blockSource(sourceName:string) {
+
     if(sourceName!="" && sourceName.length > 3) { //makes sure the source is a valid site and isn't blank
       if(!this.state.localList.includes(sourceName))
         this.state.localList.push(sourceName);
@@ -135,6 +138,14 @@ unBlockSource(sourceName:string) {
     }
   })
 }
+}
+
+populate() {
+var temp = this.state.blockedSources;
+for (var i = temp.length - 1; i >= 0; i--) {
+  this.addToList(temp[i]);
+}
+ 
 }
 
 changeEmail(email:string) {
@@ -264,7 +275,7 @@ isValidSite(siteName:string) {
         <IonHeader>
           <IonToolbar>
             <IonButtons>
-              <IonButton onClick={() => {this.setState({isBlockSourceModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonButton onClick={() => {this.populate();this.setState({isBlockSourceModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
@@ -282,7 +293,11 @@ isValidSite(siteName:string) {
           </IonButton>
         </IonItem>
         <br/>
-        Unblock
+        <IonTitle id ='unblockText'>
+        Unblock a Source
+        </IonTitle>
+        <br/>
+        <br/>
         <IonItem lines='none' id='block'>
           <IonInput class='addSource' onIonChange={(e) => {this.setState({sourceToUnBlock: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.unBlockSource(this.state.sourceToUnBlock)}}  fill='clear'>
@@ -399,12 +414,20 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
-<input type="file" onChange={ (e) => (this.handleChange(e.target.files!)) } />
+           
+
                <IonItem id ='updateEmail'>
-          Change Profile Picture
+               Change Profile Picture
+               <IonButtons slot = 'end'>
+                  <IonButton id = 'submit'>
+              
+<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+ <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
+</IonButton>
+          
       
          
-        
+        </IonButtons>
           </IonItem>
             <IonItem>
             
