@@ -6,8 +6,8 @@ function Article(props: {theArticle: article}) {
     //console.log(props.theArticle);
     return <div id="Container">
         <h3 id="title">{props.theArticle.title}</h3>
-        <span><a href={props.theArticle.link}>{props.theArticle.link}</a></span>
         <p id="description">{props.theArticle.description}</p>
+        <span><a href={props.theArticle.link}>{props.theArticle.link}</a></span>
     </div>;
 }
 export default Article;

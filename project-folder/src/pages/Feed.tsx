@@ -11,7 +11,8 @@ import {
   IonButton,
   IonButtons,
   IonSearchbar,
-  IonLoading
+  IonLoading,
+  IonModal
 } from '@ionic/react'
 
 import './Feed.css'
@@ -21,7 +22,7 @@ import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
 import { Redirect, Route } from 'react-router-dom';
-import { cloud } from 'ionicons/icons';
+import { closeCircleOutline, cloud, search } from 'ionicons/icons';
 
 type MyState = {
   articles: articleList;
@@ -29,7 +30,9 @@ type MyState = {
   unsubscribeArticles: any;
   CurrentUser:any;
   topicSearched:any;
-  showLoading:boolean
+  showLoading:boolean;
+  showModal:boolean,
+  collectionExist:boolean
 }
 
 type MyProps = {
@@ -78,7 +81,9 @@ class Feed extends React.Component<MyProps, MyState> {
     unsubscribeArticles: undefined,
     CurrentUser: null,
     topicSearched:null,
-    showLoading:false
+    showLoading:false,
+    showModal:false,
+    collectionExist:false
   };
 
   constructor(props: MyProps) {
@@ -92,14 +97,15 @@ class Feed extends React.Component<MyProps, MyState> {
             this.setState({CurrentUser:doc.data()!.username})
           }
           // go into weatherSubscription collection
+          
           // const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
+
         // get subscription list
-        db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot(sub_list => {
-          if (sub_list.exists ) {
+        db.collection("topicSubscription").doc(this.state.CurrentUser).get().then((sub_list) => {
+          if (sub_list.exists) {
             this.setState({subs: sub_list.data()!.subList});
           } else {
-            db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: []});
-            this.setState({subs: []})
+            db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
           }
         })
 
@@ -149,22 +155,38 @@ class Feed extends React.Component<MyProps, MyState> {
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
+    if (topic===''){
+      console.log("Enter a valid topic")
+    } else {
     let aList : articleList = [];
-    let unsubscribeArticles = NewsDB.collection(topic).get().then((snapshot) => {
+    let unsubscribeArticles = NewsDB.collection(topic).get()
+    .then((snapshot) => {
       aList = []
-
       snapshot.forEach(doc => {
-        let articleItem = doc.data();
-        aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+        if (doc.exists) {
+          this.setState({collectionExist:true})
+          let articleItem = doc.data();
+          aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+        } else {
+          console.log("Cannot find anything in database.")
+        }
       })
       this.setState({articles: aList})
-    })
+    }).catch(function(error) {
+      console.log("Error getting document:", error);
+  });
     this.setState({unsubscribeArticles: unsubscribeArticles})
   }
-
+  }
   async subscribe(topic:any) {
-    console.log("topic is: " + topic)
-    this.addSubscription(topic);
+    if(this.state.collectionExist) {
+      console.log("News about"+ topic +" has been found.")
+      this.addSubscription(topic);
+      this.setState({collectionExist:false})
+    } else {
+      console.log("Cannot find any news on that topic.")
+    }
+    
   }
 
   // async getBBCNews() {
@@ -214,14 +236,36 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonRouterOutlet>
           <Route path="/Weather" component={Weather} exact={true} />
       </IonRouterOutlet>
+      <IonButtons slot="start">
           <IonButton href="/Weather">
               <IonIcon icon={cloud} />
           </IonButton>
+          </IonButtons>
+          <IonButtons slot="end">
+          <IonButton onClick={() => {this.setState({showModal: true})}}  fill='clear'>
+              <IonIcon icon={search} />
+          </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         
-      <IonSearchbar placeholder="Topic" onIonInput={(e: any) => this.setState({topicSearched:e.target.value})} animated>
+    <IonModal isOpen={this.state.showModal}>
+        <IonHeader>
+            <IonToolbar>
+
+        <IonButtons slot='end'>
+                <IonButton onClick={() => {this.setState({showModal: false})}} id='addFriendModalCloseButton' fill='clear'>
+                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                </IonButton>
+        </IonButtons>
+        <IonTitle>
+                Search Topics
+        </IonTitle>
+        </IonToolbar>
+        </IonHeader>
+        <IonContent>
+        <IonSearchbar placeholder="Topic" onIonInput={(e: any) => this.setState({topicSearched:e.target.value})} animated>
       </IonSearchbar>
       <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=>this.setState({showLoading: true})}>
           search
@@ -235,9 +279,10 @@ class Feed extends React.Component<MyProps, MyState> {
       <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=>this.subscribe(this.state.topicSearched)}>
           subscribe
       </IonButton>
-      
-              
     <ArticleList theArticleList={this.state.articles}></ArticleList>
+        </IonContent>
+    </IonModal>
+              
       </IonContent>
     </IonPage>
     )
