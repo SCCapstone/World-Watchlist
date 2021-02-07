@@ -1,3 +1,5 @@
+// Clay Mallory
+// File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86. I tried to implement this a few other ways that apparently work in Javascript, but not Typescript and this is the only solution I found
 import React from 'react';
 
 import {
@@ -22,12 +24,6 @@ import firebase, {db, auth} from '../firebase'
 import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import { Capacitor, Plugins, CameraResultType, FilesystemDirectory } from '@capacitor/core';
 import './Settings.css'
-const { Camera, Filesystem } = Plugins;
-const PHOTO_STORAGE = "photos";
-export function usePhotoGallery() {}
-
-
-
 
 
 type MyState = {
@@ -67,14 +63,10 @@ class Settings extends React.Component<MyProps, MyState> {
 
   };
 
- //private fileInput: React.RefObject<HTMLInputElement>;
-
-//onst inputElement = document.getElementById('image').files[0];
 
   constructor(props: MyProps) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-   // this.fileInput = React.createRef();
      this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
 
@@ -101,8 +93,8 @@ class Settings extends React.Component<MyProps, MyState> {
         var storage = firebase.storage();
         var storageRef = firebase.storage().ref();
         var file = selectorFiles[0];
-        
-        var newPicRef = storageRef.child('images/new.jpg');
+        var uid = firebase.auth().currentUser!.uid;
+        var newPicRef = storageRef.child('profileImages/' + uid+ '.jpg');
         newPicRef.put(file);
         await new Promise(r => setTimeout(r, 1000));
         this.pullImage();
@@ -182,20 +174,30 @@ changeEmail(email:string) {
  
 
     pullImage() {
+      if(auth.currentUser) {
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
-      var pathReference = storageRef.child('images/new.jpg');
-      pathReference.getDownloadURL().then((url)=> {
+      var pathReference;
+      var pathName = 'profileImages/' +firebase.auth().currentUser!.uid+'.jpg';
+      pathReference = storageRef.child(pathName);
+
+        pathReference.getDownloadURL().then((url)=> {
          var img = document.getElementById('myimg');
          if(img!=null)
           img.setAttribute('src', url);
+
       })
       .catch((error) => {
   // A full list of error codes is available at
   // https://firebase.google.com/docs/storage/web/handle-errors
   switch (error.code) {
     case 'storage/object-not-found':
-      // File doesn't exist
+    firebase.storage().ref().child('placeholder.png').getDownloadURL().then((url)=> {
+         var img = document.getElementById('myimg');
+         if(img!=null)
+          img.setAttribute('src', url);
+      })
+
       break;
     case 'storage/unauthorized':
       // User doesn't have permission to access the object
@@ -208,7 +210,12 @@ changeEmail(email:string) {
       break;
   }
 });
-    }
+    
+  }
+}
+
+    
+  
 
 
 
@@ -419,9 +426,11 @@ isValidSite(siteName:string) {
                <IonItem id ='updateEmail'>
                Change Profile Picture
                <IonButtons slot = 'end'>
+
                   <IonButton id = 'submit'>
               
-<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } /> 
+
  <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
 </IonButton>
           

@@ -103,6 +103,8 @@ class Landing extends React.Component<MyProps, MyState> {
         this.getUsernameIdentifier().then(() => {
           this.props.history.push("/main")
         })
+       //admin.storage.ref().child(this.state.username+'#'+this.state.usernameIdentifier.toString() + '/new.jpg').put('../images/placeholder.png')
+       //firebase.put('asdf');
 
       }).catch((error) => {
         //error handling
