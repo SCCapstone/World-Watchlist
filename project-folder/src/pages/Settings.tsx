@@ -28,14 +28,14 @@ import './Settings.css'
 
 type MyState = {
   isBlockSourceModalOpen:boolean;
-  isUpdateEmailModalOpen:boolean;
+  isChangePasswordModalOpen:boolean;
   isChangeUsernameModalOpen:boolean;
   blockedSources:string[];
   currentUserName:string;
   sourceToBlock:string;
   sourceToUnBlock:string;
   localList:string[];
-  newEmail:string;
+  newPassword:string;
   newUsername:string;
 
 
@@ -50,14 +50,14 @@ class Settings extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     isBlockSourceModalOpen: false,
-    isUpdateEmailModalOpen: false,
+    isChangePasswordModalOpen: false,
     isChangeUsernameModalOpen: false,
     blockedSources: [],
     currentUserName :'',
     sourceToBlock:"",
     sourceToUnBlock:"",
     localList: [],
-    newEmail:'',
+    newPassword:'',
     newUsername:'',
 
 
@@ -140,7 +140,19 @@ for (var i = temp.length - 1; i >= 0; i--) {
  
 }
 
-changeEmail(email:string) {
+changePassword(password:string) {
+  if(auth.currentUser) {
+    auth.currentUser.updatePassword(password).then(function() {
+
+
+  }).catch(function(error){
+
+
+  })
+}
+}
+
+/*changeEmail(email:string) {
   if(this.state.currentUserName!=undefined&& email.length > 3) { //makes sure the source is a valid site and isn't blank
     db.collection('usernames').doc(this.state.currentUserName).get().then(document => { //works for one specific user currently
     if(document.exists) {
@@ -151,7 +163,7 @@ changeEmail(email:string) {
     }
   })
 }
-  }
+  }*/
 
   changeUsername(newName:string) {
     if(this.state.currentUserName!=undefined&& newName.length > 3) { //makes sure the source is a valid site and isn't blank
@@ -327,25 +339,25 @@ isValidSite(siteName:string) {
 
 
 
-      <IonModal isOpen={this.state.isUpdateEmailModalOpen}>
+      <IonModal isOpen={this.state.isChangePasswordModalOpen}>
         <IonHeader>
           <IonToolbar>
             <IonButtons>
-              <IonButton onClick={() => {this.setState({isUpdateEmailModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
 
             <IonTitle>
-              Update Email
+              Change Password
 
             </IonTitle>
             </IonToolbar>
           </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newEmail: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.changeEmail(this.state.newEmail)}}  fill='clear'>
+          <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
+          <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear'>
             <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>
         </IonItem>
@@ -405,7 +417,7 @@ isValidSite(siteName:string) {
         <IonItem id ='updateEmail'>
           Update Email
         <IonButtons slot='end'>
-          <IonButton onClick={() => {this.setState({isUpdateEmailModalOpen: true})}} fill='clear'>
+          <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
 
             <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
           </IonButton>
