@@ -7,3 +7,25 @@
   max-width: 35px;
   max-height: 35px;
 }
+
+#groupViewPopoverListHeader {
+  font-size: 20px;
+  color: #3880ff;
+}
+
+#groupViewPopoverLeave {
+  color: #ff0000;
+}
+
+#leaveGroup {
+  color: #ff0000;
+}
+.groupViewPopover {
+  --min-width: 250px;
+  --min-height: 180px;
+
+}
+
+.groupViewPopoverIcon {
+  color: #3880ff;
+}

@@ -54,7 +54,7 @@ type MyState = {
   groupArray: Group[];
   numGroups: number;
   unsubscribeGroupArray: any[];
-  groupDetails: Group | undefined;
+  groupDetails: Group;
   isGroupModalOpen: boolean;
   unsubscribeFriendsList: any;
   unsubscribeBlockedUsers: any;
@@ -72,6 +72,7 @@ type Group = {
   members: string[];
   id: string;
   profilePicture: string;
+  owner: string;
 }
 
 class Social extends React.Component<MyProps, MyState> {
@@ -94,7 +95,13 @@ class Social extends React.Component<MyProps, MyState> {
     groupArray: [],
     numGroups: 0,
     unsubscribeGroupArray: [],
-    groupDetails: undefined,
+    groupDetails: {
+      nickname: '',
+      members: [],
+      id: '',
+      profilePicture: '',
+      owner: ''
+    },
     isGroupModalOpen: false,
     unsubscribeFriendsList: () => {},
     unsubscribeBlockedUsers: null,
@@ -121,7 +128,8 @@ class Social extends React.Component<MyProps, MyState> {
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
     this.createGroup = this.createGroup.bind(this);
     this.toggleGroupModal = this.toggleGroupModal.bind(this);
-
+    this.deleteGroup = this.deleteGroup.bind(this);
+    this.leaveGroup = this.leaveGroup.bind(this);
     //End Function Bindings
 
     //Begin firebase data subscriptins
@@ -167,7 +175,8 @@ class Social extends React.Component<MyProps, MyState> {
             this.unsubscribeGroups = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
               if(snapshot.data()) {
                 this.setState({
-                  numGroups: snapshot.data()!.groups.length
+                  numGroups: snapshot.data()!.groups.length,
+                  groupArray: []
                 })
                 let unsubscribeGroupArray = []
                 for(let i = 0; i < this.state.numGroups; i++) {
@@ -178,10 +187,14 @@ class Social extends React.Component<MyProps, MyState> {
                         nickname: snapshot.data()!.nickname,
                         members: snapshot.data()!.members,
                         id: snapshot.data()!.id,
-                        profilePicture: snapshot.data()!.profilePicture
+                        profilePicture: snapshot.data()!.profilePicture,
+                        owner: snapshot.data()!.owner
                       }
                       groupArray[i] = group
                       this.setState({groupArray: groupArray})
+                      if(this.state.groupDetails.id === group.id) {
+                        this.setState({groupDetails: group})
+                      }
                       console.log(group)
                     }
                   })
@@ -370,34 +383,65 @@ class Social extends React.Component<MyProps, MyState> {
     })
   }
 
-  removeGroupMember(groupId: string, username: string) {
-    // need to implement checks
-    db.collection("groups").doc(groupId).update({members: firebase.firestore.FieldValue.arrayRemove(username)});
-    // can't remove group info from user account without knowing identity
-  }
+  leaveGroup() {
+    //function is intended to be called from the groupView page
+    //1 remove our user from the group collection
+    //2 remove the group from the user collection
 
-  deleteGroup(groupId: string) {
-    console.log("Attempting to delete group");
-    let group = db.collection("groups").doc(groupId);
-    group.get().then(groupInfo => {
-      if (groupInfo.exists) {
-        let data = groupInfo.data();
-        if (data !== undefined && data.owner === this.state.ourUsername) {
-          // remove all members
-          data.members.forEach((member: string) => {
-            this.removeGroupMember(groupId, member);
-          });
-          // delete group
-          groupInfo.ref.delete();
-          return;
-        } else if (data === undefined) {
-          console.log("Data was undefined");
+    //1
+    if(this.state.ourUsername !== this.state.groupDetails.owner) {
+      //user is not the owner of the group, can simply leave.
+      db.collection('groups').doc(this.state.groupDetails.id).update({
+        members: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+      })
+
+    } else {
+      //user is the host of the group
+      if(this.state.groupDetails.members.length === 1) {
+        //user is the only member in the group. delete the group.
+        this.deleteGroup()
+      } else {
+        //user is the host but there are other members in the group. user is not deleting the group.
+        if(this.state.groupDetails.members[0] !== this.state.ourUsername) {
+            db.collection('groups').doc(this.state.groupDetails.id).update({
+              owner: this.state.groupDetails.members[0],
+              members: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+
+            })
         } else {
-          console.log(this.state.ourUsername + " is not the owner :-(");
+          db.collection('groups').doc(this.state.groupDetails.id).update({
+            owner: this.state.groupDetails.members[1],
+            members: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+          })
         }
       }
-    });
+    }
+    //2
+    db.collection('usernames').doc(this.state.ourUsername).update({
+      groups: firebase.firestore.FieldValue.arrayRemove(this.state.groupDetails.id)
+    })
+    this.setState({isGroupModalOpen: false})
   }
+
+  deleteGroup() {
+    //delete a group
+    //intended to be used from the groupView page
+    if(this.state.ourUsername === this.state.groupDetails.owner) {
+      this.state.groupDetails.members.forEach((member) => {
+        db.collection('usernames').doc(member).update({
+          groups: firebase.firestore.FieldValue.arrayRemove(this.state.groupDetails.id)
+        })
+        db.collection('groups').doc(this.state.groupDetails.id).delete()
+      })
+      this.setState({
+        isGroupModalOpen: false
+      })
+    } else {
+      console.log('User should not be able to use this function')
+    }
+
+  }
+
   toggleGroupModal() {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
@@ -533,7 +577,15 @@ class Social extends React.Component<MyProps, MyState> {
               <IonButton onClick={() => {this.blockUser(Friend)}}>Block Friend</IonButton>
             </IonItemGroup>
         )}
-        <GroupView isGroupModalOpen={this.state.isGroupModalOpen} groupDetails={this.state.groupDetails} {...this.props} toggleGroupModal={this.toggleGroupModal} />
+        <GroupView
+          isGroupModalOpen={this.state.isGroupModalOpen}
+          groupDetails={this.state.groupDetails}
+          {...this.props}
+          toggleGroupModal={this.toggleGroupModal}
+          leaveGroup={this.leaveGroup}
+          deleteGroup={this.deleteGroup}
+          currentUser={this.state.ourUsername}
+        />
         {
           this.state.groupArray.map((displayGroup : Group) => {
             return (
