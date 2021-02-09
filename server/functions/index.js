@@ -12,7 +12,7 @@ nytimes: https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.
 bbc: http://feeds.bbci.co.uk/news/rss.xml
 */
 const admin = require('firebase-admin');
-const serviceAccount = require('./world-watchlist-server-fa5a3-firebase-adminsdk-1gbjp-b433d05376.json');
+const serviceAccount = require('./world-watchlist-server-8f86e-firebase-adminsdk-uzswz-478530228e.json');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -65,53 +65,79 @@ function getRSS(url, collection_name) {
       console.log(error);
     })
 }
-// app.post('/bbc', (req, res) => {
-//   url = "http://feeds.bbci.co.uk/news/rss.xml";
-//   getRSS(url, res);
 
-// })
-// app.post('/nyt', (req, res) => {
-//   url = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
-//   getRSS(url, res);
-// })
+/* deletes old news and add new news to firebase */
 
-function bbcpost() {
-  url = "http://feeds.bbci.co.uk/news/rss.xml";
-  getRSS(url, 'BBCNews');
+function health_feed() {
+  firestore.collection('health').getDocuments().then((snapshot)  => {
+    snapshot.forEach((doc) => {
+      doc.reference.delete();
+    })
+  });
+  url = "http://feeds.bbci.co.uk/news/health/rss.xml";
+  getRSS(url, 'health');
 }
-function nytpost() {
-  url = "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";
-  getRSS(url, "NYTNews");
+
+function world_feed() {
+  firestore.collection('world').getDocuments().then((snapshot)  => {
+    snapshot.forEach((doc) => {
+      doc.reference.delete();
+    })
+  });
+  url = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml";
+  getRSS(url, "world");
 }
-function bbctechpost() {
+function technology_feed() {
+  firestore.collection('technology').getDocuments().then((snapshot)  => {
+    snapshot.forEach((doc) => {
+      doc.reference.delete();
+    })
+  });
   url = "http://feeds.bbci.co.uk/news/technology/rss.xml";
-  getRSS(url, "BBCTechnology");
+  getRSS(url, "technology");
 }
-function ignpost() {
+function gaming_feed() {
+  firestore.collection('gaming').getDocuments().then((snapshot)  => {
+    snapshot.forEach((doc) => {
+      doc.reference.delete();
+    })
+  });
   url = "http://feeds.feedburner.com/ign/all";
-  getRSS(url, "IGNMain");
+  getRSS(url, "gaming");
 }
 
-function espnpost() {
+function sports_feed() {
+  firestore.collection('sports').getDocuments().then((snapshot)  => {
+    snapshot.forEach((doc) => {
+      doc.reference.delete();
+    })
+  });
   url = "https://www.espn.com/espn/rss/news";
-  getRSS(url, "ESPN");
+  getRSS(url, "sports");
 }
-function politicopost() {
+
+function politics_feed() {
+  firestore.collection('politics').getDocuments().then((snapshot)  => {
+    snapshot.forEach((doc) => {
+      doc.reference.delete();
+    })
+  });
   url = "https://www.politico.com/rss/politicopicks.xml";
-  getRSS(url, "Politico");
+  getRSS(url, "politics");
 }
-
-
 
 function thisInterval() {
-  bbcpost();
-  espnpost();
-  politicopost();
-  nytpost();
-  bbctechpost();
-  ignpost();
+  
+  health_feed();
+  world_feed();
+  technology_feed();
+  gaming_feed();
+  sports_feed();
+  politics_feed();
   console.log("Sending to firestore.")
 }
+
 /*refresh every 8 hours*/
+
 setInterval(thisInterval, 28800000);
 exports.app = functions.https.onRequest(app)

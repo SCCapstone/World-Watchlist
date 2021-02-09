@@ -16,7 +16,7 @@ import {
 } from '@ionic/react'
 
 import './Feed.css'
-import { NewsDB } from '../API/config';
+import { NewsDB } from '../server/config';
 import firebase, {db,auth} from '../firebase'
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
@@ -27,6 +27,7 @@ import { closeCircleOutline, cloud, search } from 'ionicons/icons';
 type MyState = {
   articles: articleList;
   subs: string[];
+  articlesSearched:any[],
   unsubscribeArticles: any;
   CurrentUser:any;
   topicSearched:any;
@@ -78,6 +79,7 @@ class Feed extends React.Component<MyProps, MyState> {
   state: MyState = {
     articles: [],
     subs: [],
+    articlesSearched:[],
     unsubscribeArticles: undefined,
     CurrentUser: null,
     topicSearched:null,
@@ -103,7 +105,28 @@ class Feed extends React.Component<MyProps, MyState> {
         // get subscription list
         db.collection("topicSubscription").doc(this.state.CurrentUser).get().then((sub_list) => {
           if (sub_list.exists) {
+            console.log(sub_list.data()!.subList)
             this.setState({subs: sub_list.data()!.subList});
+            let aList : articleList = [];
+            if (this.state.subs.length !== 0) {
+              for (var i = 0; i < this.state.subs.length; i++) {
+              let unsubscribeArticles = NewsDB.collection(this.state.subs[i]).get()
+              .then((snapshot) => {
+                snapshot.forEach(doc => {
+                  if (doc.exists) {
+                    this.setState({collectionExist:true})
+                    let articleItem = doc.data();
+                    aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+                  } else {
+                    console.log("Cannot find anything in database.")
+                  }
+                })
+              }).catch(function(error) {
+                console.log("Error getting document:", error);
+              })
+            }
+              this.setState({articles: aList})
+          }
           } else {
             db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
           }
@@ -113,11 +136,13 @@ class Feed extends React.Component<MyProps, MyState> {
             console.log("Error getting document:", error);
         });
       }
+      
     })
+    
 
       
   }
-
+  /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   addSubscription(sub: string) {
     if ( sub !== "") {
       db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
@@ -129,29 +154,6 @@ class Feed extends React.Component<MyProps, MyState> {
       db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayRemove(sub)})
     }
   }
-  // getUserData = () => {
-  // NewsDB.collection("BBCNews")
-  //   .doc('55118880')
-  //   .get()
-  //   .then(doc => {
-  //     const data = doc.data();
-  //     console.log(data);
-  //     return data;
-  //   });
-  // };
-
-  // saveBBCNews = (someVar: articleList) => {
-  //   let BBCNews = NewsDB.collection("BBCNews");
-  //   let allNews = BBCNews.get()
-  //     .then(snapshot => {
-  //       someVar.list = [];
-  //       snapshot.forEach(doc => {
-  //         let articleItem = doc.data();
-  //         let newArticle = {title: articleItem.Title, link: articleItem.Link, description: articleItem.Description};
-  //         someVar.list.push(newArticle);
-  //       });
-  //     });
-  // }
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
@@ -171,7 +173,7 @@ class Feed extends React.Component<MyProps, MyState> {
           console.log("Cannot find anything in database.")
         }
       })
-      this.setState({articles: aList})
+      this.setState({articlesSearched: aList})
     }).catch(function(error) {
       console.log("Error getting document:", error);
   });
@@ -180,7 +182,7 @@ class Feed extends React.Component<MyProps, MyState> {
   }
   async subscribe(topic:any) {
     if(this.state.collectionExist) {
-      console.log("News about"+ topic +" has been found.")
+      console.log("News about "+ topic +" has been found and will be subscribed.")
       this.addSubscription(topic);
       this.setState({collectionExist:false})
     } else {
@@ -188,42 +190,6 @@ class Feed extends React.Component<MyProps, MyState> {
     }
     
   }
-
-  // async getBBCNews() {
-  //   let BBCNews = NewsDB.collection("BBCNews")
-  //   let aList: articleList = [];// {list: []};
-  //   let allNews = BBCNews.get()
-  //     .then(snapshot => {
-  //       snapshot.forEach(doc => {
-  //         let articleItem = doc.data();
-  //         aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-  //         //console.log(doc.id, '=>', doc.data());
-  //       });
-  //     });
-  //     return aList;
-  // };
-
-  // async getSubArticles(sub_name: string) {
-  //   let sub_collection = NewsDB.collection(sub_name);
-  //   let aList: articleList = [];// {list: []};
-  //   let allNews = sub_collection.get()
-  //     .then(snapshot => {
-  //       snapshot.forEach(doc => {
-  //         let articleItem = doc.data();
-  //         aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-  //         //console.log(doc.id, '=>', doc.data());
-  //       });
-  //     });
-  //     return aList;
-  // };
-
-  // componentDidMount() {
-  //   this.setState({articles: this.getBBCNews()})
-  // }
-
-  // componentWillUnmount() {
-  //   this.state.unsubscribeArticles()
-  // }
 
   render() {
     return (
@@ -279,11 +245,12 @@ class Feed extends React.Component<MyProps, MyState> {
       <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=>this.subscribe(this.state.topicSearched)}>
           subscribe
       </IonButton>
-    <ArticleList theArticleList={this.state.articles}></ArticleList>
+    <ArticleList theArticleList={this.state.articlesSearched}></ArticleList>
         </IonContent>
     </IonModal>
-              
+      <ArticleList theArticleList={this.state.articles}></ArticleList>
       </IonContent>
+
     </IonPage>
     )
   }
