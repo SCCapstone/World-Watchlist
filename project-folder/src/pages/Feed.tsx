@@ -16,7 +16,7 @@ import {
 } from '@ionic/react'
 
 import './Feed.css'
-import { NewsDB } from '../server/config';
+import { NewsDB } from '../config/config';
 import firebase, {db,auth} from '../firebase'
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';

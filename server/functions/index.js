@@ -17,6 +17,7 @@ const serviceAccount = require('./world-watchlist-server-8f86e-firebase-adminsdk
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
+
 const db = admin.firestore();
 function writeDoc(articles, collection_name) {
     let URL_ID, urlLink, title, description;
@@ -24,12 +25,14 @@ function writeDoc(articles, collection_name) {
     // console.log(articles.length);
     let article_list = [];
     for (i = 0; i < articles.length; i++) {
-        title = articles[i].title;
+        /* replacing all forward slash with dash to avoid errors */
+        title = articles[i].title.replace(/\//g, "-");
         description = articles[i].description;
         urlLink = articles[i].link;
-        article_list.push({'Title': title, 'Description': description, 'Link': urlLink});
-        /* making title ID because NYTIMES has issues.*/
+        
+        /* replacing all forward slash with dash to avoid errors */
 
+        article_list.push({'Title': title, 'Description': description, 'Link': urlLink});
         // URL_ID = (urlLink.split('/').pop());
         // console.log("title: " + title)
         // console.log("url: " + urlLink)
@@ -68,66 +71,35 @@ function getRSS(url, collection_name) {
 
 /* deletes old news and add new news to firebase */
 
-function health_feed() {
-  firestore.collection('health').getDocuments().then((snapshot)  => {
-    snapshot.forEach((doc) => {
-      doc.reference.delete();
-    })
-  });
-  url = "http://feeds.bbci.co.uk/news/health/rss.xml";
-  getRSS(url, 'health');
+async function health_feed() {
+  url = "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml";
+  getRSS(url, "health");
 }
 
-function world_feed() {
-  firestore.collection('world').getDocuments().then((snapshot)  => {
-    snapshot.forEach((doc) => {
-      doc.reference.delete();
-    })
-  });
+async function world_feed() {
   url = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml";
   getRSS(url, "world");
 }
-function technology_feed() {
-  firestore.collection('technology').getDocuments().then((snapshot)  => {
-    snapshot.forEach((doc) => {
-      doc.reference.delete();
-    })
-  });
+async function technology_feed() {
   url = "http://feeds.bbci.co.uk/news/technology/rss.xml";
   getRSS(url, "technology");
 }
-function gaming_feed() {
-  firestore.collection('gaming').getDocuments().then((snapshot)  => {
-    snapshot.forEach((doc) => {
-      doc.reference.delete();
-    })
-  });
+async function gaming_feed() {
   url = "http://feeds.feedburner.com/ign/all";
   getRSS(url, "gaming");
 }
 
-function sports_feed() {
-  firestore.collection('sports').getDocuments().then((snapshot)  => {
-    snapshot.forEach((doc) => {
-      doc.reference.delete();
-    })
-  });
+async function sports_feed() {
   url = "https://www.espn.com/espn/rss/news";
   getRSS(url, "sports");
 }
 
-function politics_feed() {
-  firestore.collection('politics').getDocuments().then((snapshot)  => {
-    snapshot.forEach((doc) => {
-      doc.reference.delete();
-    })
-  });
+async function politics_feed() {
   url = "https://www.politico.com/rss/politicopicks.xml";
   getRSS(url, "politics");
 }
 
 function thisInterval() {
-  
   health_feed();
   world_feed();
   technology_feed();
@@ -139,5 +111,5 @@ function thisInterval() {
 
 /*refresh every 8 hours*/
 
-setInterval(thisInterval, 28800000);
+setInterval(thisInterval, 10000);
 exports.app = functions.https.onRequest(app)
