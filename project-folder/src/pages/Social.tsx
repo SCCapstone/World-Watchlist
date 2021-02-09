@@ -442,6 +442,15 @@ class Social extends React.Component<MyProps, MyState> {
 
   }
 
+  addFriendToGroup(friend: string, group: string) {
+    db.collection('usernames').doc(friend).update({
+      groups: firebase.firestore.FieldValue.arrayUnion(group)
+    })
+    db.collection('groups').doc(group).update({
+      members: firebase.firestore.FieldValue.arrayUnion(friend)
+    })
+  }
+
   toggleGroupModal() {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
@@ -585,6 +594,8 @@ class Social extends React.Component<MyProps, MyState> {
           leaveGroup={this.leaveGroup}
           deleteGroup={this.deleteGroup}
           currentUser={this.state.ourUsername}
+          friendList={this.state.friendsList}
+          addFriendToGroup={this.addFriendToGroup}
         />
         {
           this.state.groupArray.map((displayGroup : Group) => {

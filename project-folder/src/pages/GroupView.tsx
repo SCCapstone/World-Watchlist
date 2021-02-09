@@ -28,7 +28,8 @@ import {
   settingsOutline,
   chevronDownOutline,
   pencilOutline,
-  checkmarkOutline
+  checkmarkOutline,
+  addOutline
 } from 'ionicons/icons'
 
 type MyState = {
@@ -37,6 +38,7 @@ type MyState = {
   isGroupViewPopoverOpen: boolean,
   isSettingsModalOpen: boolean,
   isMembersModalOpen: boolean,
+  isFriendsListModalOpen: boolean,
   isNicknameReadOnly: boolean,
   tempNickname: string
 }
@@ -49,7 +51,9 @@ type MyProps = {
   toggleGroupModal: any;
   leaveGroup: () => void,
   deleteGroup: () => void,
-  currentUser: string
+  currentUser: string,
+  friendList: string[],
+  addFriendToGroup: (friend : string, group: string) => void
 }
 
 type GroupType = {
@@ -68,6 +72,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     isGroupViewPopoverOpen: false,
     isSettingsModalOpen: false,
     isMembersModalOpen: false,
+    isFriendsListModalOpen: false,
     isNicknameReadOnly: true,
     tempNickname: this.props.groupDetails.nickname
   };
@@ -170,6 +175,37 @@ class GroupView extends React.Component<MyProps, MyState> {
         </IonContent>
       </IonModal>
 
+      <IonModal swipeToClose={false} isOpen={this.state.isFriendsListModalOpen}>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot = 'start'>
+            <IonButton fill='clear' onClick={() => {this.setState({isFriendsListModalOpen: false})}}>
+              <IonIcon className='groupViewIcon' icon={chevronDownOutline}/>
+            </IonButton>
+          </IonButtons>
+          <IonTitle>Add Member</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <IonListHeader>Friends ({this.props.friendList.length})</IonListHeader>
+        <IonList>
+          {
+            this.props.friendList.map((friend) => {
+              return (
+                <IonItem>
+                  <IonLabel>
+                    {friend}
+                  </IonLabel>
+                  <IonButton onClick={() => {this.props.addFriendToGroup(friend, this.props.groupDetails.id)}} fill='clear'>
+                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(friend) ? checkmarkOutline : addOutline}/>
+                  </IonButton>
+                </IonItem>
+              )
+            })
+          }
+        </IonList>
+      </IonContent>
+      </IonModal>
 
         <IonPopover
           cssClass='groupViewPopover'
@@ -184,6 +220,10 @@ class GroupView extends React.Component<MyProps, MyState> {
                 <IonLabel>Members</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' icon={peopleOutline}/>
               </IonItem>
+              <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, isFriendsListModalOpen: true})}}>
+                <IonLabel>Add Member</IonLabel>
+                <IonIcon className='groupViewPopoverIcon' slot='end' icon={addOutline}/>
+              </IonItem>
               <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, isSettingsModalOpen: true})}}>
                 <IonLabel>Settings</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' icon={settingsOutline}/>
@@ -192,6 +232,7 @@ class GroupView extends React.Component<MyProps, MyState> {
                 <IonLabel id='leaveGroup'>Leave Group</IonLabel>
                 <IonIcon id='groupViewPopoverLeave' slot='end' icon={exitOutline}/>
               </IonItem>
+
             </IonList>
           </IonContent>
         </IonPopover>

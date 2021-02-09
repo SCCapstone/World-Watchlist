@@ -135,7 +135,7 @@ class Landing extends React.Component<MyProps, MyState> {
             let identifier = this.firstUnusedNumber(used_indentifiers)
             this.setState({usernameIdentifier: identifier})
             let new_identifiers = used_indentifiers.push(identifier)
-            new_identifiers = new_identifiers.sort()
+            new_identifiers = new_identifiers
             db.collection('usernameIdentifiers').doc(this.state.username).update({
               identifiers: new_identifiers
             })
