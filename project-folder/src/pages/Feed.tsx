@@ -142,12 +142,11 @@ class Feed extends React.Component<MyProps, MyState> {
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
-    let lowerCaseTopic = topic.toLowerCase()
-    if (lowerCaseTopic===''){
-      console.log("Enter a valid topic")
+    if (topic === null || topic === undefined || topic === '') {
+      console.log("Enter a valid topic");
     } else {
     let aList : articleList = [];
-    let unsubscribeArticles = NewsDB.collection(lowerCaseTopic).get()
+    let unsubscribeArticles = NewsDB.collection(topic.toLowerCase()).get()
     .then((snapshot) => {
       aList = []
       snapshot.forEach(doc => {
@@ -167,13 +166,23 @@ class Feed extends React.Component<MyProps, MyState> {
   }
   }
   async subscribe(topic:any) {
-    if(this.state.collectionExist) {
-      console.log("News about "+ topic +" has been found and will be subscribed.")
-      this.addSubscription(topic);
-      this.setState({collectionExist:false})
-    } else {
-      console.log("Cannot find any news on that topic.")
-    }
+    let aCollection = NewsDB.collection(topic.toLowerCase()).get().then((snapshot) => {
+      if ( snapshot.empty) {
+        console.log("Cannot find any news on that topic.")
+      } else {
+        console.log("News about "+ topic +" has been found and will be subscribed.")
+        this.addSubscription(topic);
+        this.setState({collectionExist:false})        
+      }
+    });
+    // console.log("Reference"+aCollection);
+    // if( /*this.state.collectionExist*/) {
+    //   console.log("News about "+ topic +" has been found and will be subscribed.")
+    //   this.addSubscription(topic);
+    //   this.setState({collectionExist:false})
+    // } else {
+    //   console.log("Cannot find any news on that topic.")
+    // }
     
   }
 
