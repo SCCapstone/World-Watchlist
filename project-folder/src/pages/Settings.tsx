@@ -140,6 +140,26 @@ for (var i = temp.length - 1; i >= 0; i--) {
  
 }
 
+isEmailAddress(anEmail: string) {
+  return anEmail !== "" && anEmail.includes("@");
+}
+
+changeEmail(newEmail: string) {
+  if(auth.currentUser && this.isEmailAddress(newEmail)) {
+    auth.currentUser.updateEmail(newEmail).then(function() {
+
+  }).catch(function(error){
+
+  })
+}
+}
+
+signOutUser() {
+  if ( auth.currentUser) {
+    auth.signOut()
+  }
+}
+
 changePassword(password:string) {
   if(auth.currentUser) {
     auth.currentUser.updatePassword(password).then(function() {
