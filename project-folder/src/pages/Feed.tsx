@@ -12,7 +12,10 @@ import {
   IonButtons,
   IonSearchbar,
   IonLoading,
-  IonModal
+  IonModal,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle
 } from '@ionic/react'
 
 import './Feed.css'
@@ -22,7 +25,7 @@ import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
 import { Redirect, Route } from 'react-router-dom';
-import { closeCircleOutline, cloud, search } from 'ionicons/icons';
+import { bookmark, closeCircleOutline, cloud, search } from 'ionicons/icons';
 
 type MyState = {
   articles: articleList;
@@ -33,47 +36,14 @@ type MyState = {
   topicSearched:any;
   showLoading:boolean;
   showModal:boolean,
-  collectionExist:boolean
+  collectionExist:boolean,
+  showSubscription:boolean
 }
 
 type MyProps = {
   history: any;
   location: any;
 }
-
-// function getBBCNews() {
-//   let BBCNews = db.collection("BBCNews")
-//   let aList: articleList = [];// {list: []};
-//   let allNews = BBCNews.get()
-//     .then(snapshot => {
-//       snapshot.forEach(doc => {
-//         let articleItem = doc.data();
-//         aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-//         console.log(doc.id, '=>', doc.data());
-//       });
-//     });
-//     return aList;
-// };
-
-// function FeedFunc() {
-//   const [articles, setArticles] = useState(Array<article>());
-//   setArticles(getBBCNews());
-//   return (
-//     <IonPage>
-//       <IonHeader>
-//         <IonToolbar>
-//           <IonTitle>
-//             Feed
-//           </IonTitle>
-//         </IonToolbar>
-//       </IonHeader>
-//       <IonContent>
-//     <ArticleList theArticleList={articles}></ArticleList>
-//       </IonContent>
-//     </IonPage>
-//   );
-// }
-// export default FeedFunc;
 
 class Feed extends React.Component<MyProps, MyState> {
   state: MyState = {
@@ -85,7 +55,8 @@ class Feed extends React.Component<MyProps, MyState> {
     topicSearched:null,
     showLoading:false,
     showModal:false,
-    collectionExist:false
+    collectionExist:false,
+    showSubscription:false
   };
 
   constructor(props: MyProps) {
@@ -98,9 +69,6 @@ class Feed extends React.Component<MyProps, MyState> {
             console.log('current user: ' + doc.data()!.username)
             this.setState({CurrentUser:doc.data()!.username})
           }
-          // go into weatherSubscription collection
-          
-          // const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
 
           // get subscription list .get().then
           db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot((sub_list) => {
@@ -129,7 +97,6 @@ class Feed extends React.Component<MyProps, MyState> {
             }
             } else {
               db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
-              this.setState({subs: []});
             }
           })
 
@@ -139,10 +106,8 @@ class Feed extends React.Component<MyProps, MyState> {
       }
       
     })
-    
-
-      
   }
+
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   addSubscription(sub: string) {
     if ( sub !== "") {
@@ -150,19 +115,39 @@ class Feed extends React.Component<MyProps, MyState> {
     }
   }
 
-  removeSubscription(sub: string) {
-    if ( sub !== "") {
-      db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayRemove(sub)})
+  removeSubscription(index:any) {
+    this.state.subs.splice(index,1)
+    if (this.state.subs[index] !== "") {
+      db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: (this.state.subs)})
     }
+    console.log(this.state.subs)
   }
+
+  ParentComponent = (props:any) => (
+    <div>
+      <div id="children-pane">
+        {props.children}
+      </div>
+    </div>
+  );
+  
+  ChildComponent = (props: {subscription:any, index:any}) => 
+  <IonCard>
+        <IonCardHeader >
+          <IonCardTitle >{props.subscription}</IonCardTitle>
+          <IonButton size="small" color="dark" type="submit" expand="full" shape="round" onClick={()=> this.removeSubscription(props.index)}>unsub</IonButton>
+
+        </IonCardHeader>
+      </IonCard>  
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
-    if (topic===''){
+    let lowerCaseTopic = topic.toLowerCase()
+    if (lowerCaseTopic===''){
       console.log("Enter a valid topic")
     } else {
     let aList : articleList = [];
-    let unsubscribeArticles = NewsDB.collection(topic).get()
+    let unsubscribeArticles = NewsDB.collection(lowerCaseTopic).get()
     .then((snapshot) => {
       aList = []
       snapshot.forEach(doc => {
@@ -193,6 +178,10 @@ class Feed extends React.Component<MyProps, MyState> {
   }
 
   render() {
+    const subs = [];
+      for (var i = 0; i < this.state.subs.length; i+=1) {
+        subs.push(<this.ChildComponent key={i} subscription={this.state.subs[i]} index={i} />);
+    };
     return (
     <IonPage>
       <IonHeader>
@@ -206,6 +195,11 @@ class Feed extends React.Component<MyProps, MyState> {
       <IonButtons slot="start">
           <IonButton href="/Weather">
               <IonIcon icon={cloud} />
+          </IonButton>
+          </IonButtons>
+          <IonButtons slot="end">
+          <IonButton onClick={() => {this.setState({showSubscription: true})}}  fill='clear'>
+              <IonIcon icon={bookmark} />
           </IonButton>
           </IonButtons>
           <IonButtons slot="end">
@@ -248,6 +242,30 @@ class Feed extends React.Component<MyProps, MyState> {
       </IonButton>
     <ArticleList theArticleList={this.state.articlesSearched}></ArticleList>
         </IonContent>
+    </IonModal>
+    <IonModal isOpen={this.state.showSubscription}>
+        <IonHeader>
+            <IonToolbar>
+        <IonButtons slot='end'>
+                <IonButton onClick={() => {this.setState({showSubscription: false})}} fill='clear'>
+                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                </IonButton>
+        </IonButtons>
+        <IonTitle>
+                Subscriptions
+        </IonTitle>
+        </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          
+        <IonCard>
+        <this.ParentComponent>
+       {subs}
+      </this.ParentComponent>
+        </IonCard>
+        
+        </IonContent>
+        
     </IonModal>
       <ArticleList theArticleList={this.state.articles}></ArticleList>
       </IonContent>

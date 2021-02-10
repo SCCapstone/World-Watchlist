@@ -55,7 +55,7 @@ function getRSS(url, collection_name) {
       for ( i = 0 ; i < info2.rss.channel.item.length ; ++i ) {
         item = info2.rss.channel.item[i];
         //console.log(info2.rss.channel.item[i]);
-        let title = link = description = image = null;
+        let title = link = description = image = date = null;
         title = f.getTitle(item);
         link = f.getLink(item);
         description = f.getDesc(item);
@@ -99,17 +99,27 @@ async function politics_feed() {
   getRSS(url, "politics");
 }
 
+async function all_feed() {
+  getRSS("https://www.espn.com/espn/rss/news", "all");
+  getRSS("http://feeds.feedburner.com/ign/all", "all");
+  getRSS("http://feeds.bbci.co.uk/news/technology/rss.xml", "all");
+  getRSS("https://rss.nytimes.com/services/xml/rss/nyt/World.xml", "all");
+  getRSS("https://rss.nytimes.com/services/xml/rss/nyt/Health.xml", "all");
+  getRSS("https://www.politico.com/rss/politicopicks.xml", "all");
+}
+
 function thisInterval() {
-  health_feed();
-  world_feed();
-  technology_feed();
-  gaming_feed();
-  sports_feed();
-  politics_feed();
+  all_feed()
+  // health_feed();
+  // world_feed();
+  // technology_feed();
+  // gaming_feed();
+  // sports_feed();
+  // politics_feed();
   console.log("Sending to firestore.")
 }
 
-/*refresh every 8 hours*/
+/*28800000 refreshes every 8 hours*/
 
 setInterval(thisInterval, 10000);
 exports.app = functions.https.onRequest(app)
