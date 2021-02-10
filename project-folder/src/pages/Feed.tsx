@@ -102,35 +102,36 @@ class Feed extends React.Component<MyProps, MyState> {
           
           // const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
 
-        // get subscription list
-        db.collection("topicSubscription").doc(this.state.CurrentUser).get().then((sub_list) => {
-          if (sub_list.exists) {
-            console.log(sub_list.data()!.subList)
-            this.setState({subs: sub_list.data()!.subList});
-            let aList : articleList = [];
-            if (this.state.subs.length !== 0) {
-              for (var i = 0; i < this.state.subs.length; i++) {
-              let unsubscribeArticles = NewsDB.collection(this.state.subs[i]).get()
-              .then((snapshot) => {
-                snapshot.forEach(doc => {
-                  if (doc.exists) {
-                    this.setState({collectionExist:true})
-                    let articleItem = doc.data();
-                    aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-                  } else {
-                    console.log("Cannot find anything in database.")
-                  }
+          // get subscription list .get().then
+          db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot((sub_list) => {
+            if (sub_list.exists) {
+              console.log(sub_list.data()!.subList)
+              this.setState({subs: sub_list.data()!.subList});
+              let aList : articleList = [];
+              if (this.state.subs.length !== 0) {
+                for (var i = 0; i < this.state.subs.length; i++) {
+                let unsubscribeArticles = NewsDB.collection(this.state.subs[i]).get()
+                .then((snapshot) => {
+                  snapshot.forEach(doc => {
+                    if (doc.exists) {
+                      this.setState({collectionExist:true})
+                      let articleItem = doc.data();
+                      aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+                    } else {
+                      console.log("Cannot find anything in database.")
+                    }
+                  })
+                }).catch(function(error) {
+                  console.log("Error getting document:", error);
                 })
-              }).catch(function(error) {
-                console.log("Error getting document:", error);
-              })
+              }
+                this.setState({articles: aList})
             }
-              this.setState({articles: aList})
-          }
-          } else {
-            db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
-          }
-        })
+            } else {
+              db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
+              this.setState({subs: []});
+            }
+          })
 
         }).catch(function(error) {
             console.log("Error getting document:", error);
