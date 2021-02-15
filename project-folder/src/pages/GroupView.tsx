@@ -29,6 +29,7 @@ import {
   chevronDownOutline,
   pencilOutline,
   checkmarkOutline,
+  cloudUploadOutline,
   addOutline
 } from 'ionicons/icons'
 
@@ -74,11 +75,12 @@ class GroupView extends React.Component<MyProps, MyState> {
     isMembersModalOpen: false,
     isFriendsListModalOpen: false,
     isNicknameReadOnly: true,
-    tempNickname: this.props.groupDetails.nickname
+    tempNickname: this.props.groupDetails.nickname,
   };
 
   constructor(props: MyProps) {
     super(props)
+    this.pullImage()
 
   }
 
@@ -89,6 +91,70 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   componentWillUnmount() {
 
+  }
+
+   async pullImage() {
+      if(auth.currentUser) {
+      var storage = firebase.storage();
+      var storageRef = firebase.storage().ref();
+      var pathReference;
+      var pathName = 'groupImages/' +this.props.groupDetails!.id+'.jpg';
+      pathReference = storageRef.child(pathName);
+
+        pathReference.getDownloadURL().then((url)=> {
+         var img = document.getElementById('groupImage');
+         if(img!=null)
+          img.setAttribute('src', url);
+
+      })
+      .catch((error) => {
+  // A full list of error codes is available at
+  // https://firebase.google.com/docs/storage/web/handle-errors
+  switch (error.code) {
+    case 'storage/object-not-found':
+    firebase.storage().ref().child('placeholder.png').getDownloadURL().then((url)=> {
+         var img = document.getElementById('groupImg');
+         if(img!=null)
+          img.setAttribute('src', url);
+      })
+
+      break;
+    case 'storage/unauthorized':
+      // User doesn't have permission to access the object
+      break;
+    case 'storage/canceled':
+      // User canceled the upload
+      break;
+    case 'storage/unknown':
+      // Unknown error occurred, inspect the server response
+      break;
+  }
+});
+
+    
+  }
+}
+
+  async uploadImage(selectorFiles: FileList)
+    {
+        if(selectorFiles[0]!=null) {
+        var storageRef = firebase.storage().ref();
+        var file = selectorFiles[0];
+        var uid = this.props.groupDetails!.id;
+        var newPicRef = storageRef.child('groupImages/' + uid+ '.jpg');
+        newPicRef.put(file);
+        await new Promise(r => setTimeout(r, 1000));
+        var url = await newPicRef.getDownloadURL();
+        
+        
+          db.collection('groups').doc(this.props.groupDetails.id).update({
+          profilePicture: url
+        })
+        
+
+        this.pullImage();
+
+    }
   }
 
 
@@ -150,7 +216,19 @@ class GroupView extends React.Component<MyProps, MyState> {
           this.props.groupDetails.owner === this.props.currentUser ?
             <div>
               <IonItem>
-                <IonTitle>Put group photo change here</IonTitle>
+                Change Profile Picture
+               <IonButtons slot = 'end'>
+
+                  <IonButton id = 'submit'>
+              
+<input type="file" id = 'fileSelect' onChange={ (e) => (this.uploadImage(e.target.files!)) } /> 
+
+ <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
+</IonButton>
+          
+      
+         
+        </IonButtons>
               </IonItem>
               <IonItem>
                 <IonInput onIonChange={(e) => {this.setState({tempNickname: (e.target as HTMLInputElement).value})}} placeholder={this.props.groupDetails.nickname} readonly={this.state.isNicknameReadOnly} value={this.state.tempNickname}/>
@@ -248,7 +326,7 @@ class GroupView extends React.Component<MyProps, MyState> {
               <IonButtons slot='end'>
 
               <IonAvatar onClick={(event : any) => {event.persist(); this.setState({isGroupViewPopoverOpen: true, groupViewPopoverEvent: event})}} className='groupViewProfilePicture'>
-                {this.props.groupDetails ? <img src={this.props.groupDetails.profilePicture !== '' ? this.props.groupDetails.profilePicture : Placeholder} /> : undefined}
+                <img src = {this.props.groupDetails.profilePicture}/>
               </IonAvatar>
 
 

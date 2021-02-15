@@ -116,6 +116,7 @@ class Social extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props)
 
+
     //Begin Functin bindings
 
     this.addFriend = this.addFriend.bind(this);
@@ -455,6 +456,12 @@ class Social extends React.Component<MyProps, MyState> {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
 
+ 
+
+
+
+
+
     render() {
 
       return (
@@ -602,7 +609,7 @@ class Social extends React.Component<MyProps, MyState> {
             return (
               <IonItem onClick={() => {this.setState({groupDetails: displayGroup, isGroupModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
                 <IonAvatar slot='start' className='socialGroupAvatar'>
-                  <img src={displayGroup.profilePicture !== '' ? displayGroup.profilePicture : Placeholder} />
+                  <img src = {displayGroup.profilePicture}/>
                 </IonAvatar>
                 <IonLabel className='socialGroupLabel'>
                   {displayGroup.nickname}

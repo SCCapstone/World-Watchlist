@@ -89,6 +89,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
   async handleChange(selectorFiles: FileList)
     {
+      if(selectorFiles!=null) {
         console.log(selectorFiles);
         var storage = firebase.storage();
         var storageRef = firebase.storage().ref();
@@ -99,6 +100,7 @@ class Settings extends React.Component<MyProps, MyState> {
         await new Promise(r => setTimeout(r, 1000));
         this.pullImage();
     }
+  }
 
 
 
@@ -205,7 +207,7 @@ changePassword(password:string) {
 
  
 
-    pullImage() {
+    pullImage(){
       if(auth.currentUser) {
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
