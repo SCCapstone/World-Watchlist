@@ -10,5 +10,21 @@ var config = {
 };
 
 var secondaryApp = firebase.initializeApp(config, "Secondary");
+/* Allow caching with unlimited size for accessing data offline */
+secondaryApp.firestore().settings({
+  cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+});
+secondaryApp.firestore().enablePersistence()
+  .catch((err) => {
+      if (err.code == 'failed-precondition') {
+          // Multiple tabs open, persistence can only be enabled
+          // in one tab at a a time.
+          // ...
+      } else if (err.code == 'unimplemented') {
+          // The current browser does not support all of the
+          // features required to enable persistence
+          // ...
+      }
+  });
 export const NewsDB = secondaryApp.firestore();
 export default secondaryApp;

@@ -1,9 +1,15 @@
 {
-    "hosting": {
-        "public": "public",
-        "rewrites": [{
-            "source": "**",
-            "function": "app"
-        }]
-    }
+  "hosting": {
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "app"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
 }

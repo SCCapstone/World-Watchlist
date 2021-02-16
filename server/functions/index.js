@@ -121,5 +121,5 @@ function thisInterval() {
 
 /*28800000 refreshes every 8 hours*/
 
-setInterval(thisInterval, 10000);
+setInterval(thisInterval, 28800000);
 exports.app = functions.https.onRequest(app)
