@@ -318,7 +318,7 @@ class Feed extends React.Component<MyProps, MyState> {
         <IonContent>
         <IonSearchbar placeholder="Topic" onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
-      <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=> this.clear() && this.setState({showLoading: true})}>
+      <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=> this.setState({showLoading: true})}>
           search
       </IonButton>
       <IonLoading
