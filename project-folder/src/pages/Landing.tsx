@@ -127,7 +127,7 @@ class Landing extends React.Component<MyProps, MyState> {
   async getUsernameIdentifier() {
     //Should run when a user registers
     //Assigns numbers to end of Username such as example#0
-    db.collection('usernameIdentifiers').doc(this.state.username).get().then((document) => {
+    await db.collection('usernameIdentifiers').doc(this.state.username).get().then(async (document) => {
       if(document.exists) {
         //someone has used this username before
         if(document.data()) {
@@ -143,30 +143,30 @@ class Landing extends React.Component<MyProps, MyState> {
       }
       //document doesnt exist
       else {
-        db.collection('usernameIdentifiers').doc(this.state.username).set({
+        await db.collection('usernameIdentifiers').doc(this.state.username).set({
           identifiers: [0]
         })
         this.setState({usernameIdentifier: 0})
       }
-      db.collection('users').doc(auth.currentUser?.uid).set({
+      await db.collection('users').doc(auth.currentUser?.uid).set({
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString()
       })
-      db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+      await db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         blockedSources:[],
         groups: [],
         username: this.state.username + '#' + this.state.usernameIdentifier.toString(),
         outgoingFriendRequests: [],
         incomingFriendRequests: []
       })
-      db.collection("outgoingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+      await db.collection("outgoingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         outgoingFriendRequests: []
       })
-      db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+      await db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         incomingFriendRequests: []
       })
-      db.collection("friends").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
+      await db.collection("friends").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
         friendsList: []
       })
     })

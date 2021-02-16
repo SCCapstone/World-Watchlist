@@ -50,6 +50,7 @@ type MyProps = {
 }
 
 class Feed extends React.Component<MyProps, MyState> {
+  
   state: MyState = {
     articles: [],
     subs: [],
@@ -69,16 +70,16 @@ class Feed extends React.Component<MyProps, MyState> {
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         //gets the username of our user
-        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+        await db.collection("users").doc(auth.currentUser.uid).get().then(async doc => {
           if(doc.data()) {
             console.log('current user: ' + doc.data()!.username)
-            this.setState({CurrentUser:doc.data()!.username})
+            await this.setState({CurrentUser:doc.data()!.username})
           }
           // get subscription list .get().then
-          db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot(async (sub_list) => {
+          await db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot(async (sub_list) => {
             if (sub_list.exists) {
               console.log("current sub list: ", sub_list.data()!.subList)
-              this.setState({subs: sub_list.data()!.subList});
+              await this.setState({subs: sub_list.data()!.subList});
               let aList : articleList = [];
               if (this.state.subs.length !== 0) {
                 for (var i = 0; i < this.state.subs.length; i++) {
@@ -104,38 +105,11 @@ class Feed extends React.Component<MyProps, MyState> {
               db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
             }
           })
-
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
       }
       
-      /* store news in 'all' collection into capicitor local storage to reduce reading*/
-      let allNews: any[] = []
-      var allArticlesLocal = await Storage.get({key:'allArticles'})
-      if ((allArticlesLocal.value)?.length === undefined || JSON.parse((allArticlesLocal.value)).length === 0) {
-        await NewsDB.collection('all').where("Title", "!=", " ")
-        .onSnapshot((snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            allNews.push(change.doc.data())
-        })
-          var source = snapshot.metadata.fromCache ? "local cache" : "server";
-          console.log("Data came from " + source);
-          Storage.set({key: 'allArticles', value:JSON.stringify(allNews)})
-          })
-          console.log('Storing in local storage')
-        } else {
-          console.log('already in local storage')
-          this.setState({allArticles:JSON.parse((allArticlesLocal.value))})
-      }
-      // await NewsDB.collection('all').where("Title", "!=", " ")
-      // .onSnapshot((snapshot) => {
-      //   snapshot.docChanges().forEach((change) => {
-      //     allNews.push(change.doc.data())
-      // });
-      // })
-      // this.setState({allArticles:allNews})
-      console.log("allarticles", this.state.allArticles)
     })
     
   }
@@ -194,6 +168,7 @@ class Feed extends React.Component<MyProps, MyState> {
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
+    this.clear()
     if (topic === null || topic === undefined || topic === '') {
       console.log("Enter a valid topic");
     } else {
@@ -216,6 +191,7 @@ class Feed extends React.Component<MyProps, MyState> {
         }
       } else {
       console.log("collection exist, will pull data from that collection")
+      aList = [];
       snapshot.docChanges().forEach((change) => {
         if (change.doc.exists) {
           this.setState({collectionExist:true})
@@ -265,6 +241,32 @@ class Feed extends React.Component<MyProps, MyState> {
   unsubscribe(topic:any,index:any) {
     console.log("News about "+ topic +" has been found and will be unsubscribed.")
     this.removeSubscription(index);
+  }
+  /* store news in 'all' collection into capicitor local storage on start to reduce reading*/
+  async setMainCollection(){
+    let allNews: any[] = []
+    var allArticlesLocal = await Storage.get({key:'allArticles'})
+    if ((allArticlesLocal.value)?.length === undefined || JSON.parse((allArticlesLocal.value)).length === 0) {
+      NewsDB.collection('all').where("Title", "!=", " ")
+        .onSnapshot(async (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            allNews.push(change.doc.data());
+          });
+          this.setState({allArticles:allNews})
+          var source = snapshot.metadata.fromCache ? "local cache" : "server";
+          console.log("Data came from " + source);
+          await Storage.set({ key: 'allArticles', value: JSON.stringify(allNews) });
+          console.log('Storing in local storage');
+        })
+      } else {
+        this.setState({allArticles:JSON.parse(allArticlesLocal.value)})
+        console.log('already in local storage')
+    }
+  }
+
+  async componentDidMount() {
+    await this.setMainCollection()
+
   }
 
   render() {
@@ -318,7 +320,7 @@ class Feed extends React.Component<MyProps, MyState> {
         <IonContent>
         <IonSearchbar placeholder="Topic" onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
-      <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=> this.setState({showLoading: true})}>
+      <IonButton size="default" color="dark" type="submit" expand="full" shape="round" onClick={()=>this.clear() && this.setState({showLoading: true})}>
           search
       </IonButton>
       <IonLoading
