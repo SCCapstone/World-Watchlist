@@ -1,13 +1,19 @@
 import React from 'react';
 import { article } from './ArticleTypes';
 import './Article.css'
+import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/react';
 
 function Article(props: {theArticle: article}) {
     //console.log(props.theArticle);
-    return <div id="Container">
-        <h3 id="title">{props.theArticle.title}</h3>
-        <p id="description">{props.theArticle.description}</p>
-        <span><a href={props.theArticle.link}>{props.theArticle.link}</a></span>
-    </div>;
+    return <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>{props.theArticle.title}</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+              {props.theArticle.description}
+            </IonCardContent>
+            <IonCardContent> <a  href={props.theArticle.link}>source</a></IonCardContent>
+        </IonCard>
+        ;
 }
 export default Article;
