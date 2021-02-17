@@ -38,7 +38,6 @@ type MyState = {
   topicSearched:any;
   showLoading:boolean;
   showModal:boolean,
-  collectionExist:boolean,
   showSubscription:boolean,
   allArticles:any[],
 }
@@ -60,7 +59,6 @@ class Feed extends React.Component<MyProps, MyState> {
     topicSearched:null,
     showLoading:false,
     showModal:false,
-    collectionExist:false,
     showSubscription:false,
     allArticles:[],
   };
@@ -87,7 +85,6 @@ class Feed extends React.Component<MyProps, MyState> {
                 .then((snapshot) => {
                   snapshot.forEach(doc => {
                     if (doc.exists) {
-                      this.setState({collectionExist:true})
                       let articleItem = doc.data();
                       aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
                     } else {
@@ -119,23 +116,6 @@ class Feed extends React.Component<MyProps, MyState> {
   }
 
   /* Testing with local storage */
-  async setObject() {
-    let allNews: any[] = []
-    const ret = await Storage.get({key:'sports'})
-    if ((ret.value)?.length === undefined ||  JSON.parse((ret.value)).length === 0) {
-      await NewsDB.collection('sports').where("Title", "!=", " ")
-        .onSnapshot((snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            allNews.push(change.doc.data())
-        })
-        Storage.set({key: 'sports', value:JSON.stringify(allNews)})
-        })
-        console.log('Storing in local storage')
-      } else {
-        console.log('already in local storage')
-        console.log(JSON.parse((ret.value) || '{}'))
-      }
-  }
 
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   async addSubscription(sub: string) {
@@ -168,15 +148,14 @@ class Feed extends React.Component<MyProps, MyState> {
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
-    this.clear()
     if (topic === null || topic === undefined || topic === '') {
       console.log("Enter a valid topic");
     } else {
       this.setState({articlesSearched:[]})
       let aList : articleList = [];
       /* cache data on topic search */
-      await NewsDB.collection(topic.toLowerCase()).where("Title", "!=", " ")
-      .onSnapshot((snapshot) => {
+      await NewsDB.collection(topic.toLowerCase()).get()
+        .then((snapshot) => {
       /* Searching topics based on string matching titles to input if a collection doesn't exist */
       if (snapshot.empty) {
         console.log("can't find the collection, will search in all collection")
@@ -194,15 +173,12 @@ class Feed extends React.Component<MyProps, MyState> {
       aList = [];
       snapshot.docChanges().forEach((change) => {
         if (change.doc.exists) {
-          this.setState({collectionExist:true})
           let articleItem = change.doc.data();
           aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
         }
         this.setState({articlesSearched: aList})
       })
       }
-      var source = snapshot.metadata.fromCache ? "local cache" : "server";
-        console.log("Data came from " + source);
     })
   }
   }
@@ -212,8 +188,8 @@ class Feed extends React.Component<MyProps, MyState> {
       console.log("Enter a valid topic");
     } else {
       /* cache data on subscribe */
-      await NewsDB.collection(topic.toLowerCase()).where("Title", "!=", " ")
-      .onSnapshot((snapshot) => {
+      await NewsDB.collection(topic.toLowerCase()).get()
+        .then(async (snapshot) => {
        /* Creating a new collection if topic collection doesn't exist and subscribing to it */
       if (snapshot.empty) {
         /* using this.state.allArticles called in constructor */
@@ -221,16 +197,16 @@ class Feed extends React.Component<MyProps, MyState> {
         if (filteredArticles.length === 0) {
           console.log("currently no news on that topic")
           return
+        } else {
+          filteredArticles.forEach(async filteredArticles => {
+            await NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
+          })
         }
-        filteredArticles.forEach(filteredArticles => {
-          NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
-        })
         console.log("Making new collection called", topic, " and subscribing")
-        this.addSubscription(topic.toLowerCase());
+        await this.addSubscription(topic.toLowerCase());
       } else {
         console.log("News about "+ topic +" has been found and will be subscribed.")
-        this.addSubscription(topic.toLowerCase());
-        this.setState({collectionExist:false})        
+        await this.addSubscription(topic.toLowerCase());
       }
       var source = snapshot.metadata.fromCache ? "local cache" : "server";
           console.log("Data came from " + source);
