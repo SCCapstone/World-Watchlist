@@ -21,7 +21,7 @@ import {
   IonCardSubtitle,
   IonItem,
   IonCheckbox,
-  IonInfiniteScroll, IonInfiniteScrollContent
+  IonList, IonListHeader
 } from '@ionic/react'
 import './Feed.css'
 import { NewsDB } from '../config/config';
@@ -46,13 +46,13 @@ type MyState = {
   showModal:boolean,
   showSubscription:boolean,
   allArticles:any[],
-  locationBased:boolean
+  locationBased:boolean,
+  isWeatherModalOpen:boolean
 }
 
 type MyProps = {
   history: any;
   location: any;
-  
 }
 
 class Feed extends React.Component<MyProps, MyState> {
@@ -68,11 +68,13 @@ class Feed extends React.Component<MyProps, MyState> {
     showModal:false,
     showSubscription:false,
     allArticles:[],
-    locationBased:false
+    locationBased:false,
+    isWeatherModalOpen:false
   };
 
   constructor(props: MyProps) {
     super(props)
+    this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         //gets the username of our user
@@ -115,7 +117,13 @@ class Feed extends React.Component<MyProps, MyState> {
         });
       }
     })
+    
   }
+
+  toggleWeatherModal() {
+    this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
+  }
+
   
   /*clear capacitor local storage */
   async clear() {
@@ -206,11 +214,10 @@ class Feed extends React.Component<MyProps, MyState> {
       if (snapshot.empty) {
         /* using this.state.allArticles called in constructor */
         var filteredArticles = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
-        if (filteredArticles.length === 0) {
-          console.log("currently no news on that topic")
-          return
-        } else if (this.state.locationBased === true) {
+        if (this.state.locationBased === true) {
           await this.locationBased(topic, 'subscribe')
+        } else if (filteredArticles.length === 0) {
+          console.log("currently no news on that topic")
         } 
         else {
           filteredArticles.forEach(async filteredArticles => {
@@ -308,11 +315,8 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonTitle>
             Feed
           </IonTitle>
-          <IonRouterOutlet>
-          <Route path="/Weather" component={Weather} exact={true} />
-      </IonRouterOutlet>
       <IonButtons slot="start">
-          <IonButton href="/Weather">
+          <IonButton onClick={() => {this.setState({isWeatherModalOpen: true})}}  fill='clear'>
               <IonIcon icon={cloud} />
           </IonButton>
           </IonButtons>
@@ -329,17 +333,19 @@ class Feed extends React.Component<MyProps, MyState> {
         </IonToolbar>
       </IonHeader>
       <IonContent>
+      
+        <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
         {/* Modal for searching topics */}
     <IonModal isOpen={this.state.showModal}>
         <IonHeader>
             <IonToolbar>
-        <IonButtons slot='end'>
-                <IonButton onClick={() => {this.setState({showModal: false})}} id='addFriendModalCloseButton' fill='clear'>
+        <IonButtons slot='start'>
+                <IonButton onClick={() => {this.setState({showModal: false})}} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
         <IonTitle>
-                Search Topics
+          Search Topics
         </IonTitle>
         </IonToolbar>
         </IonHeader>
@@ -360,7 +366,7 @@ class Feed extends React.Component<MyProps, MyState> {
       </IonButton>
       <IonItem>
          {/* check if person wants to search location */}
-  <IonLabel>Location</IonLabel>
+  <IonLabel>Location based search</IonLabel>
   <IonCheckbox onIonChange={e=> this.setState({locationBased:e.detail.checked}) }></IonCheckbox>
   </IonItem>
     <ArticleList theArticleList={this.state.articlesSearched}></ArticleList>
@@ -369,7 +375,7 @@ class Feed extends React.Component<MyProps, MyState> {
     <IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
             <IonToolbar>
-        <IonButtons slot='end'>
+        <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({showSubscription: false})}} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
@@ -387,7 +393,12 @@ class Feed extends React.Component<MyProps, MyState> {
         </IonCard>
         </IonContent>
     </IonModal>
+    <IonList>
+        <IonListHeader>
+          Recent News
+        </IonListHeader>
       <ArticleList theArticleList={this.state.articles}></ArticleList>
+    </IonList>
       </IonContent>
 
     </IonPage>
