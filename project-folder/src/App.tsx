@@ -27,6 +27,25 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+// import { Plugins, PushNotificationsPlugin } from '@capacitor/core';
+
+// type globalState = {
+//   PushNotifications: PushNotificationsPlugin
+// }
+// let myState: globalState = {PushNotifications: Plugins.PushNotifications};
+// // const { PushNotifications } = Plugins;
+
+//  // politely ask if notifications maybe
+//  myState.PushNotifications.requestPermission().then( result => {
+//   if (result.granted) {
+//    myState.PushNotifications.register();
+//    let reg_handler = myState.PushNotifications.addListener('registration', (token: PushNotificationToken) => {
+//      alert('Push registration success, token: ' + token.value);
+//    });
+//   } else {
+//     console.log("Registration request rejected");
+//   }
+// });
 
 const App: React.FC = () => (
     <IonApp>
