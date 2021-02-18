@@ -356,7 +356,7 @@ class Social extends React.Component<MyProps, MyState> {
 
   async generateUniqueGroupId() : Promise<string> {
   let generateUniqueGroupIdPromise = new Promise<string>((resolve, reject) => {
-      let code = Math.random().toString(36);
+      let code = (Math.random()).toString(36);
       db.collection('groudIds').doc(code).get().then((doc) => {
         if(!doc.exists) {
           resolve(code)
@@ -368,6 +368,7 @@ class Social extends React.Component<MyProps, MyState> {
 
     return await generateUniqueGroupIdPromise
   }
+
 
   createGroup() {
     this.generateUniqueGroupId().then((code) => {
@@ -456,7 +457,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
 
- 
+
 
 
 
@@ -609,7 +610,7 @@ class Social extends React.Component<MyProps, MyState> {
             return (
               <IonItem onClick={() => {this.setState({groupDetails: displayGroup, isGroupModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
                 <IonAvatar slot='start' className='socialGroupAvatar'>
-                  <img src = {displayGroup.profilePicture}/>
+                  <img src = {displayGroup.profilePicture ? displayGroup.profilePicture : Placeholder}/>
                 </IonAvatar>
                 <IonLabel className='socialGroupLabel'>
                   {displayGroup.nickname}

@@ -99,16 +99,27 @@ async function politics_feed() {
   getRSS(url, "politics");
 }
 
+/* gets the name of each collection and updates its */
 async function all_feed() {
-  getRSS("https://www.espn.com/espn/rss/news", "all");
-  getRSS("http://feeds.feedburner.com/ign/all", "all");
-  getRSS("http://feeds.bbci.co.uk/news/technology/rss.xml", "all");
-  getRSS("https://rss.nytimes.com/services/xml/rss/nyt/World.xml", "all");
-  getRSS("https://rss.nytimes.com/services/xml/rss/nyt/Health.xml", "all");
-  getRSS("https://www.politico.com/rss/politicopicks.xml", "all");
+  collectionArr = []
+ 
+  await db.listCollections()
+  .then(snapshot=>{
+      snapshot.forEach(async snaps=>{
+        await collectionArr.push(snaps["_queryOptions"].collectionId);  // GET LIST OF ALL COLLECTIONS
+      })
+  })
+  .catch(error=>console.log(error));
+  // url = "https://news.google.com/rss/search?q="+
+  console.log(collectionArr)
+  await collectionArr.forEach(async collectionID => {
+    url = "https://news.google.com/rss/search?q="+collectionID
+     await getRSS(url, collectionID)
+  })
 }
 
 function thisInterval() {
+  
   all_feed()
   // health_feed();
   // world_feed();
@@ -121,5 +132,5 @@ function thisInterval() {
 
 /*28800000 refreshes every 8 hours*/
 
-setInterval(thisInterval, 28800000);
+setInterval(thisInterval, 10000);
 exports.app = functions.https.onRequest(app)

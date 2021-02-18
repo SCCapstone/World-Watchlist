@@ -17,12 +17,14 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonModal,
+  IonButtons,
 
 } from '@ionic/react'
 import './Weather.css'
 import firebase, {db, auth} from '../firebase'
 import { Redirect, Route } from 'react-router-dom';
-import { arrowBack } from 'ionicons/icons';
+import { arrowBack, closeCircleOutline } from 'ionicons/icons';
 import Tabs from './Tabs'
 
 type MyState = {
@@ -36,12 +38,14 @@ type MyState = {
   location: any,
   subscription: any[],
   isUnsubscribing: boolean,
-  CurrentUser:any
+  CurrentUser:any,
+  isweatherOpen:boolean;
+  
 }
 
 type MyProps = {
-  history: any;
-  location: any;
+  isOpen:boolean;
+  toggleWeatherModal: any;
 }
 
 
@@ -57,20 +61,19 @@ class Weather extends React.Component<MyProps,MyState> {
       location: null,
       subscription: [],
       isUnsubscribing: false,
-      CurrentUser:null
+      CurrentUser:null,
+      isweatherOpen:false
   };
 
   
   constructor(props: MyProps) {
     super(props)
-    
     auth.onAuthStateChanged(async () => {
       console.log(this.state.subscription)
       if(auth.currentUser) {
         //gets the username of our user
         db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
           if(doc.data()) {
-            console.log('current user: ' + doc.data()!.username)
             this.setState({CurrentUser:doc.data()!.username})
           }
           // go into weatherSubscription collection
@@ -110,12 +113,12 @@ class Weather extends React.Component<MyProps,MyState> {
   ChildComponent = (props: {weather_code:any, temp:any, location: any, index:any}) => 
   <IonCard>
         <IonCardHeader >
-          <IonButton size="small" color="dark" type="submit" expand="full" shape="round" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
           <IonCardSubtitle>{props.location}</IonCardSubtitle>
           <IonCardTitle >{props.temp}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
         {props.weather_code}
+        <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
         </IonCardContent>
       </IonCard>  
 
@@ -171,6 +174,7 @@ class Weather extends React.Component<MyProps,MyState> {
     });
     }
   }
+
   
   /* ClimaCell API (currently not in used because ran out of request) */
   // async getWeatherData(lat: any, long: any) {
@@ -192,26 +196,26 @@ class Weather extends React.Component<MyProps,MyState> {
   //       console.error(err);
   //     });
   // } 
-
+    
     render() {
+      
       const weatherDisplay = [];
       for (var i = 0; i < this.state.subscription.length; i+=1) {
         weatherDisplay.push(<this.ChildComponent key={i} weather_code={this.state.subscription[i].weather_code} 
           temp={this.state.subscription[i].temp} location={this.state.subscription[i].location} index={i} />);
       };
       return (
-      <IonPage>
+      <IonModal isOpen={this.props.isOpen}>
         <IonHeader>
           <IonToolbar>
             <IonTitle>
-              Weather
+              Weather 
             </IonTitle>
-            <IonRouterOutlet>
-            <Route path="/main" component={Tabs} exact={true}/>
-      </IonRouterOutlet>
-        <IonButton href="/main">
-            <IonIcon icon={arrowBack} />
-        </IonButton>
+            <IonButtons slot='start'>
+                <IonButton onClick={() => {this.props.toggleWeatherModal()}} fill='clear'>
+                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                </IonButton>
+        </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent>
@@ -232,7 +236,7 @@ class Weather extends React.Component<MyProps,MyState> {
       </this.ParentComponent>
 
           </IonContent>
-      </IonPage>
+        </IonModal>
       )
     }
     
