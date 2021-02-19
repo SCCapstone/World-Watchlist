@@ -207,7 +207,7 @@ class Weather extends React.Component<MyProps,MyState> {
       return (
       <IonModal isOpen={this.props.isOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar className='weatherToolbar'>
             <IonTitle>
               Weather 
             </IonTitle>
