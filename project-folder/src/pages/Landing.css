@@ -16,12 +16,11 @@
 }
 .landingToolbar {
     --background: #3171e0;
+    text-align:center;
 }
 
 .loginItem {
   --background: transparent;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 
@@ -40,6 +39,7 @@
   --background: #c4eeff;
   margin-left: auto;
   margin-right: auto;
+  text-align:center;
 
 }
 
