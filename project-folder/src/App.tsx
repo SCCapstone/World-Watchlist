@@ -5,6 +5,8 @@ import {
   IonRouterOutlet,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import { Plugins, PushNotification, PushNotificationToken, PushNotificationActionPerformed } from '@capacitor/core';
+
 import Landing from './pages/Landing'
 import Weather from './pages/Weather'
 import Feed from './pages/Feed'
@@ -42,6 +44,10 @@ const App: React.FC = () => (
       </IonReactRouter>
     </IonApp>
 )
+
+const INITIAL_STATE = {
+  notifications: [{ id: 'id', title: "Test Push", body: "This is my first push notification" }],
+};
 
 
 export default App;
