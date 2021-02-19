@@ -3,7 +3,7 @@
 }
 
 .loginInput {
-  width: 95%;
+  width: 50%;
   border-radius: 10px;
   background-color: white;
   --background: #93ccfa;
@@ -39,6 +39,8 @@
 .loginLabel {
   --background: #c4eeff;
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 
 }
 
