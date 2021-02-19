@@ -191,7 +191,7 @@ class Landing extends React.Component<MyProps, MyState> {
             <div className='loginContainer'>
               <div id='loginInputContainer'>
                 <IonItem lines='none' className='loginItem'>
-                <IonLabel className='loginLabel' position='floating'>Email</IonLabel>
+                <IonLabel className='loginLabel'>Email</IonLabel>
                   <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
