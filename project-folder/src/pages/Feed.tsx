@@ -163,30 +163,28 @@ class Feed extends React.Component<MyProps, MyState> {
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
-    console.log(this.state.locationBased)
     this.setState({articlesSearched:[]})
       if (topic === null || topic === undefined || topic === '') {
         console.log("Enter a valid topic");
       } else {
-        if (this.state.locationBased === true) {
-          await this.locationBased(topic, 'search')
-        } else {
         let aList : articleList = [];
         /* cache data on topic search */
         await NewsDB.collection(topic.toLowerCase()).get()
-          .then((snapshot) => {
-        /* Searching topics based on string matching titles to input if a collection doesn't exist */
+        .then(async (snapshot) => {
         if (snapshot.empty) {
-          console.log("can't find the collection, will search in all collection")
-          var filtered = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
-          if (filtered.length === 0) {
-            console.log("currently no news on", topic)
-          } else {
-            filtered.forEach(filtered => {
-              aList.push({title: filtered.Title, link: filtered.Link, description: filtered.Description})
-            })
-          this.setState({articlesSearched: aList})
-          }
+          // searching through api and sending to firestore instead of searching in main collection
+          await this.apiSearch(topic, 'search')
+        /* Searching topics based on string matching titles to input if a collection doesn't exist */
+          // console.log("can't find the collection, will search in all collection")
+          // var filtered = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
+          // if (filtered.length === 0) {
+          //   console.log("currently no news on", topic)
+          // } else {
+          //   filtered.forEach(filtered => {
+          //     aList.push({title: filtered.Title, link: filtered.Link, description: filtered.Description})
+          //   })
+          //   this.setState({articlesSearched: aList})
+          // }
         } else {
         console.log("collection exist, will pull data from that collection")
         aList = [];
@@ -200,7 +198,6 @@ class Feed extends React.Component<MyProps, MyState> {
         }
       })
     }
-  }
 }
 
   async subscribe(topic:any) {
@@ -212,20 +209,21 @@ class Feed extends React.Component<MyProps, MyState> {
         .then(async (snapshot) => {
        /* Creating a new collection if topic collection doesn't exist and subscribing to it */
       if (snapshot.empty) {
+        await this.apiSearch(topic, 'subscribe')
         /* using this.state.allArticles called in constructor */
-        var filteredArticles = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
-        if (this.state.locationBased === true) {
-          await this.locationBased(topic, 'subscribe')
-        } else if (filteredArticles.length === 0) {
-          console.log("currently no news on that topic")
-        } 
-        else {
-          filteredArticles.forEach(async filteredArticles => {
-            await NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
-          })
-        }
-        console.log("Making new collection called", topic, " and subscribing")
-        await this.addSubscription(topic.toLowerCase());
+      //   var filteredArticles = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
+      //   if (this.state.locationBased === true) {
+      //     await this.apiSearch(topic, 'subscribe')
+      //   } else if (filteredArticles.length === 0) {
+      //     console.log("currently no news on that topic")
+      //   } 
+      //   else {
+      //     filteredArticles.forEach(async filteredArticles => {
+      //       await NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
+      //     })
+      //   }
+      //   console.log("Making new collection called", topic, " and subscribing")
+      //   await this.addSubscription(topic.toLowerCase());
       } 
       else {
         console.log("News about "+ topic +" has been found and will be subscribed.")
@@ -243,7 +241,7 @@ class Feed extends React.Component<MyProps, MyState> {
   }
 
   /* using an api to turn rss feeds into json to avoid cors policy errors */
-  async locationBased(topic: any, type:string) {
+  async apiSearch(topic: any, type:string) {
     let aList : articleList = [];
     let temp = topic.replace(/\ /g,"%2520")
     let rssurl = "https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3D"+temp+"%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen&api_key=ygho9vm848pakf5b24oawteww7slkcj2ccgiu13w"
