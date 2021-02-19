@@ -38,6 +38,9 @@
 
 .loginLabel {
   --background: #c4eeff;
+  margin-left: auto;
+  margin-right: auto;
+  text-align:center;
 
 }
 
