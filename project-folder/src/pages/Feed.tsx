@@ -21,7 +21,7 @@ import {
   IonCardSubtitle,
   IonItem,
   IonCheckbox,
-  IonList, IonListHeader, IonAlert
+  IonList, IonListHeader, IonAlert, IonToast
 } from '@ionic/react'
 import './Feed.css'
 import { NewsDB } from '../config/config';
@@ -58,7 +58,6 @@ type MyProps = {
 }
 
 class Feed extends React.Component<MyProps, MyState> {
-  
   state: MyState = {
     articles: [],
     subs: [],
@@ -79,6 +78,7 @@ class Feed extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props)
+    let aList : articleList = [];
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
@@ -88,32 +88,61 @@ class Feed extends React.Component<MyProps, MyState> {
             console.log('current user: ' + doc.data()!.username)
             this.setState({CurrentUser:doc.data()!.username})
           }
-          // get subscription list .get().then
+          // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot(async (sub_list) => {
+            this.setState({articles:[]})
+            this.setState({subs: await sub_list.data()!.subList});
             if (sub_list.exists) {
               console.log("current sub list: ", sub_list.data()!.subList)
-              this.setState({subs: sub_list.data()!.subList});
-              let aList : articleList = [];
-              if (this.state.subs.length !== 0) {
-                for (var i = 0; i < this.state.subs.length; i++) {
-                await NewsDB.collection(this.state.subs[i]).get()
-                .then((snapshot) => {
-                  snapshot.forEach(async doc => {
+              for (var i = 0; i < this.state.subs.length; i++) {
+                var articlesLocal = await Storage.get({key:this.state.subs[i]})
+                // check local storage if collection exist
+                if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0) {
+                  console.log("local storage empty for", this.state.subs[i])
+                  await NewsDB.collection(this.state.subs[i]).get()
+                .then(async (snapshot) => {
+                  snapshot.forEach(doc => {
                     if (doc.exists) {
                       let articleItem = doc.data();
-                      aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+                      var html = articleItem.description; 
+                      var a = document.createElement("a"); 
+                      a.innerHTML = html; 
+                      var text = a.textContent || a.innerText || ""; 
+                      aList.push({title: articleItem.Title, link: articleItem.Link, description: text})
                     } else {
                       console.log("Cannot find anything in database.")
                     }
                   })
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
-                }).catch(function(error) {
-                  console.log("Error getting document:", error);
+                  await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList) });
+                  this.setState({articles: aList})
                 })
+                } else {
+                  let cache = JSON.parse(articlesLocal.value)
+                  this.setState({articles: cache})
+                  console.log("taking from capacitor cache")
+                }
               }
-            }
-            this.setState({articles: aList})
+            //   if (this.state.subs.length !== 0) {
+            //     for (var i = 0; i < this.state.subs.length; i++) {
+            //     await NewsDB.collection(this.state.subs[i]).get()
+            //     .then((snapshot) => {
+            //       snapshot.forEach(async doc => {
+            //         if (doc.exists) {
+            //           let articleItem = doc.data();
+            //           aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+            //         } else {
+            //           console.log("Cannot find anything in database.")
+            //         }
+            //       })
+            //       var source = snapshot.metadata.fromCache ? "local cache" : "server";
+            //       console.log("Sub Articles came from " + source);
+            //     }).catch(function(error) {
+            //       console.log("Error getting document:", error);
+            //     })
+            //   }
+            // }
             } else {
               db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
             }
@@ -121,15 +150,14 @@ class Feed extends React.Component<MyProps, MyState> {
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
+        // end of getting data from server
       }
     })
-    
   }
 
   toggleWeatherModal() {
     this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
   }
-
   
   /*clear capacitor local storage */
   async clear() {
@@ -175,6 +203,7 @@ class Feed extends React.Component<MyProps, MyState> {
 
   /* search firebase database for topic*/
   async searchTopic(topic:any) {
+    this.setState({showLoading: true})
     this.setState({articlesSearched:[]})
       if (topic === null || topic === undefined || topic === '') {
         console.log("Enter a valid topic");
@@ -201,10 +230,14 @@ class Feed extends React.Component<MyProps, MyState> {
           // }
         } else {
         console.log("collection exist, will pull data from that collection")
+        
         aList = [];
         snapshot.docChanges().forEach((change) => {
           if (change.doc.exists) {
             let articleItem = change.doc.data();
+            var html = articleItem.description; 
+            var a = document.createElement("a"); 
+            a.innerHTML = html; 
             aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
           }
           this.setState({articlesSearched: aList})
@@ -212,6 +245,8 @@ class Feed extends React.Component<MyProps, MyState> {
         }
       })
     }
+    this.setState({showLoading: false})
+    return 0
 }
 
   async subscribe(topic:any) {
@@ -365,7 +400,8 @@ class Feed extends React.Component<MyProps, MyState> {
         <IonContent>
         <IonSearchbar placeholder="Enter a Topic or Location" value={this.state.topicSearched} onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
-      <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=>this.searchTopic(this.state.topicSearched) && this.setState({showLoading: true})}>
+    
+      <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={async () => await this.searchTopic(this.state.topicSearched)}>
           search
       </IonButton>
       
@@ -374,12 +410,13 @@ class Feed extends React.Component<MyProps, MyState> {
           onDidDismiss={() => this.setState({showSearchAlert:false})}
           message="Enter a valid topic or location"
        />
-      {/* <IonLoading
+      <IonLoading
         isOpen={this.state.showLoading}
-        onDidDismiss={() => this.searchTopic(this.state.topicSearched) && this.setState({showLoading: false})}
+        onDidDismiss={() => this.setState({showLoading: false})}
         message={'Loading...'}
-        duration={10}
-      /> */}
+        duration={5000}
+      />
+      
 
       {/* <IonItem> */}
          {/* check if person wants to search location */}
