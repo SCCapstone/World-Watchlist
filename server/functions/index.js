@@ -54,6 +54,8 @@ async function writeDoc(articles, collection_name) {
         }
   return 0
 }
+
+
 /* go through rss feed and get article information*/
 async function getRSS(url, collection_name) {
   await axios.get(url).then(
@@ -61,7 +63,8 @@ async function getRSS(url, collection_name) {
       let article_info = [];
       let result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
       let info2 = await JSON.parse(result2);
-      for ( i = 0 ; i < info2.rss.channel.item.length ; ++i ) {
+      /* using set length of articles to get instead of getting all articles with info2.rss.channel.item.length */
+      for ( i = 0 ; i < 35 ; ++i ) {
         item = info2.rss.channel.item[i];
         //console.log(info2.rss.channel.item[i]);
         let title = link = description = image = date = null;
@@ -125,11 +128,23 @@ async function all_feed() {
   // url = "https://news.google.com/rss/search?q="+
   console.log(collectionArr)
   await collectionArr.forEach(async collectionID => {
+    await clearCollection('collectionID')
     url = "https://news.google.com/rss/search?q="+collectionID
     await getRSS(url, collectionID)
   })
   return 0
 }
+
+async function clearCollection(path) {
+  const ref = await db.collection(path)
+  ref.onSnapshot((snapshot) => {
+    snapshot.docs.forEach((doc) => {
+      ref.doc(doc.id).delete()
+    })
+  })
+  return 0
+}
+
 
 async function thisInterval() {
   // await politics_feed()
@@ -146,6 +161,6 @@ async function thisInterval() {
 /* function schedules invocation every 8 hours. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} */
 exports.scheduledFunction = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
   await all_feed()
-  console.log("all feed updated")
+  console.log("politics deleted")
 })
 exports.app = functions.https.onRequest(app)
