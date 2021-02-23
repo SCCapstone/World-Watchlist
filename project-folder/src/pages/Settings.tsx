@@ -314,13 +314,13 @@ isValidSite(siteName:string) {
       <IonPage>
       <IonModal isOpen={this.state.isBlockSourceModalOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar class='settingsToolbar2'>
             <IonButtons>
               <IonButton onClick={() => {this.populate();this.setState({isBlockSourceModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
-            <IonTitle>
+            <IonTitle class='settingsTitle2'>
               Block a Source
 
             </IonTitle>
@@ -363,14 +363,14 @@ isValidSite(siteName:string) {
 
       <IonModal isOpen={this.state.isChangePasswordModalOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar class='settingsToolbar2'>
             <IonButtons>
               <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
 
-            <IonTitle>
+            <IonTitle class='settingsTitle2'>
               Change Password
 
             </IonTitle>
@@ -379,7 +379,7 @@ isValidSite(siteName:string) {
         <IonContent>
         <IonItem lines='none' id='block'>
           <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear'>
+          <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear' placeholder='Enter new password'>
             <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>
         </IonItem>
