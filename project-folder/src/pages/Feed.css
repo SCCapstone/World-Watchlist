@@ -3,6 +3,10 @@
     --color: white;
     margin-left: auto;
     margin-right: auto;
+}
+
+.title1 {
     text-align: center;
-  
+    margin-left: 70px;
+    margin-right: 20px;
 }

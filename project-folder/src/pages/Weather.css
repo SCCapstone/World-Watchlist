@@ -1,5 +1,7 @@
 .weatherToolbar {
     --background: #3171e0;
-    text-align:center;
     --color: white;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
