@@ -470,13 +470,13 @@ class Social extends React.Component<MyProps, MyState> {
 
         <IonModal isOpen={this.state.isAddFriendModalOpen}>
           <IonHeader>
-            <IonToolbar>
+            <IonToolbar class='socialToolbar2'>
               <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({isAddFriendModalOpen: false})}} id='addFriendModalCloseButton' fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
               </IonButtons>
-              <IonTitle>
+              <IonTitle class='socialTitle2'>
                 Add Friend
               </IonTitle>
             </IonToolbar>
@@ -495,13 +495,13 @@ class Social extends React.Component<MyProps, MyState> {
 
         <IonModal isOpen={this.state.isPendingRequestsModalOpen}>
           <IonHeader>
-            <IonToolbar>
+            <IonToolbar class='socialToolbar2'>
               <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({isPendingRequestsModalOpen: false})}} id='addFriendModalCloseButton' fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
               </IonButtons>
-              <IonTitle>
+              <IonTitle class="socialTitle2">
                 Pending Requests
               </IonTitle>
             </IonToolbar>
@@ -551,13 +551,13 @@ class Social extends React.Component<MyProps, MyState> {
 
         <IonModal isOpen={this.state.isCreateGroupModalOpen}>
           <IonHeader>
-            <IonToolbar>
+            <IonToolbar class='socialToolbar2'>
             <IonButtons slot='start'>
               <IonButton onClick={() => {this.setState({isCreateGroupModalOpen: false})}} fill='clear'>
                 <IonIcon id='closeCreateGroupModalIcon' icon={closeCircleOutline} />
               </IonButton>
             </IonButtons>
-              <IonTitle>Create Group</IonTitle>
+              <IonTitle class='socialTitle2'>Create Group</IonTitle>
             </IonToolbar>
           </IonHeader>
           <IonContent>
