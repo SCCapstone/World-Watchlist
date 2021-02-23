@@ -310,7 +310,7 @@ class Feed extends React.Component<MyProps, MyState> {
     <IonPage>
       <IonHeader>
         <IonToolbar class ='feedToolbar'>
-          <IonTitle class='title1'>
+          <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
       <IonButtons slot="start">
