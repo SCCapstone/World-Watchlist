@@ -116,3 +116,16 @@
   margin-right: auto;
   display: flex;
 }
+
+.socialToolbar {
+  --background: #3171e0;
+  --color: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.socialTitle {
+  text-align: center;
+  margin-left: auto;
+  margin-right: 60px;
+}

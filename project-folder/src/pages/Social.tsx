@@ -567,8 +567,8 @@ class Social extends React.Component<MyProps, MyState> {
         </IonModal>
 
         <IonHeader>
-          <IonToolbar>
-            <IonTitle>
+          <IonToolbar class='socialToolbar'>
+            <IonTitle class='socialTitle'>
               Social
             </IonTitle>
             <IonButtons slot="start">
