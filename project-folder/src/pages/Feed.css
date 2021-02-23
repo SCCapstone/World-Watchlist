@@ -9,5 +9,18 @@
     text-align: center;
     margin-left: auto;
     margin-right: 40px;
-    padding-left: 90px;
+    padding-left: 80px;
+}
+
+.feedToolbar2 {
+    --background: #418b7c;
+    --color: white;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.feedTitle2 {
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 60px;
 }
