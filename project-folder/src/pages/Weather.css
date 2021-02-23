@@ -3,5 +3,10 @@
     --color: white;
     margin-left: auto;
     margin-right: auto;
-    display: block;
+}
+
+.weatherTitle {
+    text-align: center;
+    margin-left: auto;
+    margin-right: 60px;
 }
