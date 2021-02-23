@@ -309,7 +309,7 @@ class Feed extends React.Component<MyProps, MyState> {
     return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar class ='feedToolbar'>
           <IonTitle>
             Feed
           </IonTitle>
@@ -336,7 +336,7 @@ class Feed extends React.Component<MyProps, MyState> {
         {/* Modal for searching topics */}
     <IonModal isOpen={this.state.showModal}>
         <IonHeader>
-            <IonToolbar>
+            <IonToolbar class='feedToolbar'>
         <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({showModal: false})}} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
