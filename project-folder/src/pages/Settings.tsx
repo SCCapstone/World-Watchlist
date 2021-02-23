@@ -412,8 +412,8 @@ isValidSite(siteName:string) {
 
       </IonModal>
         <IonHeader>
-          <IonToolbar>
-            <IonTitle>
+          <IonToolbar class='settingsToolbar'>
+            <IonTitle class='settingsTitle'>
               Settings
             </IonTitle>
           </IonToolbar>
