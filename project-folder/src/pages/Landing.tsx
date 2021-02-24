@@ -180,8 +180,8 @@ class Landing extends React.Component<MyProps, MyState> {
       <IonPage>
         <IonHeader>
           <IonToolbar className='landingToolbar'>
-            <IonTitle>
-              {this.state.shouldLoginShow ? 'Login' : 'Register'}
+            <IonTitle class='loginTitle'>
+              {this.state.shouldLoginShow ? ' World Watch-list Login' : ' World Watch-list Register'}
             </IonTitle>
           </IonToolbar>
         </IonHeader>
@@ -190,8 +190,9 @@ class Landing extends React.Component<MyProps, MyState> {
           this.state.shouldLoginShow ?
             <div className='loginContainer'>
               <div id='loginInputContainer'>
+                <h1 id='header'>Enter your login info here</h1>
                 <IonItem lines='none' className='loginItem'>
-                <IonLabel className='loginLabel' position='floating'></IonLabel>
+                <IonLabel class='loginLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
@@ -205,6 +206,7 @@ class Landing extends React.Component<MyProps, MyState> {
           :
             <div className='registerContainer'>
               <div id='registerInputContainer'>
+              <h1 id='header'>Register for an account</h1>
                 <IonItem lines='none' className='registerItem'>
                 <IonLabel className='registerLabel' position='floating' id = 'email'></IonLabel>
                   <IonInput value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
