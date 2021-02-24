@@ -34,12 +34,8 @@ import {
 
 import './Social.css'
 import Messenger from './Messenger'
-<<<<<<< HEAD
 import AddFriends from './AddFriends';
 import PendingRequests from './PendingRequests';
-=======
-import Feed from './Feed';
->>>>>>> c11c802b31cb6a2146357c25e49889e56030fab9
 
 
 type MyState = {
