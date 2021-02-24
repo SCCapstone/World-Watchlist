@@ -15,7 +15,5 @@ function Article(props: {theArticle: article}) {
             </IonCardContent>
             <IonCardContent><a href={props.theArticle.link}>source</a></IonCardContent>
         </IonCard>
-        
-        ;
 }
 export default Article;
