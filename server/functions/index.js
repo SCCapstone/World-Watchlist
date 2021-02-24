@@ -136,10 +136,10 @@ async function all_feed() {
 }
 
 async function clearCollection(path) {
-  const ref = await db.collection(path)
+  const ref = db.collection(path)
   ref.onSnapshot((snapshot) => {
-    snapshot.docs.forEach((doc) => {
-      ref.doc(doc.id).delete()
+    snapshot.docs.forEach(async (doc) => {
+      await ref.doc(doc.id).delete()
     })
   })
   return 0
@@ -159,8 +159,8 @@ async function thisInterval() {
 }
 
 /* function schedules invocation every 8 hours. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} */
-exports.scheduledFunction = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
+exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun(async (context) => {
   await all_feed()
-  console.log("politics deleted")
+  console.log("all deleted and updated.")
 })
 exports.app = functions.https.onRequest(app)

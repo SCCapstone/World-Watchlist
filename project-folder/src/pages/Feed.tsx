@@ -34,7 +34,10 @@ import { Plugins } from '@capacitor/core';
 import axios from 'axios';
 import ParentComponent from '../components/SubscriptionParent';
 import ChildrenComponent from '../components/SubscriptionChildren';
+<<<<<<< HEAD
 import { MyProps, MyState } from '../components/FeedTypes';
+=======
+>>>>>>> c336e33e17ae0d424e25aa6d751abf51801dd1cf
 const { Storage } = Plugins;
 
 
