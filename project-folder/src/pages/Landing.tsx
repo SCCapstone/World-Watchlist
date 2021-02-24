@@ -192,12 +192,12 @@ class Landing extends React.Component<MyProps, MyState> {
               <div id='loginInputContainer'>
                 <h1 id='header'>Enter your login info here</h1>
                 <IonItem lines='none' className='loginItem'>
-                <IonLabel className='loginLabel' position='floating'> Email</IonLabel>
+                <IonLabel class='loginLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
                 <IonItem lines='none' className='loginItem'>
-                  <IonLabel className='loginLabel' position='floating'> Password</IonLabel>
+                  <IonLabel className='loginLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.loginPassword}  className='loginInput' type='password' placeholder = 'Password' onIonChange={(e) => {this.setState({loginPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
@@ -206,23 +206,24 @@ class Landing extends React.Component<MyProps, MyState> {
           :
             <div className='registerContainer'>
               <div id='registerInputContainer'>
+              <h1 id='header'>Register for an account</h1>
                 <IonItem lines='none' className='registerItem'>
-                <IonLabel className='registerLabel' position='floating' id = 'email'>Email Address</IonLabel>
+                <IonLabel className='registerLabel' position='floating' id = 'email'></IonLabel>
                   <IonInput value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
-                  <IonLabel className='registerLabel' position='floating'> Password</IonLabel>
+                  <IonLabel className='registerLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.registerPassword} className='registerInput' type='password' placeholder = 'Password' onIonChange={(e) => {this.setState({registerPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
-                  <IonLabel className='registerLabel' position='floating'>Confirm Password</IonLabel>
+                  <IonLabel className='registerLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.registerConfirmPassword}  className='registerInput' type='password' placeholder = 'Confirm Password' onIonChange={(e) => {this.setState({registerConfirmPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
-                  <IonLabel className='registerLabel' position='floating'>Username of choice</IonLabel>
+                  <IonLabel className='registerLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>

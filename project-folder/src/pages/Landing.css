@@ -1,5 +1,6 @@
 .landingContent {
-  --background: #93ccfa;
+  --background: #fbffdbed;
+  text-align: center;
 }
 
 .loginInput {
@@ -15,7 +16,7 @@
   margin-right: auto;
 }
 .landingToolbar {
-    --background: #3171e0;
+    --background: #418b7c;
     text-align:center;
     --color: white;
 }
@@ -37,15 +38,17 @@
 }
 
 .loginLabel {
-  --background: #c4eeff;
   text-align:center;
   margin-left: auto;
   margin-right: auto;
-  padding-top: 50px;
+  padding-top: 10px;
+  padding-left: 40px;
+  align-content: center;
 }
 
 #loginInputContainer {
   margin-top: 25px;
+  text-align: center;
 }
 
 .registerInput {
@@ -84,6 +87,7 @@
   margin-left: auto;
   margin-right: auto;
   padding-top: 30px;
+  align-content: center;
 }
 
 #registerInputContainer {
@@ -92,11 +96,13 @@
 }
 
 .landingSwitch {
-  position: fixed;
-  bottom: 5%;
-  left: 20%;
-  text-align: center;
   width: 60%;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 150px;
+  --background: #3171e0;
+  --color: #ededed;;
   max-width: 600px;
 }
 
@@ -107,6 +113,7 @@
   font-size: 20;
   font-weight: bold;
   padding-top: 30px;
+  padding-bottom: 20px;
 }
 
 .loginTitle {
