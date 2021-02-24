@@ -34,30 +34,13 @@ import { LocalNotifications, Plugins } from '@capacitor/core';
 import axios from 'axios';
 import ParentComponent from '../components/SubscriptionParent';
 import ChildrenComponent from '../components/SubscriptionChildren';
+<<<<<<< HEAD
+import { MyProps, MyState } from '../components/FeedTypes';
+=======
+>>>>>>> c336e33e17ae0d424e25aa6d751abf51801dd1cf
 const { Storage } = Plugins;
 
-type MyState = {
-  articles: articleList;
-  subs: string[];
-  articlesSearched:any[],
-  subscribedArticles: any;
-  CurrentUser:any;
-  topicSearched:any;
-  showLoading:boolean;
-  showModal:boolean,
-  showSubscription:boolean,
-  allArticles:any[],
-  locationBased:boolean,
-  isWeatherModalOpen:boolean,
-  isSearchingModal:boolean,
-  showSearchAlert:boolean,
-  showSubscribeAlert:boolean
-}
 
-type MyProps = {
-  history: any;
-  location: any;
-}
 
 class Feed extends React.Component<MyProps, MyState> {
   state: MyState = {
@@ -506,7 +489,7 @@ class Feed extends React.Component<MyProps, MyState> {
         {/* <ParentComponent>
        {subs}
       </ParentComponent> */}
-      <ChildrenComponent subs={this.state.subs} func={this.removeSubscription.bind(this)}></ChildrenComponent>
+      <ChildrenComponent subs={this.state.subs} func={this.unsubscribe.bind(this)}></ChildrenComponent>
         </IonCard>
         </IonContent>
     </IonModal>
