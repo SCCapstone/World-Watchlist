@@ -3,8 +3,8 @@ import React from 'react';
 
 
 function ChildComponent (props: {subscription:any, index:any, func: any }) {
-    function unsubClick(e: any) {
-        props.func(props.index);
+    async function unsubClick(e: any) {
+        await props.func(props.index);
     }
     return (<IonCard>
       <IonCardHeader >
