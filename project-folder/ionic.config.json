@@ -1,0 +1,7 @@
+{
+  "name": "project-folder",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

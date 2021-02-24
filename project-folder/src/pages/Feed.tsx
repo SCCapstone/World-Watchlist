@@ -23,7 +23,6 @@ import {
   IonCheckbox,
   IonList, IonListHeader, IonAlert, IonToast
 } from '@ionic/react'
-
 import './Feed.css'
 import { NewsDB } from '../config/config';
 import firebase, {db,auth} from '../firebase'
@@ -41,7 +40,7 @@ type MyState = {
   articles: articleList;
   subs: string[];
   articlesSearched:any[],
-  unsubscribeArticles: any;
+  subscribedArticles: any;
   CurrentUser:any;
   topicSearched:any;
   showLoading:boolean;
@@ -65,7 +64,7 @@ class Feed extends React.Component<MyProps, MyState> {
     articles: [],
     subs: [],
     articlesSearched:[],
-    unsubscribeArticles: undefined,
+    subscribedArticles: undefined,
     CurrentUser: null,
     topicSearched:null,
     showLoading:false,
@@ -86,7 +85,7 @@ class Feed extends React.Component<MyProps, MyState> {
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         //gets the username of our user
-        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+        await db.collection("users").doc(auth.currentUser.uid).get().then(async doc => {
           if(doc.data()) {
             console.log('current user: ' + doc.data()!.username)
             this.setState({CurrentUser:doc.data()!.username})
@@ -106,7 +105,6 @@ class Feed extends React.Component<MyProps, MyState> {
                 .then(async (snapshot) => {
                   snapshot.forEach(doc => {
                     if (doc.exists) {
-                      this.setState({collectionExist:true})
                       let articleItem = doc.data();
                       var html = articleItem.description; 
                       var a = document.createElement("a"); 
@@ -151,13 +149,11 @@ class Feed extends React.Component<MyProps, MyState> {
               db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
             }
           })
-
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
         // end of getting data from server
       }
-      
     })
   }
 
@@ -171,18 +167,16 @@ class Feed extends React.Component<MyProps, MyState> {
   }
 
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
-  addSubscription(sub: string) {
-    if ( sub !== "") {
-      db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
+  async addSubscription(sub: string) {
+    if (sub!== "") {
+      await db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
     }
   }
 
-  removeSubscription(index:any) {
-    this.state.subs.splice(index,1)
+  async removeSubscription(index:any) {
     if (this.state.subs[index] !== "") {
-      db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: (this.state.subs)})
+      await db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
     }
-    console.log(this.state.subs)
   }
 
   // ParentComponent = (props:any) => (
@@ -261,6 +255,44 @@ class Feed extends React.Component<MyProps, MyState> {
     if (topic === null || topic === undefined || topic === '') {
       console.log("Enter a valid topic");
     } else {
+      /* cache data on subscribe */
+      await NewsDB.collection(topic.toLowerCase()).get()
+        .then(async (snapshot) => {
+       /* Creating a new collection if topic collection doesn't exist and subscribing to it */
+      if (snapshot.empty) {
+        await this.apiSearch(topic, 'subscribe')
+        /* using this.state.allArticles called in constructor */
+      //   var filteredArticles = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
+      //   if (this.state.locationBased === true) {
+      //     await this.apiSearch(topic, 'subscribe')
+      //   } else if (filteredArticles.length === 0) {
+      //     console.log("currently no news on that topic")
+      //   } 
+      //   else {
+      //     filteredArticles.forEach(async filteredArticles => {
+      //       await NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
+      //     })
+      //   }
+      //   console.log("Making new collection called", topic, " and subscribing")
+      //   await this.addSubscription(topic.toLowerCase());
+      } 
+      else {
+        console.log("News about "+ topic +" has been found and will be subscribed.")
+        await this.addSubscription(topic.toLowerCase());
+      } 
+      var source = snapshot.metadata.fromCache ? "local cache" : "server";
+          console.log("Data came from " + source);
+    })
+  }
+  }
+  
+  unsubscribe(topic:any,index:any) {
+    console.log("News about "+ topic +" has been found and will be unsubscribed.")
+    this.removeSubscription(index);
+  }
+
+  /* using an api to turn rss feeds into json to avoid cors policy errors */
+  async apiSearch(topic: any, type:string) {
     let aList : articleList = [];
     /* needed for the api.rss2json to work */
     let temp = topic.replace(/\ /g,"%2520")
@@ -281,32 +313,17 @@ class Feed extends React.Component<MyProps, MyState> {
         var text = a.textContent || a.innerText || ""; 
         aList.push({title: articleItem.title, link: articleItem.link, description: text})
       })
-      this.setState({articlesSearched: aList})
-    }).catch(function(error) {
-      console.log("Error getting document:", error);
-  });
-    this.setState({unsubscribeArticles: unsubscribeArticles})
-  }
-  }
-  async subscribe(topic:any) {
-    let aCollection = NewsDB.collection(topic.toLowerCase()).get().then((snapshot) => {
-      if ( snapshot.empty) {
-        console.log("Cannot find any news on that topic.")
+      if (type==='search') {
+        this.setState({articlesSearched: aList})
       } else {
-        console.log("News about "+ topic +" has been found and will be subscribed.")
-        this.addSubscription(topic);
-        this.setState({collectionExist:false})        
+        aList.forEach(async newsItem => {
+          await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title:newsItem.title, Link: newsItem.link, Description: newsItem.description});
+        })
+        await this.addSubscription(topic.toLowerCase());
       }
+    }).catch((error) => {
+      console.log(error)
     });
-    // console.log("Reference"+aCollection);
-    // if( /*this.state.collectionExist*/) {
-    //   console.log("News about "+ topic +" has been found and will be subscribed.")
-    //   this.addSubscription(topic);
-    //   this.setState({collectionExist:false})
-    // } else {
-    //   console.log("Cannot find any news on that topic.")
-    // }
-    
   }
 
   // /* store news in 'all' collection into capicitor local storage on start to reduce reading*/
@@ -348,17 +365,14 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
-          <IonRouterOutlet>
-          <Route path="/Weather" component={Weather} exact={true} />
-      </IonRouterOutlet>
       <IonButtons slot="start">
-          <IonButton href="/Weather">
+          <IonButton onClick={() => {this.setState({isWeatherModalOpen: true})}}  fill='clear'>
               <IonIcon icon={cloud} />
           </IonButton>
           </IonButtons>
           <IonButtons slot="end">
           <IonButton onClick={() => {this.setState({showSubscription: true})}}  fill='clear'>
-              <IonIcon icon={bookmark} />
+              <IonIcon icon={bookmarks} />
           </IonButton>
           </IonButtons>
           <IonButtons slot="end">
@@ -369,7 +383,9 @@ class Feed extends React.Component<MyProps, MyState> {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        
+      
+        <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
+        {/* Modal for searching topics */}
     <IonModal isOpen={this.state.showModal}>
         <IonHeader>
             <IonToolbar class='feedToolbar2'>
@@ -456,24 +472,24 @@ class Feed extends React.Component<MyProps, MyState> {
         </IonToolbar>
         </IonHeader>
         <IonContent>
-          
         <IonCard>
         {/* <ParentComponent>
        {subs}
       </ParentComponent> */}
       <ChildrenComponent subs={this.state.subs} func={this.removeSubscription.bind(this)}></ChildrenComponent>
         </IonCard>
-        
         </IonContent>
-        
     </IonModal>
+    <IonList>
+        <IonListHeader>
+          Recent News
+        </IonListHeader>
       <ArticleList theArticleList={this.state.articles}></ArticleList>
+    </IonList>
       </IonContent>
 
     </IonPage>
     )
   }
-
 }
-
 export default Feed;
