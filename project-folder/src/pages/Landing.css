@@ -30,7 +30,7 @@
   display: flex;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 20px;
+  margin-top: 80px;
   --background: #ededed;
   --color: #000000;
   max-width: 600px;
@@ -41,7 +41,7 @@
   text-align:center;
   margin-left: auto;
   margin-right: auto;
-
+  padding-top: 50px;
 }
 
 #loginInputContainer {
@@ -72,25 +72,43 @@
   display: flex;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 20px;
+  margin-top: 80px;
   --background: #ededed;
   --color: #000000;
+  max-width: 600px;
 }
 
 .registerLabel {
   --background: #c4eeff;
-
+  text-align:center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 30px;
 }
 
 #registerInputContainer {
   margin-top: 25px;
+  text-align: center;
 }
 
 .landingSwitch {
   position: fixed;
   bottom: 5%;
+  left: 20%;
   text-align: center;
-  width: 100%;
-  font-size: 22px;
+  width: 60%;
+  max-width: 600px;
+}
 
+#header {
+  text-align: center;
+  font-style: italic;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-size: 20;
+  font-weight: bold;
+  padding-top: 30px;
+}
+
+.loginTitle {
+  font-size: 20px;
 }
