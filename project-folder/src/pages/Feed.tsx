@@ -71,12 +71,12 @@ class Feed extends React.Component<MyProps, MyState> {
             this.setState({CurrentUser:doc.data()!.username})
           }
           // everytime there is a new subscription, update news onto main feed
-          db.collection("topicSubscription").doc(this.state.CurrentUser).onSnapshot(async (sub_list) => {
+          db.collection("topicSubscription").doc(auth.currentUser?.uid).onSnapshot(async (sub_list) => {
             this.setState({articles:[]})
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
               console.log("current sub list: ", sub_list.data()!.subList)
-              for (var i = 0; i < this.state.subs.length; i++) { 
+              for (var i = 0; i < this.state.subs.length; i++) {
                 var articlesLocal = await Storage.get({key:this.state.subs[i]})
                 // check local storage if collection exist
                 if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0) {
@@ -86,10 +86,10 @@ class Feed extends React.Component<MyProps, MyState> {
                   snapshot.forEach(doc => {
                     if (doc.exists) {
                       let articleItem = doc.data();
-                      var html = articleItem.description; 
-                      var a = document.createElement("a"); 
-                      a.innerHTML = html; 
-                      var text = a.textContent || a.innerText || ""; 
+                      var html = articleItem.description;
+                      var a = document.createElement("a");
+                      a.innerHTML = html;
+                      var text = a.textContent || a.innerText || "";
                       aList.push({title: articleItem.Title, link: articleItem.Link, description: text})
                     } else {
                       console.log("Cannot find anything in database.")
@@ -98,7 +98,7 @@ class Feed extends React.Component<MyProps, MyState> {
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
                   await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList) });
-                  
+
                 })
                 } else {
                   aList.push(JSON.parse(articlesLocal.value))
@@ -126,7 +126,7 @@ class Feed extends React.Component<MyProps, MyState> {
             //   }
             // }
             } else {
-              db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
+              db.collection("topicSubscription").doc(auth.currentUser?.uid).set({subList: []});
             }
           })
         }).catch(function(error) {
@@ -140,7 +140,7 @@ class Feed extends React.Component<MyProps, MyState> {
   toggleWeatherModal() {
     this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
   }
-  
+
   /*clear capacitor local storage */
   async clear() {
     await Storage.clear();
@@ -166,8 +166,8 @@ class Feed extends React.Component<MyProps, MyState> {
   //     </div>
   //   </div>
   // );
-  
-  // ChildComponent = (props: {subscription:any, index:any}) => 
+
+  // ChildComponent = (props: {subscription:any, index:any}) =>
   // <IonCard>
   //       <IonCardHeader >
   //         <IonCardTitle>{props.subscription}</IonCardTitle>
@@ -175,12 +175,12 @@ class Feed extends React.Component<MyProps, MyState> {
   //         <IonCardContent>
   //         <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.subscription,props.index)}>unsubscribe</IonButton>
   //         </IonCardContent>
-  //     </IonCard>  
+  //     </IonCard>
 
-  
+
   async toggleNewsModal(){
     await this.setState({isSearchingModal: true})
-    
+
   }
 
   /* search firebase database for topic*/
@@ -212,14 +212,14 @@ class Feed extends React.Component<MyProps, MyState> {
           // }
         } else {
         console.log("collection exist, will pull data from that collection")
-        
+
         aList = [];
         snapshot.docChanges().forEach((change) => {
           if (change.doc.exists) {
             let articleItem = change.doc.data();
-            var html = articleItem.description; 
-            var a = document.createElement("a"); 
-            a.innerHTML = html; 
+            var html = articleItem.description;
+            var a = document.createElement("a");
+            a.innerHTML = html;
             aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
           }
           this.setState({articlesSearched: aList})
@@ -247,7 +247,7 @@ class Feed extends React.Component<MyProps, MyState> {
       //     await this.apiSearch(topic, 'subscribe')
       //   } else if (filteredArticles.length === 0) {
       //     console.log("currently no news on that topic")
-      //   } 
+      //   }
       //   else {
       //     filteredArticles.forEach(async filteredArticles => {
       //       await NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
@@ -255,17 +255,17 @@ class Feed extends React.Component<MyProps, MyState> {
       //   }
       //   console.log("Making new collection called", topic, " and subscribing")
       //   await this.addSubscription(topic.toLowerCase());
-      } 
+      }
       else {
         console.log("News about "+ topic +" has been found and will be subscribed.")
         await this.addSubscription(topic.toLowerCase());
-      } 
+      }
       var source = snapshot.metadata.fromCache ? "local cache" : "server";
           console.log("Data came from " + source);
     })
   }
   }
-  
+
   async unsubscribe(topic:any,index:any) {
     console.log("News about "+ topic +" has been found and will be unsubscribed.")
     await this.removeSubscription(index);
@@ -287,10 +287,10 @@ class Feed extends React.Component<MyProps, MyState> {
       const data = response.data
       await data.items.forEach((articleItem: any) => {
         /* remove <a> html tag from description */
-        var html = articleItem.description; 
-        var a = document.createElement("a"); 
-        a.innerHTML = html; 
-        var text = a.textContent || a.innerText || ""; 
+        var html = articleItem.description;
+        var a = document.createElement("a");
+        a.innerHTML = html;
+        var text = a.textContent || a.innerText || "";
         aList.push({title: articleItem.title, link: articleItem.link, description: text})
       })
       if (type==='search') {
@@ -393,7 +393,7 @@ class Feed extends React.Component<MyProps, MyState> {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-      
+
         <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
         {/* Modal for searching topics */}
     <IonModal isOpen={this.state.showModal}>
@@ -414,11 +414,11 @@ class Feed extends React.Component<MyProps, MyState> {
         <IonContent>
         <IonSearchbar placeholder="Enter a Topic or Location" value={this.state.topicSearched} onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
-    
+
       <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={async () => await this.searchTopic(this.state.topicSearched)}>
           search
       </IonButton>
-      
+
       <IonAlert
           isOpen={this.state.showSearchAlert}
           onDidDismiss={() => this.setState({showSearchAlert:false})}
@@ -430,7 +430,7 @@ class Feed extends React.Component<MyProps, MyState> {
         message={'Loading...'}
         duration={5000}
       />
-      
+
 
       {/* <IonItem> */}
          {/* check if person wants to search location */}
@@ -456,7 +456,7 @@ class Feed extends React.Component<MyProps, MyState> {
       </IonToolbar>
       </IonHeader>
       <IonContent>
-      
+
       <ArticleList theArticleList={this.state.articlesSearched}></ArticleList>
       <IonAlert
           isOpen={this.state.showSubscribeAlert}
