@@ -73,3 +73,31 @@ input {
 #userNameChangeButton {
   font-size: 35px;
 }
+
+.settingsToolbar {
+  --background: #3171e0;
+  --color: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.settingsTitle {
+  text-align: center;
+  margin-left: auto;
+  margin-right: 40px;
+  padding-left: 90px;
+}
+
+.settingsToolbar2 {
+  --background: #418b7c;
+  --color: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.settingsTitle2{
+  text-align: center;
+  margin-left: 40px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}

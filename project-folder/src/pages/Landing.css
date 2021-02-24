@@ -16,12 +16,12 @@
 }
 .landingToolbar {
     --background: #3171e0;
+    text-align:center;
+    --color: white;
 }
 
 .loginItem {
   --background: transparent;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 
@@ -38,7 +38,11 @@
 
 .loginLabel {
   --background: #c4eeff;
+<<<<<<< HEAD
   text-align: center;
+=======
+  text-align:center;
+>>>>>>> e395e649f07170d1a24a86bc641de733971d8a2f
   margin-left: auto;
   margin-right: auto;
 
@@ -49,13 +53,15 @@
 }
 
 .registerInput {
-  width: 95%;
+  width: 60%;
   border-radius: 10px;
   background-color: white;
   --background: #93ccfa;
   text-align:center;
   margin-top: 10px;
   color:black;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .registerItem {

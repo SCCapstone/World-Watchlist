@@ -1,6 +1,8 @@
 // Clay Mallory
 // File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86. I tried to implement this a few other ways that apparently work in Javascript, but not Typescript and this is the only solution I found
 import React from 'react';
+import { IonReactRouter } from '@ionic/react-router';
+import { PushNotification, PushNotificationToken, PushNotificationActionPerformed } from '@capacitor/core';
 
 import {
   IonPage,
@@ -24,6 +26,8 @@ import firebase, {db, auth} from '../firebase'
 import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import { Capacitor, Plugins, CameraResultType, FilesystemDirectory } from '@capacitor/core';
 import './Settings.css'
+ const { PushNotifications } = Plugins;
+ const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
 
 
 type MyState = {
@@ -37,6 +41,7 @@ type MyState = {
   localList:string[];
   newPassword:string;
   newUsername:string;
+  notifications: [{}];
 
 
 }
@@ -59,6 +64,7 @@ class Settings extends React.Component<MyProps, MyState> {
     localList: [],
     newPassword:'',
     newUsername:'',
+    notifications:[{ id: 'id', title: 'Test Push', body: "This is my first push notification" }]
 
 
   };
@@ -86,6 +92,54 @@ class Settings extends React.Component<MyProps, MyState> {
       
        this.pullImage();
   }
+
+
+
+
+
+  push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
+    console.log('here');
+    // Register with Apple / Google to receive push via APNS/FCM
+    PushNotifications.register();
+
+    // On succcess, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+      (token: PushNotificationToken) => {
+        alert('Push registration success, token: ' + token.value);
+      }
+    );
+
+    // Some issue with your setup and push will not work
+    PushNotifications.addListener('registrationError',
+      (error: any) => {
+        alert('Error on registration: ' + JSON.stringify(error));
+      }
+    );
+
+    // Show us the notification payload if the app is open on our device
+    PushNotifications.addListener('pushNotificationReceived',
+      (notification: PushNotification) => {
+        let notif = this.state.notifications;
+        notif.push({ id: notification.id, title: notification.title, body: notification.body })
+        this.setState({
+          notifications: notif
+        })
+      }
+    );
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed',
+      (notification: PushNotificationActionPerformed) => {
+        let notif = this.state.notifications;
+        notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
+        this.setState({
+          notifications: notif
+        })
+      }
+    );
+  }
+
+
 
   async handleChange(selectorFiles: FileList)
     {
@@ -310,17 +364,18 @@ isValidSite(siteName:string) {
 
 
     render() {
+      const { notifications } = this.state;
       return (
       <IonPage>
       <IonModal isOpen={this.state.isBlockSourceModalOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar class='settingsToolbar2'>
             <IonButtons>
               <IonButton onClick={() => {this.populate();this.setState({isBlockSourceModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
-            <IonTitle>
+            <IonTitle class='settingsTitle2'>
               Block a Source
 
             </IonTitle>
@@ -363,14 +418,14 @@ isValidSite(siteName:string) {
 
       <IonModal isOpen={this.state.isChangePasswordModalOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar class='settingsToolbar2'>
             <IonButtons>
               <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
 
-            <IonTitle>
+            <IonTitle class='settingsTitle2'>
               Change Password
 
             </IonTitle>
@@ -379,7 +434,7 @@ isValidSite(siteName:string) {
         <IonContent>
         <IonItem lines='none' id='block'>
           <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear'>
+          <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear' placeholder='Enter new password'>
             <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>
         </IonItem>
@@ -388,14 +443,14 @@ isValidSite(siteName:string) {
 
       <IonModal isOpen={this.state.isChangeUsernameModalOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar class='settingsToolbar2'>
             <IonButtons>
               <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
 
-            <IonTitle>
+            <IonTitle class='settingsTitle2'>
               Change Username
 
             </IonTitle>
@@ -412,8 +467,8 @@ isValidSite(siteName:string) {
 
       </IonModal>
         <IonHeader>
-          <IonToolbar>
-            <IonTitle>
+          <IonToolbar class='settingsToolbar'>
+            <IonTitle class='settingsTitle'>
               Settings
             </IonTitle>
           </IonToolbar>
@@ -423,7 +478,7 @@ isValidSite(siteName:string) {
         </IonAvatar>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
-            <IonToggle value="Notifications" />
+            <IonToggle onClick={(()=> {console.log('here');if(isPushAvailable) this.push()})} value="Notifications" />
           </IonItem>
 
         <IonContent>
@@ -437,7 +492,7 @@ isValidSite(siteName:string) {
         </IonItem>
 
         <IonItem id ='updateEmail'>
-          Update Email
+          Change Password
         <IonButtons slot='end'>
           <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
 
