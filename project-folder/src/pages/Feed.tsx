@@ -68,7 +68,6 @@ class Feed extends React.Component<MyProps, MyState> {
         await db.collection("users").doc(auth.currentUser.uid).get().then(async doc => {
           if(doc.data()) {
             console.log('current user: ' + doc.data()!.username)
-            this.setState({CurrentUser:doc.data()!.username})
           }
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid).onSnapshot(async (sub_list) => {
@@ -149,13 +148,13 @@ class Feed extends React.Component<MyProps, MyState> {
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   async addSubscription(sub: string) {
     if (sub!== "") {
-      await db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
+      await db.collection("topicSubscription").doc(auth.currentUser?.uid).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
     }
   }
 
   async removeSubscription(index:any) {
     if (this.state.subs[index] !== "") {
-      await db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
+      await db.collection("topicSubscription").doc(auth.currentUser?.uid).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
     }
   }
 
