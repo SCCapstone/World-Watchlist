@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "106343909885",
+    "firebase_url": "https://worldwatchlist.firebaseio.com",
+    "project_id": "worldwatchlist",
+    "storage_bucket": "worldwatchlist.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:106343909885:android:e91900ee6732198d483194",
+        "android_client_info": {
+          "package_name": "com.WorldWatchlist.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "106343909885-c33k7rqak3rdopmvm4t418cr146i9qe6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9p-k27LkstRLqYKUndR3YcbpMLl4PJfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "106343909885-c33k7rqak3rdopmvm4t418cr146i9qe6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
