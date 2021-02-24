@@ -4,7 +4,7 @@ import React from 'react';
 
 function ChildComponent (props: {subscription:any, index:any, func: any }) {
     function unsubClick(e: any) {
-        props.func(props.index);
+        props.func(props.subscription, props.index);
     }
     return (<IonCard>
       <IonCardHeader >
