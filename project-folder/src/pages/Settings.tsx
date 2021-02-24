@@ -388,14 +388,14 @@ isValidSite(siteName:string) {
 
       <IonModal isOpen={this.state.isChangeUsernameModalOpen}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar class='settingsToolbar2'>
             <IonButtons>
               <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
 
-            <IonTitle>
+            <IonTitle class='settingsTitle2'>
               Change Username
 
             </IonTitle>
