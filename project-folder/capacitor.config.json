@@ -1,6 +1,6 @@
 {
-  "appId": "com.WorldWatchList.app",
-  "appName": "WorldWatchList",
+  "appId": "com.WorldWatchlist.app",
+  "appName": "WorldWatchlist",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "build",

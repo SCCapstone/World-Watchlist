@@ -1,9 +1,10 @@
 .landingContent {
-  --background: #93ccfa;
+  --background: #fbffdbed;
+  text-align: center;
 }
 
 .loginInput {
-  width: 95%;
+  width: 50%;
   border-radius: 10px;
   background-color: white;
   --background: #93ccfa;
@@ -15,13 +16,13 @@
   margin-right: auto;
 }
 .landingToolbar {
-    --background: #3171e0;
+    --background: #418b7c;
+    text-align:center;
+    --color: white;
 }
 
 .loginItem {
   --background: transparent;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 
@@ -30,29 +31,36 @@
   display: flex;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 20px;
+  margin-top: 80px;
   --background: #ededed;
   --color: #000000;
   max-width: 600px;
 }
 
 .loginLabel {
-  --background: #c4eeff;
-
+  text-align:center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 10px;
+  padding-left: 40px;
+  align-content: center;
 }
 
 #loginInputContainer {
   margin-top: 25px;
+  text-align: center;
 }
 
 .registerInput {
-  width: 95%;
+  width: 60%;
   border-radius: 10px;
   background-color: white;
   --background: #93ccfa;
   text-align:center;
   margin-top: 10px;
   color:black;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .registerItem {
@@ -67,25 +75,47 @@
   display: flex;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 20px;
+  margin-top: 80px;
   --background: #ededed;
   --color: #000000;
+  max-width: 600px;
 }
 
 .registerLabel {
   --background: #c4eeff;
-
+  text-align:center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 30px;
+  align-content: center;
 }
 
 #registerInputContainer {
   margin-top: 25px;
+  text-align: center;
 }
 
 .landingSwitch {
-  position: fixed;
-  bottom: 5%;
-  text-align: center;
-  width: 100%;
-  font-size: 22px;
+  width: 60%;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 150px;
+  --background: #3171e0;
+  --color: #ededed;;
+  max-width: 600px;
+}
 
+#header {
+  text-align: center;
+  font-style: italic;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-size: 20;
+  font-weight: bold;
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+
+.loginTitle {
+  font-size: 20px;
 }
