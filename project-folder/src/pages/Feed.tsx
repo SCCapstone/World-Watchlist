@@ -29,8 +29,8 @@ import firebase, {db,auth} from '../firebase'
 import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
-import { add, addCircle, archive, bookmarks, closeCircleOutline, cloud, notificationsCircleOutline, search } from 'ionicons/icons';
-import { LocalNotifications, Plugins } from '@capacitor/core';
+import { add, addCircle, archive, bookmarks, closeCircleOutline, cloud, search } from 'ionicons/icons';
+import { Plugins } from '@capacitor/core';
 import axios from 'axios';
 import ParentComponent from '../components/SubscriptionParent';
 import ChildrenComponent from '../components/SubscriptionChildren';
@@ -72,10 +72,10 @@ class Feed extends React.Component<MyProps, MyState> {
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid).onSnapshot(async (sub_list) => {
             this.setState({articles:[]})
+            this.setState({subs: await sub_list.data()!.subList});
             if (sub_list.exists) {
-              this.setState({subs: await sub_list.data()!.subList});
               console.log("current sub list: ", sub_list.data()!.subList)
-              for (var i = 0; i < this.state.subs.length; i++) { 
+              for (var i = 0; i < this.state.subs.length; i++) {
                 var articlesLocal = await Storage.get({key:this.state.subs[i]})
                 // check local storage if collection exist
                 if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0) {
@@ -97,14 +97,14 @@ class Feed extends React.Component<MyProps, MyState> {
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
                   await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList) });
-                  
+                  this.setState({articles: aList})
                 })
                 } else {
-                  aList.push(JSON.parse(articlesLocal.value))
+                  let cache = JSON.parse(articlesLocal.value)
+                  this.setState({articles: cache})
                   console.log("taking from capacitor cache")
                 }
               }
-
             //   if (this.state.subs.length !== 0) {
             //     for (var i = 0; i < this.state.subs.length; i++) {
             //     await NewsDB.collection(this.state.subs[i]).get()
@@ -158,26 +158,6 @@ class Feed extends React.Component<MyProps, MyState> {
     }
   }
 
-<<<<<<< HEAD
-  ParentComponent = (props:any) => (
-    <div>
-      <div id="children-pane">
-        {props.children}
-      </div>
-    </div>
-  );
-
-  ChildComponent = (props: {subscription:any, index:any}) =>
-  <IonCard>
-        <IonCardHeader >
-          <IonCardTitle>{props.subscription}</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-          <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.subscription,props.index)}>unsubscribe</IonButton>
-          </IonCardContent>
-      </IonCard>
-
-=======
   // ParentComponent = (props:any) => (
   //   <div>
   //     <div id="children-pane">
@@ -185,8 +165,8 @@ class Feed extends React.Component<MyProps, MyState> {
   //     </div>
   //   </div>
   // );
-  
-  // ChildComponent = (props: {subscription:any, index:any}) => 
+
+  // ChildComponent = (props: {subscription:any, index:any}) =>
   // <IonCard>
   //       <IonCardHeader >
   //         <IonCardTitle>{props.subscription}</IonCardTitle>
@@ -194,8 +174,7 @@ class Feed extends React.Component<MyProps, MyState> {
   //         <IonCardContent>
   //         <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.subscription,props.index)}>unsubscribe</IonButton>
   //         </IonCardContent>
-  //     </IonCard>  
->>>>>>> c11c802b31cb6a2146357c25e49889e56030fab9
+  //     </IonCard>
 
   async toggleNewsModal(){
     await this.setState({isSearchingModal: true})
@@ -284,15 +263,10 @@ class Feed extends React.Component<MyProps, MyState> {
     })
   }
   }
-<<<<<<< HEAD
 
   unsubscribe(topic:any,index:any) {
-=======
-  
-  async unsubscribe(topic:any,index:any) {
->>>>>>> 4f4cc95fce0a0635c0b248da53f6379b89f6711d
     console.log("News about "+ topic +" has been found and will be unsubscribed.")
-    await this.removeSubscription(index);
+    this.removeSubscription(index);
   }
 
   /* using an api to turn rss feeds into json to avoid cors policy errors */
@@ -356,31 +330,6 @@ class Feed extends React.Component<MyProps, MyState> {
   //   await this.setMainCollection()
   // }
 
-  async scheduleLocalNotifications() {
-    try {
-      // Request/ check permissions
-      if ((await LocalNotifications.requestPermission()).granted) {
-        await LocalNotifications.schedule({
-          notifications: [{
-            title: 'hello',
-            body: "new news on " + this.state.subs,
-            id: 1,
-            schedule: {
-              on: {
-                minute: 1
-              },
-              repeats: true
-            }
-          }]
-        });
-      }
-      // Clear old notifications in prep for refresh (OPTIONAL)
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-
 
   render() {
     // const subs = [];
@@ -394,11 +343,6 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
-          <IonButtons slot="start">
-          <IonButton onClick={() => this.clear()}>
-          <IonIcon icon={notificationsCircleOutline} />
-          </IonButton>
-          </IonButtons>
       <IonButtons slot="start">
           <IonButton onClick={() => {this.setState({isWeatherModalOpen: true})}}  fill='clear'>
               <IonIcon icon={cloud} />
