@@ -26,6 +26,7 @@ import firebase, {db, auth} from '../firebase'
 import { Redirect, Route } from 'react-router-dom';
 import { arrowBack, closeCircleOutline } from 'ionicons/icons';
 import Tabs from './Tabs'
+import ParentComponent from '../components/SubscriptionParent';
 
 type MyState = {
   lat: any, 
@@ -102,13 +103,13 @@ class Weather extends React.Component<MyProps,MyState> {
   })
     
   }
-  ParentComponent = (props:any) => (
-    <div className="card calculator">
-      <div id="children-pane">
-        {props.children}
-      </div>
-    </div>
-  );
+  // ParentComponent = (props:any) => (
+  //   <div className="card calculator">
+  //     <div id="children-pane">
+  //       {props.children}
+  //     </div>
+  //   </div>
+  // );
 
   ChildComponent = (props: {weather_code:any, temp:any, location: any, index:any}) => 
   <IonCard>
@@ -231,9 +232,9 @@ class Weather extends React.Component<MyProps,MyState> {
         duration={750}
       />
 
-      <this.ParentComponent>
+      <ParentComponent>
        {weatherDisplay}
-      </this.ParentComponent>
+      </ParentComponent>
 
           </IonContent>
         </IonModal>

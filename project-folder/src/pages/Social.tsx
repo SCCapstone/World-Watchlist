@@ -34,6 +34,7 @@ import {
 
 import './Social.css'
 import Messenger from './Messenger'
+import Feed from './Feed';
 
 
 type MyState = {

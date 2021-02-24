@@ -32,30 +32,12 @@ import Weather from './Weather'
 import { add, addCircle, archive, bookmarks, closeCircleOutline, cloud, search } from 'ionicons/icons';
 import { Plugins } from '@capacitor/core';
 import axios from 'axios';
+import ParentComponent from '../components/SubscriptionParent';
+import ChildrenComponent from '../components/SubscriptionChildren';
+import { MyProps, MyState } from '../components/FeedTypes';
 const { Storage } = Plugins;
 
-type MyState = {
-  articles: articleList;
-  subs: string[];
-  articlesSearched:any[],
-  subscribedArticles: any;
-  CurrentUser:any;
-  topicSearched:any;
-  showLoading:boolean;
-  showModal:boolean,
-  showSubscription:boolean,
-  allArticles:any[],
-  locationBased:boolean,
-  isWeatherModalOpen:boolean,
-  isSearchingModal:boolean,
-  showSearchAlert:boolean,
-  showSubscribeAlert:boolean
-}
 
-type MyProps = {
-  history: any;
-  location: any;
-}
 
 class Feed extends React.Component<MyProps, MyState> {
   state: MyState = {
@@ -177,23 +159,23 @@ class Feed extends React.Component<MyProps, MyState> {
     }
   }
 
-  ParentComponent = (props:any) => (
-    <div>
-      <div id="children-pane">
-        {props.children}
-      </div>
-    </div>
-  );
+  // ParentComponent = (props:any) => (
+  //   <div>
+  //     <div id="children-pane">
+  //       {props.children}
+  //     </div>
+  //   </div>
+  // );
   
-  ChildComponent = (props: {subscription:any, index:any}) => 
-  <IonCard>
-        <IonCardHeader >
-          <IonCardTitle>{props.subscription}</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-          <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.subscription,props.index)}>unsubscribe</IonButton>
-          </IonCardContent>
-      </IonCard>  
+  // ChildComponent = (props: {subscription:any, index:any}) => 
+  // <IonCard>
+  //       <IonCardHeader >
+  //         <IonCardTitle>{props.subscription}</IonCardTitle>
+  //         </IonCardHeader>
+  //         <IonCardContent>
+  //         <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.subscription,props.index)}>unsubscribe</IonButton>
+  //         </IonCardContent>
+  //     </IonCard>  
 
   
   async toggleNewsModal(){
@@ -352,10 +334,10 @@ class Feed extends React.Component<MyProps, MyState> {
 
 
   render() {
-    const subs = [];
-      for (var i = 0; i < this.state.subs.length; i+=1) {
-        subs.push(<this.ChildComponent key={i} subscription={this.state.subs[i]} index={i} />);
-    };
+    // const subs = [];
+    //   for (var i = 0; i < this.state.subs.length; i+=1) {
+    //     subs.push(<this.ChildComponent key={i} subscription={this.state.subs[i]} index={i} />);
+    // };
     return (
     <IonPage>
       <IonHeader>
@@ -471,9 +453,10 @@ class Feed extends React.Component<MyProps, MyState> {
         </IonHeader>
         <IonContent>
         <IonCard>
-        <this.ParentComponent>
+        {/* <ParentComponent>
        {subs}
-      </this.ParentComponent>
+      </ParentComponent> */}
+      <ChildrenComponent subs={this.state.subs} func={this.unsubscribe.bind(this)}></ChildrenComponent>
         </IonCard>
         </IonContent>
     </IonModal>
