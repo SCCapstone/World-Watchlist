@@ -359,8 +359,8 @@ class Feed extends React.Component<MyProps, MyState> {
     return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>
+        <IonToolbar class ='feedToolbar'>
+          <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
       <IonButtons slot="start">
@@ -386,14 +386,16 @@ class Feed extends React.Component<MyProps, MyState> {
         {/* Modal for searching topics */}
     <IonModal isOpen={this.state.showModal}>
         <IonHeader>
-            <IonToolbar>
+            <IonToolbar class='feedToolbar2'>
         <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({showModal: false})}} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
-        <IonTitle>
-          Search News
+
+        <IonTitle class='feedTitle2'>
+          Search Topics
+
         </IonTitle>
         </IonToolbar>
         </IonHeader>
@@ -455,14 +457,15 @@ class Feed extends React.Component<MyProps, MyState> {
     </IonModal>
     <IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
-            <IonToolbar>
+            <IonToolbar class='feedToolbar2'>
         <IonButtons slot='start'>
                 <IonButton onClick={() => {this.setState({showSubscription: false})}} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
-        <IonTitle>
-          Subscriptions
+
+        <IonTitle class='feedTitle2'>
+                Subscriptions
         </IonTitle>
         </IonToolbar>
         </IonHeader>

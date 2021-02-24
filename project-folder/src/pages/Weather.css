@@ -1,0 +1,12 @@
+.weatherToolbar {
+    --background: #418b7c;
+    --color: white;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.weatherTitle {
+    text-align: center;
+    margin-left: auto;
+    margin-right: 60px;
+}
