@@ -115,8 +115,6 @@ class Landing extends React.Component<MyProps, MyState> {
     const createProfile : Promise<void> = db.collection('profiles').doc(auth.currentUser?.uid).set({
       blockedSources:[],
       groups: [],
-      outgoingFriendRequests: [],
-      incomingFriendRequests: [],
       displayName: this.state.username
     })
     const createEmail : Promise<void> = db.collection('emails').doc(this.state.registerEmail).set({
