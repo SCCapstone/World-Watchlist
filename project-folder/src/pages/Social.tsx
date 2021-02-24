@@ -34,11 +34,12 @@ import {
 
 import './Social.css'
 import Messenger from './Messenger'
+import AddFriends from './AddFriends';
+import PendingRequests from './PendingRequests';
 
 
 type MyState = {
   isAddFriendModalOpen: boolean;
-  ourUsername: string;
   targetUsername: string;
   friendsList: string[];
   blockedUsers: [];
@@ -79,7 +80,6 @@ class Social extends React.Component<MyProps, MyState> {
   realtime_db = firebase.database();
   state: MyState = {
     isAddFriendModalOpen: false,
-    ourUsername: '',
     targetUsername: '',
     friendsList: [],
     blockedUsers: [],
@@ -125,55 +125,58 @@ class Social extends React.Component<MyProps, MyState> {
     this.removeFriend = this.removeFriend.bind(this);
     this.blockUser = this.blockUser.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
-    this.toggleMessengerModal = this.toggleMessengerModal.bind(this);
+
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
     this.createGroup = this.createGroup.bind(this);
     this.toggleGroupModal = this.toggleGroupModal.bind(this);
     this.deleteGroup = this.deleteGroup.bind(this);
     this.leaveGroup = this.leaveGroup.bind(this);
+    this.toggleGroupModal = this.toggleGroupModal.bind(this);
+    this.toggleAddFriendModal = this.toggleAddFriendModal.bind(this);
+    this.togglePendingRequestsModal = this.togglePendingRequestsModal.bind(this);
     //End Function Bindings
 
     //Begin firebase data subscriptins
     auth.onAuthStateChanged(() => {
       if(auth.currentUser) {
         //gets the username of our user
-        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+        db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
           if(doc.data()) {
-            console.log('social debug username: ' + doc.data()!.username)
-            this.setState({ourUsername: doc.data()!.username})
             //creates a subscription to our user's friends list
-            let unsubscribeFriendsList = db.collection('friends').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            let unsubscribeFriendsList = db.collection('friends').doc(auth.currentUser?.uid).onSnapshot((snapshot) => {
               if(snapshot.data()) {
                 this.setState({friendsList: snapshot.data()!.friendsList})
               }
             })
 
             // create subscription to user's blocked users list
-            this.state.unsubscribeBlockedUsers = db.collection('blockedUsers').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            this.state.unsubscribeBlockedUsers = db.collection('blockedUsers').doc(auth.currentUser?.uid).onSnapshot((snapshot) => {
               if(snapshot.exists && snapshot.data()!.blocked !== undefined) {
                 this.setState({blockedUsers: snapshot.data()!.blocked})
               } else {
-                db.collection("blockedUsers").doc(this.state.ourUsername).set({blocked: []})
+                db.collection("blockedUsers").doc(auth.currentUser?.uid).set({blocked: []})
                 this.setState({blockedUsers: []})
               }
             })
 
             //creates a subscription to our user's incoming friend requests
-            let unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            let unsubscribeIncomingRequests = db.collection('incomingFriendRequests').doc(auth.currentUser?.uid).onSnapshot((snapshot) => {
               if(snapshot.data()) {
+                console.log(snapshot.data()!.incomingFriendRequests)
                 this.setState({incomingRequests: snapshot.data()!.incomingFriendRequests})
               }
             })
 
             //creates a subscription to our user's outgoing friend requests
-            let unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            let unsubscribeOutgoingRequests = db.collection('outgoingFriendRequests').doc(auth.currentUser!.uid).onSnapshot((snapshot) => {
               if(snapshot.data()) {
+                console.log(snapshot.data()!.outgoingFriendRequests)
                 this.setState({outgoingRequests: snapshot.data()!.outgoingFriendRequests})
               }
             })
 
             //crate a subscription to the list of a users groups
-            this.unsubscribeGroups = db.collection('usernames').doc(this.state.ourUsername).onSnapshot((snapshot) => {
+            this.unsubscribeGroups = db.collection('profiles').doc(auth.currentUser?.uid).onSnapshot((snapshot) => {
               if(snapshot.data()) {
                 this.setState({
                   numGroups: snapshot.data()!.groups.length,
@@ -237,88 +240,74 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
 
-  addFriend(username: string) { //sends a friend request to a user
-    if(username !== "" && username !== this.state.ourUsername) {
-      db.collection('usernames').doc(username).get().then(document => {
+  addFriend(email: string) { //sends a friend request to a user
+    if(email !== "" && email !== auth.currentUser?.email) {
+      db.collection('emails').doc(email).get().then(document => {
         if(document.exists) {
-          db.collection('incomingFriendRequests').doc(username).update({
-            incomingFriendRequests: firebase.firestore.FieldValue.arrayUnion(this.state.ourUsername)
+          db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
+            incomingFriendRequests: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid)
           })
-          db.collection('outgoingFriendRequests').doc(this.state.ourUsername).update({
-            outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(username)
+          db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
+            outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(document.data()!.userid)
           })
         }
       })
     }
   }
 
-  cancelOutgingRequest(username: string) {
-    if(username !== "" && username !== this.state.ourUsername) {
-      db.collection('usernames').doc(username).get().then(document => {
+  cancelOutgingRequest(email: string) {
+    if(email !== "" && email !== auth.currentUser?.email) {
+      db.collection('emails').doc(email).get().then(document => {
         if(document.exists) {
-          db.collection('incomingFriendRequests').doc(username).update({
-            incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+          db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
+            incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
           })
-          db.collection('outgoingFriendRequests').doc(this.state.ourUsername).update({
-            outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(username)
+          db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
+            outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(document.data()!.userid)
           })
         }
       })
     }
   }
 
-  acceptFriend(username: string) { //accepts a friend request from a user
-    if(username != "") {
+  acceptFriend(targetUserId: string) { //accepts a friend request from a user
+    if(targetUserId != "") {
+      db.collection('outgoingFriendRequests').doc(targetUserId).update({
+        outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid),
+      })
+      db.collection('incomingFriendRequests').doc(auth.currentUser?.uid).update({
+        incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(targetUserId),
+      })
 
-      db.collection('outgoingFriendRequests').doc(username).update({
-        outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername),
+      db.collection('friends').doc(auth.currentUser?.uid).update({
+        friendsList: firebase.firestore.FieldValue.arrayUnion(targetUserId)
       })
-      db.collection('incomingFriendRequests').doc(this.state.ourUsername).update({
-        incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(username),
-      })
-      let friendMessageRef : any = new Object
-      friendMessageRef[username] =  btoa(this.state.ourUsername + '|' + username)
-      db.collection('friends').doc(this.state.ourUsername).update(
-        friendMessageRef
-      )
-      let friendMessageRef2 : any = new Object
-      friendMessageRef2[this.state.ourUsername] =  btoa(this.state.ourUsername + '|' + username)
-      db.collection('friends').doc(username).update(
-        friendMessageRef2
-      )
-      db.collection('friends').doc(this.state.ourUsername).update({
-        friendsList: firebase.firestore.FieldValue.arrayUnion(username)
-      })
-      db.collection('friends').doc(username).update({
-        friendsList: firebase.firestore.FieldValue.arrayUnion(this.state.ourUsername),
-      })
-      this.realtime_db.ref('/'+btoa(this.state.ourUsername + '|' + username)).push({message: 'This is the beginning of your message history.', sender: 'World-Watchlist'})
-    }
-
-  }
-
-  declineFriend(username: string) { //declines a friend request from a user
-    if(username != "") {
-      db.collection('outgoingFriendRequests').doc(username).update({
-        outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername),
-      })
-      db.collection('incomingFriendRequests').doc(this.state.ourUsername).update({
-        incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(username),
+      db.collection('friends').doc(targetUserId).update({
+        friendsList: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid),
       })
     }
   }
 
-  removeFriend(username: string) {
-    console.log("Removing friend "+username);
-    if (username !== "")
-      if (this.state.friendsList.includes(username)) {
-        let friends = db.collection('friends');
-        friends.doc(this.state.ourUsername).update({friendsList: firebase.firestore.FieldValue.arrayRemove(username)});
-        friends.doc(username).update({friendsList: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)})
-        friends.doc(this.state.ourUsername).update({[username]: firebase.firestore.FieldValue.delete()})
-        friends.doc(username).update({[this.state.ourUsername]: firebase.firestore.FieldValue.delete()})
-        console.log("Successfully removed friend");
-      }
+  declineFriend(targetUserId: string) { //declines a friend request from a user
+    if(targetUserId != "") {
+      db.collection('outgoingFriendRequests').doc(targetUserId).update({
+        outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid),
+      })
+      db.collection('incomingFriendRequests').doc(auth.currentUser?.uid).update({
+        incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(targetUserId),
+      })
+    }
+  }
+
+  removeFriend(targetUserId: string) {
+    if(targetUserId != "") {
+      db.collection('friends').doc(auth.currentUser?.uid).update({
+        friendsList: firebase.firestore.FieldValue.arrayRemove(targetUserId)
+      })
+      db.collection('friends').doc(targetUserId).update({
+        friendsList: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid),
+      })
+    }
   }
 
   blockUser(username: string) { // adds given friend to blocked list, users on blocked list are excluded from stuff
@@ -327,7 +316,7 @@ class Social extends React.Component<MyProps, MyState> {
       if( chosenUser === undefined)
         return;
       console.log("User exists, attempting to block");
-      db.collection('blockedUsers').doc(this.state.ourUsername).update({blocked: firebase.firestore.FieldValue.arrayUnion(username)});
+      db.collection('blockedUsers').doc(auth.currentUser?.uid).update({blocked: firebase.firestore.FieldValue.arrayUnion(username)});
       console.log("User should be added to blocked list");
       /*if ( this.isFriend(username))
        *  this.removeFriend(username); // remove user once added to blocked list, line included for future possibility
@@ -339,19 +328,6 @@ class Social extends React.Component<MyProps, MyState> {
   }
   exists(username: string) {
     return username !== "" //&& db.collection('usernames').doc(username) !== undefined
-  }
-  loadMessages(username: string) {
-
-    db.collection('friends').doc(this.state.ourUsername).get().then((doc) => {
-      if(doc.data()) {
-        this.setState({messageRef: doc.get(username)})
-        this.setState({isMessengerModalOpen: true})
-      }
-    })
-  }
-
-  toggleMessengerModal() {
-    this.setState({isMessengerModalOpen: !this.state.isMessengerModalOpen})
   }
 
   async generateUniqueGroupId() : Promise<string> {
@@ -373,13 +349,13 @@ class Social extends React.Component<MyProps, MyState> {
   createGroup() {
     this.generateUniqueGroupId().then((code) => {
       db.collection('groups').doc(code).set({
-        owner: this.state.ourUsername,
-        members: [this.state.ourUsername],
+        owner: auth.currentUser?.uid,
+        members: [auth.currentUser?.uid],
         nickname: this.state.groupNickname,
         id: code,
         profilePicture: ''
       })
-      db.collection('usernames').doc(this.state.ourUsername).update({
+      db.collection('profiles').doc(auth.currentUser?.uid).update({
         groups: firebase.firestore.FieldValue. arrayUnion(code),
       })
     })
@@ -391,10 +367,10 @@ class Social extends React.Component<MyProps, MyState> {
     //2 remove the group from the user collection
 
     //1
-    if(this.state.ourUsername !== this.state.groupDetails.owner) {
+    if(auth.currentUser?.uid !== this.state.groupDetails.owner) {
       //user is not the owner of the group, can simply leave.
       db.collection('groups').doc(this.state.groupDetails.id).update({
-        members: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+        members: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
       })
 
     } else {
@@ -404,22 +380,22 @@ class Social extends React.Component<MyProps, MyState> {
         this.deleteGroup()
       } else {
         //user is the host but there are other members in the group. user is not deleting the group.
-        if(this.state.groupDetails.members[0] !== this.state.ourUsername) {
+        if(this.state.groupDetails.members[0] !== auth.currentUser?.uid) {
             db.collection('groups').doc(this.state.groupDetails.id).update({
               owner: this.state.groupDetails.members[0],
-              members: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+              members: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
 
             })
         } else {
           db.collection('groups').doc(this.state.groupDetails.id).update({
             owner: this.state.groupDetails.members[1],
-            members: firebase.firestore.FieldValue.arrayRemove(this.state.ourUsername)
+            members: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
           })
         }
       }
     }
     //2
-    db.collection('usernames').doc(this.state.ourUsername).update({
+    db.collection('usernames').doc(auth.currentUser?.uid).update({
       groups: firebase.firestore.FieldValue.arrayRemove(this.state.groupDetails.id)
     })
     this.setState({isGroupModalOpen: false})
@@ -428,7 +404,7 @@ class Social extends React.Component<MyProps, MyState> {
   deleteGroup() {
     //delete a group
     //intended to be used from the groupView page
-    if(this.state.ourUsername === this.state.groupDetails.owner) {
+    if(auth.currentUser?.uid === this.state.groupDetails.owner) {
       this.state.groupDetails.members.forEach((member) => {
         db.collection('usernames').doc(member).update({
           groups: firebase.firestore.FieldValue.arrayRemove(this.state.groupDetails.id)
@@ -457,6 +433,13 @@ class Social extends React.Component<MyProps, MyState> {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
 
+  toggleAddFriendModal() {
+    this.setState({isAddFriendModalOpen: !this.state.isAddFriendModalOpen})
+  }
+  togglePendingRequestsModal() {
+    this.setState({isPendingRequestsModalOpen: !this.state.isPendingRequestsModalOpen})
+  }
+
 
 
 
@@ -467,71 +450,35 @@ class Social extends React.Component<MyProps, MyState> {
 
       return (
       <IonPage>
+        <AddFriends
+          {...this.props}
+          isAddFriendModalOpen={this.state.isAddFriendModalOpen}
+          toggleAddFriendModal={this.toggleAddFriendModal}
+          addFriend={this.addFriend}
+        />
 
-        <IonModal isOpen={this.state.isAddFriendModalOpen}>
-          <IonHeader>
-            <IonToolbar class='socialToolbar2'>
-              <IonButtons slot='start'>
-                <IonButton onClick={() => {this.setState({isAddFriendModalOpen: false})}} id='addFriendModalCloseButton' fill='clear'>
-                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
-                </IonButton>
-              </IonButtons>
-              <IonTitle class='socialTitle2'>
-                Add Friend
-              </IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <IonItem lines='none' id='searchFriendItem'>
-              <IonInput id='addFriendSearch' onIonChange={(e) => {this.setState({targetUsername: (e.target as HTMLInputElement).value})}} />
+        <PendingRequests
+          {...this.props}
+          incomingRequests = {this.state.incomingRequests}
+          outgoingRequests = {this.state.outgoingRequests}
+          acceptFriend = {this.acceptFriend}
+          declineFriend = {this.declineFriend}
+          cancelOutgingRequest = {this.cancelOutgingRequest}
+          isPendingRequestsModalOpen = {this.state.isPendingRequestsModalOpen}
+          togglePendingRequestsModal = {this.togglePendingRequestsModal}
 
-              <IonButton onClick={() => {this.addFriend(this.state.targetUsername)}} slot='end' id='addFriendButton' fill='clear'>
-                <IonIcon id='addFriendButtonIcon' icon={addCircleOutline} />
-              </IonButton>
-            </IonItem>
+        />
 
-          </IonContent>
-        </IonModal>
-
-        <IonModal isOpen={this.state.isPendingRequestsModalOpen}>
-          <IonHeader>
-            <IonToolbar class='socialToolbar2'>
-              <IonButtons slot='start'>
-                <IonButton onClick={() => {this.setState({isPendingRequestsModalOpen: false})}} id='addFriendModalCloseButton' fill='clear'>
-                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
-                </IonButton>
-              </IonButtons>
-              <IonTitle class="socialTitle2">
-                Pending Requests
-              </IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <h2 id='incomingFriendRequestHeader'>Incoming Friend Requests</h2>
-            {this.state.incomingRequests.map(IncomingFriend =>
-              <IonItem key={IncomingFriend.toString()}>
-                <IonLabel>{IncomingFriend.toString()}</IonLabel>
-                <IonButton onClick={() => {this.acceptFriend(IncomingFriend.toString())}} className='acceptButton' slot='end' fill='clear'>
-                  <IonIcon className='addIcon' icon={addCircleOutline} />
-                </IonButton>
-                <IonButton onClick={() => {this.declineFriend(IncomingFriend.toString())}} className='denyButton' slot='end' fill='clear'>
-                  <IonIcon className='denyIcon' icon={closeCircleOutline} />
-                </IonButton>
-              </IonItem>)}
-            <h2 id='outgoingFriendRequestHeader'>Outgoing Friend Requests</h2>
-            {this.state.outgoingRequests.map(OutgoingFriend =>
-              <IonItem key={OutgoingFriend.toString()}>
-                <IonLabel>{OutgoingFriend.toString()}</IonLabel>
-                <IonButton onClick={() => {this.cancelOutgingRequest(OutgoingFriend.toString())}} className='denyButton' slot='end' fill='clear'>
-                  <IonIcon className='denyIcon' icon={closeCircleOutline} />
-                </IonButton>
-              </IonItem>)}
-          </IonContent>
-        </IonModal>
-
-        <IonModal isOpen={this.state.isMessengerModalOpen}>
-          <Messenger {...this.props} messageRef={this.state.messageRef} toggleMessengerModal={this.toggleMessengerModal} username={this.state.ourUsername}/>
-        </IonModal>
+        <GroupView
+          isGroupModalOpen={this.state.isGroupModalOpen}
+          groupDetails={this.state.groupDetails}
+          {...this.props}
+          toggleGroupModal={this.toggleGroupModal}
+          leaveGroup={this.leaveGroup}
+          deleteGroup={this.deleteGroup}
+          friendList={this.state.friendsList}
+          addFriendToGroup={this.addFriendToGroup}
+        />
 
         <IonPopover
           cssClass='socialPopover'
@@ -584,27 +531,7 @@ class Social extends React.Component<MyProps, MyState> {
           </IonToolbar>
         </IonHeader>
         <IonContent>
-        {
-          this.state.friendsList.map(Friend =>
-            <IonItemGroup>
-            <IonItem button slot="start" onClick={() => {this.loadMessages(Friend.toString())}} key={Friend.toString()}>
-              <IonLabel>{Friend.toString()}</IonLabel>
-            </IonItem>
-              <IonItem button slot="end" onClick={() => {this.removeFriend(Friend)}}>Remove Friend</IonItem>
-              <IonButton onClick={() => {this.blockUser(Friend)}}>Block Friend</IonButton>
-            </IonItemGroup>
-        )}
-        <GroupView
-          isGroupModalOpen={this.state.isGroupModalOpen}
-          groupDetails={this.state.groupDetails}
-          {...this.props}
-          toggleGroupModal={this.toggleGroupModal}
-          leaveGroup={this.leaveGroup}
-          deleteGroup={this.deleteGroup}
-          currentUser={this.state.ourUsername}
-          friendList={this.state.friendsList}
-          addFriendToGroup={this.addFriendToGroup}
-        />
+
         {
           this.state.groupArray.map((displayGroup : Group) => {
             return (

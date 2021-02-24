@@ -52,7 +52,6 @@ type MyProps = {
   toggleGroupModal: any;
   leaveGroup: () => void,
   deleteGroup: () => void,
-  currentUser: string,
   friendList: string[],
   addFriendToGroup: (friend : string, group: string) => void
 }
@@ -131,7 +130,7 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 });
 
-    
+
   }
 }
 
@@ -145,12 +144,12 @@ class GroupView extends React.Component<MyProps, MyState> {
         newPicRef.put(file);
         await new Promise(r => setTimeout(r, 1000));
         var url = await newPicRef.getDownloadURL();
-        
-        
+
+
           db.collection('groups').doc(this.props.groupDetails.id).update({
           profilePicture: url
         })
-        
+
 
         this.pullImage();
 
@@ -213,21 +212,21 @@ class GroupView extends React.Component<MyProps, MyState> {
         </IonHeader>
         <IonContent>
         {
-          this.props.groupDetails.owner === this.props.currentUser ?
+          this.props.groupDetails.owner === auth.currentUser?.uid ?
             <div>
               <IonItem>
                 Change Profile Picture
                <IonButtons slot = 'end'>
 
                   <IonButton id = 'submit'>
-              
-<input type="file" id = 'fileSelect' onChange={ (e) => (this.uploadImage(e.target.files!)) } /> 
+
+<input type="file" id = 'fileSelect' onChange={ (e) => (this.uploadImage(e.target.files!)) } />
 
  <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
 </IonButton>
-          
-      
-         
+
+
+
         </IonButtons>
               </IonItem>
               <IonItem>
@@ -326,7 +325,7 @@ class GroupView extends React.Component<MyProps, MyState> {
               <IonButtons slot='end'>
 
               <IonAvatar onClick={(event : any) => {event.persist(); this.setState({isGroupViewPopoverOpen: true, groupViewPopoverEvent: event})}} className='groupViewProfilePicture'>
-                <img src = {this.props.groupDetails.profilePicture}/>
+                <img src = {this.props.groupDetails.profilePicture !== "" ? this.props.groupDetails.profilePicture : Placeholder}/>
               </IonAvatar>
 
 

@@ -24,7 +24,6 @@ type MyState = {
   registerConfirmPassword: string;
   shouldLoginShow: boolean;
   username: string;
-  usernameIdentifier: number;
 }
 
 type MyProps = {
@@ -42,7 +41,6 @@ class Landing extends React.Component<MyProps, MyState> {
     registerConfirmPassword: '',
     shouldLoginShow: true,
     username: '',
-    usernameIdentifier: -1
   };
 
 
@@ -100,7 +98,7 @@ class Landing extends React.Component<MyProps, MyState> {
       auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
         //user successfully registers
         //reroute here
-        this.getUsernameIdentifier().then(() => {
+        this.uploadDataToFirebase().then((result) => {
           this.props.history.push("/main")
         })
        //admin.storage.ref().child(this.state.username+'#'+this.state.usernameIdentifier.toString() + '/new.jpg').put('../images/placeholder.png')
@@ -113,67 +111,29 @@ class Landing extends React.Component<MyProps, MyState> {
     })
   }
 
-  firstUnusedNumber(myArray: number[]) : number {
-    //takes a sorted array of integers and checks each index to find first unused integer
-    let max = myArray.length
-    for(let i = 0; i < max; i++) {
-      if(myArray[i] !== i) {
-        return i
-      }
-    }
-    return max
-  }
-
-  async getUsernameIdentifier() {
-    //Should run when a user registers
-    //Assigns numbers to end of Username such as example#0
-    await db.collection('usernameIdentifiers').doc(this.state.username).get().then(async (document) => {
-      if(document.exists) {
-        //someone has used this username before
-        if(document.data()) {
-            let used_indentifiers = document.data()!.identifiers
-            let identifier = this.firstUnusedNumber(used_indentifiers)
-            this.setState({usernameIdentifier: identifier})
-            let new_identifiers = used_indentifiers.push(identifier)
-            new_identifiers = new_identifiers
-            db.collection('usernameIdentifiers').doc(this.state.username).update({
-              identifiers: new_identifiers
-            })
-        }
-      }
-      //document doesnt exist
-      else {
-        await db.collection('usernameIdentifiers').doc(this.state.username).set({
-          identifiers: [0]
-        })
-        this.setState({usernameIdentifier: 0})
-      }
-      await db.collection('users').doc(auth.currentUser?.uid).set({
-        blockedSources:[],
-        groups: [],
-        username: this.state.username + '#' + this.state.usernameIdentifier.toString()
-      })
-      await db.collection('usernames').doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        blockedSources:[],
-        groups: [],
-        username: this.state.username + '#' + this.state.usernameIdentifier.toString(),
-        outgoingFriendRequests: [],
-        incomingFriendRequests: []
-      })
-      await db.collection("outgoingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        outgoingFriendRequests: []
-      })
-      await db.collection("incomingFriendRequests").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        incomingFriendRequests: []
-      })
-      await db.collection("friends").doc(this.state.username + '#' + this.state.usernameIdentifier.toString()).set({
-        friendsList: []
-      })
+  async uploadDataToFirebase() {
+    const createProfile : Promise<void> = db.collection('profiles').doc(auth.currentUser?.uid).set({
+      blockedSources:[],
+      groups: [],
+      outgoingFriendRequests: [],
+      incomingFriendRequests: [],
+      displayName: this.state.username
+    })
+    const createEmail : Promise<void> = db.collection('emails').doc(this.state.registerEmail).set({
+      userid: auth.currentUser?.uid
+    })
+    const createOutgoingFriendRequests : Promise<void> = db.collection("outgoingFriendRequests").doc(auth.currentUser?.uid).set({
+      outgoingFriendRequests: []
+    })
+    const createIncomingFriendRequests : Promise<void> = db.collection("incomingFriendRequests").doc(auth.currentUser?.uid).set({
+      incomingFriendRequests: []
+    })
+    const createFriends : Promise<void> = db.collection("friends").doc(auth.currentUser?.uid).set({
+      friendsList: []
     })
 
-
+    return await Promise.all([createProfile, createEmail, createOutgoingFriendRequests, createIncomingFriendRequests, createFriends])
   }
-
 
     render() {
       return (

@@ -28,7 +28,7 @@ import { arrowBack, closeCircleOutline } from 'ionicons/icons';
 import Tabs from './Tabs'
 
 type MyState = {
-  lat: any, 
+  lat: any,
   long: any,
   name: any,
   req: any,
@@ -40,7 +40,7 @@ type MyState = {
   isUnsubscribing: boolean,
   CurrentUser:any,
   isweatherOpen:boolean;
-  
+
 }
 
 type MyProps = {
@@ -51,7 +51,7 @@ type MyProps = {
 
 class Weather extends React.Component<MyProps,MyState> {
   state: MyState = {
-      lat: null, 
+      lat: null,
       long: null,
       name: null,
       req: null,
@@ -65,7 +65,7 @@ class Weather extends React.Component<MyProps,MyState> {
       isweatherOpen:false
   };
 
-  
+
   constructor(props: MyProps) {
     super(props)
     auth.onAuthStateChanged(async () => {
@@ -77,7 +77,7 @@ class Weather extends React.Component<MyProps,MyState> {
             this.setState({CurrentUser:doc.data()!.username})
           }
           // go into weatherSubscription collection
-          const dbSubscription = db.collection('weatherSubscription').doc(this.state.CurrentUser)
+          const dbSubscription = db.collection('weatherSubscription').doc(auth.currentUser?.uid)
           // Check weather subscription array exist for user
           dbSubscription.get().then((doc) => {
             // use existing array
@@ -86,21 +86,21 @@ class Weather extends React.Component<MyProps,MyState> {
               if (subscriptionField) {
                 this.setState({subscription:subscriptionField.subscription})
               }
-            } 
+            }
             // create an array for the user.
               else {
-                db.collection("weatherSubscription").doc(this.state.CurrentUser).set({
+                db.collection("weatherSubscription").doc(auth.currentUser?.uid).set({
                   subscription:[]
             })
             }
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
-        
+
         })
       }
   })
-    
+
   }
   ParentComponent = (props:any) => (
     <div className="card calculator">
@@ -110,7 +110,7 @@ class Weather extends React.Component<MyProps,MyState> {
     </div>
   );
 
-  ChildComponent = (props: {weather_code:any, temp:any, location: any, index:any}) => 
+  ChildComponent = (props: {weather_code:any, temp:any, location: any, index:any}) =>
   <IonCard>
         <IonCardHeader >
           <IonCardSubtitle>{props.location}</IonCardSubtitle>
@@ -120,9 +120,9 @@ class Weather extends React.Component<MyProps,MyState> {
         {props.weather_code}
         <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
         </IonCardContent>
-      </IonCard>  
+      </IonCard>
 
-  
+
   /* remove item from subscribed based on index */
   async unsubscribe(index:any) {
     console.log(index)
@@ -175,7 +175,7 @@ class Weather extends React.Component<MyProps,MyState> {
     }
   }
 
-  
+
   /* ClimaCell API (currently not in used because ran out of request) */
   // async getWeatherData(lat: any, long: any) {
   //   await fetch("https://api.climacell.co/v3/weather/forecast/daily?lat="+ lat + "&lon="+ long +"&unit_system=us&start_time=now&fields=feels_like&fields="+
@@ -195,13 +195,13 @@ class Weather extends React.Component<MyProps,MyState> {
   //     .catch(err => {
   //       console.error(err);
   //     });
-  // } 
-    
+  // }
+
     render() {
-      
+
       const weatherDisplay = [];
       for (var i = 0; i < this.state.subscription.length; i+=1) {
-        weatherDisplay.push(<this.ChildComponent key={i} weather_code={this.state.subscription[i].weather_code} 
+        weatherDisplay.push(<this.ChildComponent key={i} weather_code={this.state.subscription[i].weather_code}
           temp={this.state.subscription[i].temp} location={this.state.subscription[i].location} index={i} />);
       };
       return (
@@ -209,7 +209,7 @@ class Weather extends React.Component<MyProps,MyState> {
         <IonHeader>
           <IonToolbar className='weatherToolbar'>
             <IonTitle className='weatherTitle'>
-              Weather 
+              Weather
             </IonTitle>
             <IonButtons slot='start'>
                 <IonButton onClick={() => {this.props.toggleWeatherModal()}} fill='clear'>
@@ -220,7 +220,7 @@ class Weather extends React.Component<MyProps,MyState> {
         </IonHeader>
         <IonContent>
         <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
-              <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req) 
+              <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)
                 && this.setState({showLoading: true })}>
             search
           </IonButton>
@@ -239,7 +239,7 @@ class Weather extends React.Component<MyProps,MyState> {
         </IonModal>
       )
     }
-    
+
 
 }
 

@@ -87,9 +87,9 @@ class Settings extends React.Component<MyProps, MyState> {
               })
             }
           })
-          
+
         }
-      
+
        this.pullImage();
   }
 
@@ -150,8 +150,15 @@ class Settings extends React.Component<MyProps, MyState> {
         var file = selectorFiles[0];
         var uid = firebase.auth().currentUser!.uid;
         var newPicRef = storageRef.child('profileImages/' + uid+ '.jpg');
+
         newPicRef.put(file);
         await new Promise(r => setTimeout(r, 1000));
+        newPicRef.getDownloadURL().then((url) => {
+          db.collection('profiles').doc(auth.currentUser?.uid).update({
+            photo: url
+          })
+        })
+
         this.pullImage();
     }
   }
@@ -193,7 +200,7 @@ var temp = this.state.blockedSources;
 for (var i = temp.length - 1; i >= 0; i--) {
   this.addToList(temp[i]);
 }
- 
+
 }
 
 isEmailAddress(anEmail: string) {
@@ -255,11 +262,11 @@ changePassword(password:string) {
     }
 
     handleSubmit(){
-      
-      
+
+
     }
 
- 
+
 
     pullImage(){
       if(auth.currentUser) {
@@ -298,12 +305,12 @@ changePassword(password:string) {
       break;
   }
 });
-    
+
   }
 }
 
-    
-  
+
+
 
 
 
@@ -324,11 +331,11 @@ changePassword(password:string) {
       }
   })
   }
-        
-      
+
+
     }
 
-   
+
 
 
 
@@ -510,29 +517,29 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
-           
+
 
                <IonItem id ='updateEmail'>
                Change Profile Picture
                <IonButtons slot = 'end'>
 
                   <IonButton id = 'submit'>
-              
-<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } /> 
+
+<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
 
  <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
 </IonButton>
-          
-      
-         
+
+
+
         </IonButtons>
           </IonItem>
             <IonItem>
-            
-            
-           
 
-          
+
+
+
+
           </IonItem>
         </IonContent>
       </IonPage>
