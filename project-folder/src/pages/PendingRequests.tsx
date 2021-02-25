@@ -134,10 +134,10 @@ class PendingRequests extends React.Component<MyProps, MyState> {
           {this.state.incomingFriends.map(IncomingFriend =>
             <IonItem key={IncomingFriend.uid}>
               <IonLabel>{IncomingFriend.displayName}</IonLabel>
-              <IonButton onClick={() => {this.props.acceptFriend(IncomingFriend.toString())}} className='acceptButton' slot='end' fill='clear'>
+              <IonButton onClick={() => {this.props.acceptFriend(IncomingFriend.uid)}} className='acceptButton' slot='end' fill='clear'>
                 <IonIcon className='addIcon' icon={addCircleOutline} />
               </IonButton>
-              <IonButton onClick={() => {this.props.declineFriend(IncomingFriend.toString())}} className='denyButton' slot='end' fill='clear'>
+              <IonButton onClick={() => {this.props.declineFriend(IncomingFriend.uid)}} className='denyButton' slot='end' fill='clear'>
                 <IonIcon className='denyIcon' icon={closeCircleOutline} />
               </IonButton>
             </IonItem>)}
@@ -146,7 +146,7 @@ class PendingRequests extends React.Component<MyProps, MyState> {
           {this.state.outgoingFriends.map(OutgoingFriend =>
             <IonItem key={OutgoingFriend.uid}>
               <IonLabel>{OutgoingFriend.displayName}</IonLabel>
-              <IonButton onClick={() => {this.props.cancelOutgingRequest(OutgoingFriend.toString())}} className='denyButton' slot='end' fill='clear'>
+              <IonButton onClick={() => {this.props.cancelOutgingRequest(OutgoingFriend.uid)}} className='denyButton' slot='end' fill='clear'>
                 <IonIcon className='denyIcon' icon={closeCircleOutline} />
               </IonButton>
             </IonItem>)}

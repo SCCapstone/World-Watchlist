@@ -255,17 +255,13 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
-  cancelOutgingRequest(email: string) {
-    if(email !== "" && email !== auth.currentUser?.email) {
-      db.collection('emails').doc(email).get().then(document => {
-        if(document.exists) {
-          db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
-            incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
-          })
-          db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
-            outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(document.data()!.userid)
-          })
-        }
+  cancelOutgingRequest(targetUserId: string) {
+    if(targetUserId !== "" && targetUserId !== auth.currentUser?.email) {
+      db.collection('incomingFriendRequests').doc(targetUserId).update({
+        incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
+      })
+      db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
+        outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(targetUserId)
       })
     }
   }
