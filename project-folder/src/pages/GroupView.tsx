@@ -52,7 +52,7 @@ type MyProps = {
   toggleGroupModal: any;
   leaveGroup: () => void,
   deleteGroup: () => void,
-  friendList: string[],
+  friendList: Friend[],
   addFriendToGroup: (friend : string, group: string) => void
 }
 
@@ -62,6 +62,13 @@ type GroupType = {
   id: string;
   profilePicture: string;
   owner: string;
+}
+
+type Friend = {
+  uuid: string;
+  uid: string;
+  displayName: string;
+  photo: string;
 }
 
 class GroupView extends React.Component<MyProps, MyState> {
@@ -267,14 +274,14 @@ class GroupView extends React.Component<MyProps, MyState> {
         <IonListHeader>Friends ({this.props.friendList.length})</IonListHeader>
         <IonList>
           {
-            this.props.friendList.map((friend) => {
+            this.props.friendList.map((FriendObj) => {
               return (
-                <IonItem>
+                <IonItem key={FriendObj.uid}>
                   <IonLabel>
-                    {friend}
+                    {FriendObj.displayName}
                   </IonLabel>
-                  <IonButton onClick={() => {this.props.addFriendToGroup(friend, this.props.groupDetails.id)}} fill='clear'>
-                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(friend) ? checkmarkOutline : addOutline}/>
+                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.displayName, this.props.groupDetails.id)}} fill='clear'>
+                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(FriendObj.uid) ? checkmarkOutline : addOutline}/>
                   </IonButton>
                 </IonItem>
               )

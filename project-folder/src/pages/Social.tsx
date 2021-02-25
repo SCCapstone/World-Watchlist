@@ -16,7 +16,8 @@ import {
   IonList,
   IonListHeader,
   IonAvatar,
-  IonItemGroup
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/react'
 
 import GroupView from './GroupView'
@@ -41,7 +42,7 @@ import PendingRequests from './PendingRequests';
 type MyState = {
   isAddFriendModalOpen: boolean;
   targetUsername: string;
-  friendsList: string[];
+  friendsList: Friend[];
   blockedUsers: [];
   isPendingRequestsModalOpen: boolean;
   isMessengerModalOpen: boolean;
@@ -61,6 +62,8 @@ type MyState = {
   unsubscribeBlockedUsers: any;
   unsubscribeIncomingRequests: any;
   unsubscribeOutgoingRequests: any;
+  segmentSelected: string | undefined;
+  unsubscribeIndiviudalFriends: any[];
 }
 
 type MyProps = {
@@ -74,6 +77,13 @@ type Group = {
   id: string;
   profilePicture: string;
   owner: string;
+}
+
+type Friend = {
+  uuid: string;
+  uid: string;
+  displayName: string;
+  photo: string;
 }
 
 class Social extends React.Component<MyProps, MyState> {
@@ -106,7 +116,9 @@ class Social extends React.Component<MyProps, MyState> {
     unsubscribeFriendsList: () => {},
     unsubscribeBlockedUsers: null,
     unsubscribeIncomingRequests: () => {},
-    unsubscribeOutgoingRequests: () => {}
+    unsubscribeOutgoingRequests: () => {},
+    unsubscribeIndiviudalFriends: [],
+    segmentSelected: 'groups'
   };
 
 
@@ -143,10 +155,28 @@ class Social extends React.Component<MyProps, MyState> {
         db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
           if(doc.data()) {
             //creates a subscription to our user's friends list
-            let unsubscribeFriendsList = db.collection('friends').doc(auth.currentUser?.uid).onSnapshot((snapshot) => {
-              if(snapshot.data()) {
-                this.setState({friendsList: snapshot.data()!.friendsList})
-              }
+            let unsubscribeFriendsList = db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').onSnapshot((collectionSnapshot) => {
+              this.setState({})
+              let friendArray : Friend[] = []
+              let unsubscribeFriendArray : any[] = []
+              collectionSnapshot.forEach(async (collectionDocument) => {
+                //this is where we will build the profiles to display
+                let unsubscribeIndividualFriend = db.collection('profiles').doc(collectionDocument.data().friend).onSnapshot(((friendDocument) => {
+                  let friend = {
+                    uuid: collectionDocument.data().uuid,
+                    uid: collectionDocument.data().friend,
+                    displayName: friendDocument.data()!.displayName,
+                    photo: friendDocument.data()!.photo
+                  }
+                  friendArray.push(friend)
+                }))
+                unsubscribeFriendArray.push(unsubscribeIndividualFriend)
+              })
+              this.setState({
+                friendsList: friendArray,
+                unsubscribeFriendsList: unsubscribeFriendsList,
+                unsubscribeIndiviudalFriends: unsubscribeFriendArray
+              })
             })
 
             // create subscription to user's blocked users list
@@ -350,9 +380,7 @@ class Social extends React.Component<MyProps, MyState> {
        */
     }
   }
-  isFriend(username: string) {
-    return username !== "" && this.state.friendsList.includes(username);
-  }
+
   exists(username: string) {
     return username !== "" //&& db.collection('usernames').doc(username) !== undefined
   }
@@ -567,22 +595,49 @@ class Social extends React.Component<MyProps, MyState> {
           </IonToolbar>
         </IonHeader>
         <IonContent>
-
+        <IonSegment onIonChange={e => this.setState({segmentSelected: e.detail.value})} value={this.state.segmentSelected}>
+          <IonSegmentButton value='groups'>
+            <IonLabel>Groups</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value='friends'>
+            <IonLabel>Friends</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
         {
-          this.state.groupArray.map((displayGroup : Group) => {
-            return (
-              <IonItem onClick={() => {this.setState({groupDetails: displayGroup, isGroupModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
-                <IonAvatar slot='start' className='socialGroupAvatar'>
-                  <img src = {displayGroup.profilePicture ? displayGroup.profilePicture : Placeholder}/>
-                </IonAvatar>
-                <IonLabel className='socialGroupLabel'>
-                  {displayGroup.nickname}
-                </IonLabel>
+          this.state.segmentSelected === 'groups' ?
+          <div>{
+            this.state.groupArray.map((displayGroup : Group) => {
+              return (
+                <IonItem onClick={() => {this.setState({groupDetails: displayGroup, isGroupModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={displayGroup.id}>
+                  <IonAvatar slot='start' className='socialGroupAvatar'>
+                    <img src = {displayGroup.profilePicture ? displayGroup.profilePicture : Placeholder}/>
+                  </IonAvatar>
+                  <IonLabel className='socialGroupLabel'>
+                    {displayGroup.nickname}
+                  </IonLabel>
 
-              </IonItem>
+                </IonItem>
+              )
+            })
+          }
+        </div> :
+        <div>
+        {this.state.friendsList.map((friend: Friend) => {
+          return (
+            <IonItem onClick={() => {}} lines='none' button={true} className='socialGroupItem' key={friend.uid}>
+              <IonAvatar slot='start' className='socialGroupAvatar'>
+                <img src = {friend.photo ? friend.photo : Placeholder}/>
+              </IonAvatar>
+              <IonLabel className='socialGroupLabel'>
+                {friend.displayName}
+              </IonLabel>
+
+            </IonItem>
             )
           })
-        }
+      }
+        </div>
+      }
 
 
         </IonContent>
