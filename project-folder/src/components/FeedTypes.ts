@@ -1,6 +1,6 @@
 import { articleList } from "./ArticleTypes"
 
-export type MyState = {
+export type FeedState = {
     articles: articleList;
     subs: string[];
     articlesSearched:any[],
@@ -18,7 +18,7 @@ export type MyState = {
     showSubscribeAlert:boolean
   }
   
-export type MyProps = {
+export type FeedProps = {
     history: any;
     location: any;
   }

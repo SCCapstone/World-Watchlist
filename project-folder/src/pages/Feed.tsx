@@ -34,13 +34,15 @@ import { LocalNotifications, Plugins } from '@capacitor/core';
 import axios from 'axios';
 import ParentComponent from '../components/SubscriptionParent';
 import ChildrenComponent from '../components/SubscriptionChildren';
-import { MyProps, MyState } from '../components/FeedTypes';
+import { FeedProps, FeedState } from '../components/FeedTypes';
+import FeedList from '../components/FeedList';
+import FeedToolbar from '../components/FeedToolbar';
 const { Storage } = Plugins;
 
 
 
-class Feed extends React.Component<MyProps, MyState> {
-  state: MyState = {
+class Feed extends React.Component<FeedProps, FeedState> {
+  state: FeedState = {
     articles: [],
     subs: [],
     articlesSearched:[],
@@ -58,7 +60,7 @@ class Feed extends React.Component<MyProps, MyState> {
     showSubscribeAlert:false
   };
 
-  constructor(props: MyProps) {
+  constructor(props: FeedProps) {
     super(props)
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     let aList : any[] = [];
@@ -143,7 +145,7 @@ class Feed extends React.Component<MyProps, MyState> {
             //   }
             // }
             } else {
-              db.collection("topicSubscription").doc(auth.currentUser?.uid).set({subList: []});
+              db.collection("topicSubscription").doc(this.getId()).set({subList: []});
             }
           })
         }).catch(function(error) {
@@ -155,6 +157,11 @@ class Feed extends React.Component<MyProps, MyState> {
     })
   }
 
+  getId() {
+    // return user_id if current user else null
+    return auth.currentUser?.uid;
+  }
+  
   toggleWeatherModal() {
     this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
   }
@@ -167,13 +174,13 @@ class Feed extends React.Component<MyProps, MyState> {
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   async addSubscription(sub: string) {
     if (sub!== "") {
-      await db.collection("topicSubscription").doc(auth.currentUser?.uid).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
+      await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
     }
   }
 
   async removeSubscription(index:any) {
     if (this.state.subs[index] !== "") {
-      await db.collection("topicSubscription").doc(auth.currentUser?.uid).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
+      await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
     }
   }
 
@@ -248,7 +255,7 @@ class Feed extends React.Component<MyProps, MyState> {
     }
     this.setState({showLoading: false})
     return 0
-}
+  }
 
   async subscribe(topic:any) {
     if (topic === null || topic === undefined || topic === '') {
@@ -387,7 +394,7 @@ class Feed extends React.Component<MyProps, MyState> {
     return (
     <IonPage>
       <IonHeader>
-        <IonToolbar class ='feedToolbar'>
+        {/* <IonToolbar class ='feedToolbar'>
           <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
@@ -407,7 +414,11 @@ class Feed extends React.Component<MyProps, MyState> {
               <IonIcon icon={search} />
           </IonButton>
           </IonButtons>
-        </IonToolbar>
+        </IonToolbar> */}
+        <FeedToolbar clear={() => this.clear()}
+         openWeather={() => this.setState({isWeatherModalOpen: true})} 
+         showSubs={() => {this.setState({showSubscription: true})}}
+         showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
       </IonHeader>
       <IonContent>
 
@@ -486,33 +497,32 @@ class Feed extends React.Component<MyProps, MyState> {
     </IonModal>
     <IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
-            <IonToolbar class='feedToolbar2'>
-        <IonButtons slot='start'>
-                <IonButton onClick={() => {this.setState({showSubscription: false})}} fill='clear'>
-                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
-                </IonButton>
-        </IonButtons>
+          <IonToolbar class='feedToolbar2'>
+            <IonButtons slot='start'>
+              <IonButton onClick={() => {this.setState({showSubscription: false})}} fill='clear'>
+                <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+              </IonButton>
+            </IonButtons>
 
-        <IonTitle class='feedTitle2'>
-                Subscriptions
-        </IonTitle>
-        </IonToolbar>
+          <IonTitle class='feedTitle2'>Subscriptions</IonTitle>
+          </IonToolbar>
         </IonHeader>
         <IonContent>
-        <IonCard>
+          <IonCard>
         {/* <ParentComponent>
        {subs}
       </ParentComponent> */}
-      <ChildrenComponent subs={this.state.subs} func={this.unsubscribe.bind(this)}></ChildrenComponent>
-        </IonCard>
+            <ChildrenComponent subs={this.state.subs} func={this.unsubscribe.bind(this)}></ChildrenComponent>
+          </IonCard>
         </IonContent>
     </IonModal>
-    <IonList>
+    <FeedList headerName="Recent News" articleList={this.state.articles}></FeedList>
+    {/* <IonList>
         <IonListHeader>
           Recent News
         </IonListHeader>
       <ArticleList theArticleList={this.state.articles}></ArticleList>
-    </IonList>
+    </IonList> */}
       </IonContent>
 
     </IonPage>

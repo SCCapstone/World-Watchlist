@@ -27,31 +27,12 @@ import { Redirect, Route } from 'react-router-dom';
 import { arrowBack, closeCircleOutline } from 'ionicons/icons';
 import Tabs from './Tabs'
 import ParentComponent from '../components/SubscriptionParent';
-
-type MyState = {
-  lat: any,
-  long: any,
-  name: any,
-  req: any,
-  temp: any,
-  weather_code: any,
-  showLoading: boolean,
-  location: any,
-  subscription: any[],
-  isUnsubscribing: boolean,
-  CurrentUser:any,
-  isweatherOpen:boolean;
-
-}
-
-type MyProps = {
-  isOpen:boolean;
-  toggleWeatherModal: any;
-}
+import { WeatherProps, WeatherState } from '../components/WeatherTypes';
+import WeatherSubChildren from '../components/WeatherSubChildren';
 
 
-class Weather extends React.Component<MyProps,MyState> {
-  state: MyState = {
+class Weather extends React.Component<WeatherProps,WeatherState> {
+  state: WeatherState = {
       lat: null,
       long: null,
       name: null,
@@ -67,7 +48,7 @@ class Weather extends React.Component<MyProps,MyState> {
   };
 
 
-  constructor(props: MyProps) {
+  constructor(props: WeatherProps) {
     super(props)
     auth.onAuthStateChanged(async () => {
       console.log(this.state.subscription)
@@ -128,7 +109,7 @@ class Weather extends React.Component<MyProps,MyState> {
   async unsubscribe(index:any) {
     console.log(index)
     this.state.subscription.splice(index,1)
-    db.collection('weatherSubscription').doc(this.state.CurrentUser).update({
+    db.collection('weatherSubscription').doc(auth.currentUser?.uid).update({
       subscription: this.state.subscription
     })
   }
@@ -149,7 +130,7 @@ class Weather extends React.Component<MyProps,MyState> {
       }
       this.setState({temp:data.main.temp+'F',weather_code: data.weather[0].description, location: this.state.name})
       /* Add data to firebase firestore */
-      db.collection('weatherSubscription').doc(this.state.CurrentUser).update({
+      db.collection('weatherSubscription').doc(auth.currentUser?.uid).update({
         subscription: this.state.subscription
       })
     }).catch((error) => {
@@ -176,7 +157,10 @@ class Weather extends React.Component<MyProps,MyState> {
     }
   }
 
-
+  handleUnsub(index: number) {
+    this.unsubscribe(index);
+    this.setState({isUnsubscribing:true})
+  }
   /* ClimaCell API (currently not in used because ran out of request) */
   // async getWeatherData(lat: any, long: any) {
   //   await fetch("https://api.climacell.co/v3/weather/forecast/daily?lat="+ lat + "&lon="+ long +"&unit_system=us&start_time=now&fields=feels_like&fields="+
@@ -200,11 +184,11 @@ class Weather extends React.Component<MyProps,MyState> {
 
     render() {
 
-      const weatherDisplay = [];
-      for (var i = 0; i < this.state.subscription.length; i+=1) {
-        weatherDisplay.push(<this.ChildComponent key={i} weather_code={this.state.subscription[i].weather_code}
-          temp={this.state.subscription[i].temp} location={this.state.subscription[i].location} index={i} />);
-      };
+      // const weatherDisplay = [];
+      // for (var i = 0; i < this.state.subscription.length; i+=1) {
+      //   weatherDisplay.push(<this.ChildComponent key={i} weather_code={this.state.subscription[i].weather_code}
+      //     temp={this.state.subscription[i].temp} location={this.state.subscription[i].location} index={i} />);
+      // };
       return (
       <IonModal isOpen={this.props.isOpen}>
         <IonHeader>
@@ -216,25 +200,26 @@ class Weather extends React.Component<MyProps,MyState> {
                 <IonButton onClick={() => {this.props.toggleWeatherModal()}} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
-        </IonButtons>
+            </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent>
         <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
-              <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)
-                && this.setState({showLoading: true })}>
-            search
-          </IonButton>
-          <IonLoading
+        <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)
+          && this.setState({showLoading: true })}>
+          search
+        </IonButton>
+        <IonLoading
         isOpen={this.state.showLoading}
         onDidDismiss={() =>  this.subscribe(this.state.lat, this.state.long) && this.setState({showLoading: false})}
         message={'Getting data from API'}
         duration={750}
-      />
+        />
 
-      <ParentComponent>
+      {/* <ParentComponent>
        {weatherDisplay}
-      </ParentComponent>
+      </ParentComponent> */}
+      <WeatherSubChildren subs={this.state.subscription} func={this.handleUnsub.bind(this)}></WeatherSubChildren>
 
           </IonContent>
         </IonModal>
