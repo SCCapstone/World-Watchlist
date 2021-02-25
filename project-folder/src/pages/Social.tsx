@@ -329,13 +329,14 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
-  removeFriend(targetUserId: string) {
+  removeFriend(targetUserId: string) { //removes a user from friend list
     if(targetUserId != "") {
-      db.collection('friends').doc(auth.currentUser?.uid).update({
-        friendsList: firebase.firestore.FieldValue.arrayRemove(targetUserId)
-      })
-      db.collection('friends').doc(targetUserId).update({
-        friendsList: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid),
+      db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).get().then((document) => {
+        db.collection('friendIds').doc(document.data()!.uuid).update({
+          inUse: false
+        })
+        db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).delete()
+        db.collection('friends').doc(targetUserId).collection('uuids').doc(auth.currentUser?.uid).delete()
       })
     }
   }
