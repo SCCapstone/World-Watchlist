@@ -24,12 +24,15 @@ type MyState = {
   registerConfirmPassword: string;
   shouldLoginShow: boolean;
   username: string;
+  btnText: string;
 }
 
 type MyProps = {
   history: any;
   location: any;
 }
+
+
 
 class Landing extends React.Component<MyProps, MyState> {
 
@@ -41,6 +44,7 @@ class Landing extends React.Component<MyProps, MyState> {
     registerConfirmPassword: '',
     shouldLoginShow: true,
     username: '',
+    btnText: ''
   };
 
 
@@ -50,6 +54,7 @@ class Landing extends React.Component<MyProps, MyState> {
 
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
+    this.state.btnText = 'Create an Account';
   }
 
   login() {
@@ -139,7 +144,7 @@ class Landing extends React.Component<MyProps, MyState> {
         <IonHeader>
           <IonToolbar className='landingToolbar'>
             <IonTitle class='loginTitle'>
-              {this.state.shouldLoginShow ? ' World Watch-list Login' : ' World Watch-list Register'}
+              {this.state.shouldLoginShow ? 'Login' : 'Create an Account'}
             </IonTitle>
           </IonToolbar>
         </IonHeader>
@@ -189,7 +194,7 @@ class Landing extends React.Component<MyProps, MyState> {
             </div>
         }
 
-          <IonButton className = 'landingSwitch' onClick={() => {this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >Switch</IonButton>
+          <IonButton className = 'landingSwitch' onClick={() => {if(this.state.btnText=='Create an Account') this.state.btnText='Log In'; else this.state.btnText='Create an Account';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
         </IonContent>
       </IonPage>
       )
