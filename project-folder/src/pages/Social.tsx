@@ -125,7 +125,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.removeFriend = this.removeFriend.bind(this);
     this.blockUser = this.blockUser.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
-
+    this.generateUniqueFriendId = this.generateUniqueFriendId.bind(this);
     this.generateUniqueGroupId = this.generateUniqueGroupId.bind(this);
     this.createGroup = this.createGroup.bind(this);
     this.toggleGroupModal = this.toggleGroupModal.bind(this);
@@ -270,20 +270,50 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
-  acceptFriend(targetUserId: string) { //accepts a friend request from a user
-    if(targetUserId != "") {
-      db.collection('outgoingFriendRequests').doc(targetUserId).update({
-        outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid),
+  async generateUniqueFriendId() : Promise<string> {
+  let generateUniqueFriendIdPromise = new Promise<string>((resolve, reject) => {
+      let code = (Math.random()).toString(13);
+      db.collection('friendIds').doc(code).get().then((doc) => {
+        if(!doc.exists) {
+          db.collection('friendIds').doc(code).set({
+            inUse: true
+          })
+          resolve(code)
+        } else {
+          if(!doc.data()?.inUse) {
+            db.collection('friendIds').doc(code).set({
+              inUse: true
+            })
+          } else {
+            this.generateUniqueFriendId()
+          }
+        }
       })
-      db.collection('incomingFriendRequests').doc(auth.currentUser?.uid).update({
-        incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(targetUserId),
-      })
+    })
 
-      db.collection('friends').doc(auth.currentUser?.uid).update({
-        friendsList: firebase.firestore.FieldValue.arrayUnion(targetUserId)
-      })
-      db.collection('friends').doc(targetUserId).update({
-        friendsList: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid),
+    return await generateUniqueFriendIdPromise
+  }
+  acceptFriend(targetUserId: string) {
+    //accepts a friend request from a user
+    //generates a friend UUID that can uniquely identify this friend pair
+    if(targetUserId != "") { //ensure we are not calling firebase path with empty string
+      this.generateUniqueFriendId().then((uniqueFriendId : string) => {
+        //remove incoming and outgoing friend requests
+        db.collection('outgoingFriendRequests').doc(targetUserId).update({
+          outgoingFriendRequests: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid),
+        })
+        db.collection('incomingFriendRequests').doc(auth.currentUser?.uid).update({
+          incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(targetUserId),
+        })
+        //set unique friend uuid pair for messaging
+        db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).set({
+          uuid: uniqueFriendId,
+          friend: targetUserId
+        })
+        db.collection('friends').doc(targetUserId).collection('uuids').doc(auth.currentUser?.uid).set({
+          uuid: uniqueFriendId,
+          friend: auth.currentUser?.uid
+        })
       })
     }
   }
@@ -331,18 +361,27 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
   async generateUniqueGroupId() : Promise<string> {
-  let generateUniqueGroupIdPromise = new Promise<string>((resolve, reject) => {
-      let code = (Math.random()).toString(36);
-      db.collection('groudIds').doc(code).get().then((doc) => {
-        if(!doc.exists) {
-          resolve(code)
-        } else {
-          this.generateUniqueGroupId()
-        }
+    let generateUniqueGroupIdPromise = new Promise<string>((resolve, reject) => {
+        let code = (Math.random()).toString(13);
+        db.collection('groudIds').doc(code).get().then((doc) => {
+          if(!doc.exists) {
+            db.collection('groupIds').doc(code).set({
+              inUse: true
+            })
+            resolve(code)
+          } else {
+            if(!doc.data()?.inUse) {
+              db.collection('groupIds').doc(code).set({
+                inUse: true
+              })
+            } else {
+              this.generateUniqueGroupId()
+            }
+          }
+        })
       })
-    })
 
-    return await generateUniqueGroupIdPromise
+      return await generateUniqueGroupIdPromise
   }
 
 
