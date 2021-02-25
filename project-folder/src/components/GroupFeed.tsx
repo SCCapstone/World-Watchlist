@@ -1,13 +1,17 @@
 import { Plugins } from "@capacitor/core";
+import { IonContent, IonPage } from "@ionic/react";
+import firebase from "firebase";
+import React from "react";
 import { NewsDB } from "../config/config";
 import { auth, db } from "../firebase";
 import Feed from "../pages/Feed";
 import { articleList } from "./ArticleTypes";
-import { MyProps, MyState } from "./FeedTypes";
+import FeedList from "./FeedList";
+import { FeedProps, FeedState } from "./FeedTypes";
 
 const { Storage } = Plugins;
 class GroupFeed extends Feed {
-    state: MyState = {
+    state: FeedState = {
       articles: [],
       subs: [],
       articlesSearched:[],
@@ -25,10 +29,9 @@ class GroupFeed extends Feed {
       showSubscribeAlert:false
     };
   
-    constructor(props: MyProps) {
+    constructor(props: FeedProps) {
       super(props)
       let aList : articleList = [];
-      this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
       auth.onAuthStateChanged(async () => {
         if(auth.currentUser) {
           //gets the username of our user
@@ -73,25 +76,6 @@ class GroupFeed extends Feed {
                     console.log("taking from capacitor cache")
                   }
                 }
-              //   if (this.state.subs.length !== 0) {
-              //     for (var i = 0; i < this.state.subs.length; i++) {
-              //     await NewsDB.collection(this.state.subs[i]).get()
-              //     .then((snapshot) => {
-              //       snapshot.forEach(async doc => {
-              //         if (doc.exists) {
-              //           let articleItem = doc.data();
-              //           aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-              //         } else {
-              //           console.log("Cannot find anything in database.")
-              //         }
-              //       })
-              //       var source = snapshot.metadata.fromCache ? "local cache" : "server";
-              //       console.log("Sub Articles came from " + source);
-              //     }).catch(function(error) {
-              //       console.log("Error getting document:", error);
-              //     })
-              //   }
-              // }
               } else {
                 db.collection("topicSubscription").doc(this.state.CurrentUser).set({subList: []});
               }
@@ -104,5 +88,15 @@ class GroupFeed extends Feed {
       })
     }
     
+    getId() {
+      // return groupId
+      return undefined;
+    }
+
+    render() {
+      return (<IonContent>
+        <FeedList headerName="Group News" articleList={this.state.articles}></FeedList>
+      </IonContent>)
+    }
   }
 export default GroupFeed;
