@@ -41,7 +41,9 @@ type MyState = {
   isMembersModalOpen: boolean,
   isFriendsListModalOpen: boolean,
   isNicknameReadOnly: boolean,
-  tempNickname: string
+  tempNickname: string,
+  members: Member[],
+  owner: Member | undefined
 }
 
 type MyProps = {
@@ -71,6 +73,12 @@ type Friend = {
   photo: string;
 }
 
+type Member = {
+  uid: string;
+  displayName: string;
+  photo: string;
+}
+
 class GroupView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
@@ -82,6 +90,8 @@ class GroupView extends React.Component<MyProps, MyState> {
     isFriendsListModalOpen: false,
     isNicknameReadOnly: true,
     tempNickname: this.props.groupDetails.nickname,
+    members: [],
+    owner: {uid: '', displayName: '', photo: ''}
   };
 
   constructor(props: MyProps) {
@@ -90,13 +100,50 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   }
 
-
   componentDidMount() {
-
+    let members : Member[] = []
+    this.props.groupDetails.members.forEach(memberUid => {
+      db.collection('profiles').doc(memberUid).get().then((document) => {
+        let member : Member = {
+          photo: document.data()?.photo,
+          displayName: document.data()!.displayName,
+          uid: memberUid
+        }
+        members.push(member)
+        if(memberUid === this.props.groupDetails.owner) {
+          this.setState({
+            owner: member
+          })
+        }
+      })
+    })
+    this.setState({
+      members: members
+    })
   }
 
-  componentWillUnmount() {
-
+  componentDidUpdate(prevProps: MyProps) {
+    if(prevProps.groupDetails.members.length !== this.props.groupDetails.members.length) {
+      let members : Member[] = []
+      this.props.groupDetails.members.forEach(memberUid => {
+        db.collection('profiles').doc(memberUid).get().then((document) => {
+          let member : Member = {
+            photo: document.data()?.photo,
+            displayName: document.data()!.displayName,
+            uid: memberUid
+          }
+          members.push(member)
+          if(memberUid === this.props.groupDetails.owner) {
+            this.setState({
+              owner: member
+            })
+          }
+        })
+      })
+      this.setState({
+        members: members
+      })
+    }
   }
 
    async pullImage() {
@@ -184,18 +231,18 @@ class GroupView extends React.Component<MyProps, MyState> {
           <IonList>
             <IonItem>
               <IonTitle>
-                {this.props.groupDetails!.owner}
+                {this.state.owner!.displayName}
               </IonTitle>
             </IonItem>
           </IonList>
           <IonListHeader>Members ({this.props.groupDetails.members.length - 1}) </IonListHeader>
           <IonList>
             {
-              this.props.groupDetails.members.map((member) => {
-                return member !== this.props.groupDetails!.owner ?
+              this.state.members.map((member) => {
+                return member.uid !== this.props.groupDetails!.owner ?
                   <IonItem>
                     <IonTitle>
-                      {member}
+                      {member.displayName}
                     </IonTitle>
                   </IonItem>
                  : undefined
@@ -280,7 +327,7 @@ class GroupView extends React.Component<MyProps, MyState> {
                   <IonLabel>
                     {FriendObj.displayName}
                   </IonLabel>
-                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.displayName, this.props.groupDetails.id)}} fill='clear'>
+                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.uid, this.props.groupDetails.id)}} fill='clear'>
                     <IonIcon slot='end' icon={this.props.groupDetails.members.includes(FriendObj.uid) ? checkmarkOutline : addOutline}/>
                   </IonButton>
                 </IonItem>

@@ -459,7 +459,7 @@ class Social extends React.Component<MyProps, MyState> {
       }
     }
     //2
-    db.collection('usernames').doc(auth.currentUser?.uid).update({
+    db.collection('profiles').doc(auth.currentUser?.uid).update({
       groups: firebase.firestore.FieldValue.arrayRemove(this.state.groupDetails.id)
     })
     this.setState({isGroupModalOpen: false})
@@ -470,7 +470,7 @@ class Social extends React.Component<MyProps, MyState> {
     //intended to be used from the groupView page
     if(auth.currentUser?.uid === this.state.groupDetails.owner) {
       this.state.groupDetails.members.forEach((member) => {
-        db.collection('usernames').doc(member).update({
+        db.collection('profiles').doc(member).update({
           groups: firebase.firestore.FieldValue.arrayRemove(this.state.groupDetails.id)
         })
         db.collection('groups').doc(this.state.groupDetails.id).delete()
@@ -484,19 +484,18 @@ class Social extends React.Component<MyProps, MyState> {
 
   }
 
-  addFriendToGroup(friend: string, group: string) {
-    db.collection('usernames').doc(friend).update({
+  addFriendToGroup(targetUid: string, group: string) {
+    db.collection('profiles').doc(targetUid).update({
       groups: firebase.firestore.FieldValue.arrayUnion(group)
     })
     db.collection('groups').doc(group).update({
-      members: firebase.firestore.FieldValue.arrayUnion(friend)
+      members: firebase.firestore.FieldValue.arrayUnion(targetUid)
     })
   }
 
   toggleGroupModal() {
     this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
   }
-
   toggleAddFriendModal() {
     this.setState({isAddFriendModalOpen: !this.state.isAddFriendModalOpen})
   }
