@@ -68,10 +68,13 @@ class Feed extends React.Component<MyProps, MyState> {
         //gets the username of our user
         await db.collection("users").doc(auth.currentUser.uid).get().then(async doc => {
           // everytime there is a new subscription, update news onto main feed
-          db.collection("topicSubscription").doc(auth.currentUser?.uid).onSnapshot(async (sub_list) => {
+          db.collection("topicSubscription").doc(auth.currentUser?.uid)
+          .onSnapshot(async (sub_list) => {
+            
             this.setState({articles:[]})
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
+              
               console.log("subs",this.state.subs)
               for (var i = 0; i < this.state.subs.length; i++) {
                 aList = []
@@ -94,6 +97,20 @@ class Feed extends React.Component<MyProps, MyState> {
                       console.log("Cannot find anything in database.")
                     }
                   })
+                  // notify every time there is a new subscription that is not from cache or server
+                  if ((await LocalNotifications.requestPermission()).granted) {
+                    await LocalNotifications.schedule({
+                      notifications: [{
+                        title: 'New articles in your feed!',
+                        body: "Check them out!",
+                        id: 1,
+                        schedule: {
+                          at:new Date(new Date().getTime() + 1000),
+                          repeats:true
+                        }
+                      }]
+                    });
+                  }
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
                   await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
@@ -290,7 +307,7 @@ class Feed extends React.Component<MyProps, MyState> {
       console.log(data)
       await data.items.forEach((articleItem: any) => {
         /* remove <a> html tag from description */
-        var html = articleItem.Description;
+        var html = articleItem.description;
         var a = document.createElement("a");
         a.innerHTML = html;
         var text = a.textContent || a.innerText || "";
@@ -339,29 +356,26 @@ class Feed extends React.Component<MyProps, MyState> {
   //   await this.setMainCollection()
   // }
 
-  async scheduleLocalNotifications() {
-    try {
-      // Request/ check permissions
-      if ((await LocalNotifications.requestPermission()).granted) {
-        await LocalNotifications.schedule({
-          notifications: [{
-            title: 'hello',
-            body: "new news on " + this.state.subs,
-            id: 1,
-            schedule: {
-              on: {
-                minute: 1
-              },
-              repeats: true
-            }
-          }]
-        });
-      }
-      // Clear old notifications in prep for refresh (OPTIONAL)
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  // async scheduleLocalNotifications() {
+  //   try {
+  //     // Request/ check permissions
+  //     if ((await LocalNotifications.requestPermission()).granted) {
+  //       await LocalNotifications.schedule({
+  //         notifications: [{
+  //           title: 'New articles in your feed!',
+  //           body: "new news on " + this.state.subs.pop(),
+  //           id: 1,
+  //           schedule: {
+  //             at:new Date(new Date().getTime() + 1000)
+  //           }
+  //         }]
+  //       });
+  //     }
+  //     // Clear old notifications in prep for refresh (OPTIONAL)
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
 
 
@@ -377,11 +391,7 @@ class Feed extends React.Component<MyProps, MyState> {
           <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
-          <IonButtons slot="start">
-          <IonButton onClick={() => this.clear()}>
-          <IonIcon icon={notificationsCircleOutline} />
-          </IonButton>
-          </IonButtons>
+          
       <IonButtons slot="start">
           <IonButton onClick={() => {this.setState({isWeatherModalOpen: true})}}  fill='clear'>
               <IonIcon icon={cloud} />
