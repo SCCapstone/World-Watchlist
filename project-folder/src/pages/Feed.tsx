@@ -60,32 +60,32 @@ class Feed extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props)
-    let aList : articleList = [];
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
+    let aList : any[] = [];
+    let cache : any[] = []
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         //gets the username of our user
         await db.collection("users").doc(auth.currentUser.uid).get().then(async doc => {
-          if(doc.data()) {
-            console.log('current user: ' + doc.data()!.username)
-          }
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid).onSnapshot(async (sub_list) => {
             this.setState({articles:[]})
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
-              console.log("current sub list: ", sub_list.data()!.subList)
+              console.log("subs",this.state.subs)
               for (var i = 0; i < this.state.subs.length; i++) {
+                aList = []
                 var articlesLocal = await Storage.get({key:this.state.subs[i]})
+                console.log(articlesLocal)
                 // check local storage if collection exist
                 if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0) {
                   console.log("local storage empty for", this.state.subs[i])
                   await NewsDB.collection(this.state.subs[i]).get()
                 .then(async (snapshot) => {
-                  snapshot.forEach(doc => {
+                  snapshot.forEach(async doc => {
                     if (doc.exists) {
                       let articleItem = doc.data();
-                      var html = articleItem.description;
+                      var html = articleItem.Description;
                       var a = document.createElement("a");
                       a.innerHTML = html;
                       var text = a.textContent || a.innerText || "";
@@ -96,14 +96,15 @@ class Feed extends React.Component<MyProps, MyState> {
                   })
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
-                  await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList) });
-
+                  await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
+                  this.setState({articles: [...this.state.articles, ...aList]})
                 })
                 } else {
-                  aList.push(JSON.parse(articlesLocal.value))
+                  this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
                   console.log("taking from capacitor cache")
                 }
               }
+              console.log("articles",this.state.articles)
 
             //   if (this.state.subs.length !== 0) {
             //     for (var i = 0; i < this.state.subs.length; i++) {
@@ -131,6 +132,7 @@ class Feed extends React.Component<MyProps, MyState> {
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
+        this.setState({articles: aList})
         // end of getting data from server
       }
     })
@@ -177,8 +179,8 @@ class Feed extends React.Component<MyProps, MyState> {
   //     </IonCard>
 
 
-  async toggleNewsModal(){
-    await this.setState({isSearchingModal: true})
+  toggleNewsModal(){
+    this.setState({isSearchingModal: true})
 
   }
 
@@ -190,7 +192,7 @@ class Feed extends React.Component<MyProps, MyState> {
         console.log("Enter a valid topic");
         this.setState({showSearchAlert:true})
       } else {
-        await this.toggleNewsModal()
+        this.toggleNewsModal()
         let aList : articleList = [];
         /* cache data on topic search */
         await NewsDB.collection(topic.toLowerCase()).get()
@@ -216,10 +218,11 @@ class Feed extends React.Component<MyProps, MyState> {
         snapshot.docChanges().forEach((change) => {
           if (change.doc.exists) {
             let articleItem = change.doc.data();
-            var html = articleItem.description;
+            var html = articleItem.Description;
             var a = document.createElement("a");
             a.innerHTML = html;
-            aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
+            var text = a.textContent || a.innerText || "";
+            aList.push({title: articleItem.Title, link: articleItem.Link, description: text})
           }
           this.setState({articlesSearched: aList})
         })
@@ -284,9 +287,10 @@ class Feed extends React.Component<MyProps, MyState> {
   })
     .then(async (response) => {
       const data = response.data
+      console.log(data)
       await data.items.forEach((articleItem: any) => {
         /* remove <a> html tag from description */
-        var html = articleItem.description;
+        var html = articleItem.Description;
         var a = document.createElement("a");
         a.innerHTML = html;
         var text = a.textContent || a.innerText || "";
@@ -296,7 +300,11 @@ class Feed extends React.Component<MyProps, MyState> {
         this.setState({articlesSearched: aList})
       } else {
         aList.forEach(async newsItem => {
-          await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title:newsItem.title, Link: newsItem.link, Description: newsItem.description});
+          var html = newsItem.description;
+          var a = document.createElement("a");
+          a.innerHTML = html;
+          var text = a.textContent || a.innerText || "";
+          await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title:newsItem.title, Link: newsItem.link, Description: text});
         })
         await this.addSubscription(topic.toLowerCase());
       }
