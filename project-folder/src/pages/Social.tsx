@@ -341,6 +341,9 @@ class Social extends React.Component<MyProps, MyState> {
         db.collection('friends').doc(auth.currentUser?.uid).update({
           friendsList: firebase.firestore.FieldValue.arrayUnion(targetUserId)
         })
+        db.collection('friends').doc(targetUserId).update({
+          friendsList: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid)
+        })
         //set unique friend uuid pair for messaging
         db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).set({
           uuid: uniqueFriendId,
