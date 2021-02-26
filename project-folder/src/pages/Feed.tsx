@@ -57,14 +57,14 @@ class Feed extends React.Component<FeedProps, FeedState> {
     isWeatherModalOpen:false,
     isSearchingModal:false,
     showSearchAlert:false,
-    showSubscribeAlert:false
+    showSubscribeAlert:false,
+    isChanging:false
   };
 
   constructor(props: FeedProps) {
     super(props)
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     let aList : any[] = [];
-    let cache : any[] = []
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         //gets the username of our user
@@ -72,18 +72,18 @@ class Feed extends React.Component<FeedProps, FeedState> {
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid)
           .onSnapshot(async (sub_list) => {
-            
             this.setState({articles:[]})
             if (sub_list.exists) {
+            
               this.setState({subs: await sub_list.data()!.subList});
-              
               console.log("subs",this.state.subs)
               for (var i = 0; i < this.state.subs.length; i++) {
+                /* Observe any changes in firestore and send a notification*/
+                await this.checkCollection(this.state.subs[i])
                 aList = []
                 var articlesLocal = await Storage.get({key:this.state.subs[i]})
-                console.log(articlesLocal)
-                // check local storage if collection exist
-                if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0) {
+                // check local storage if collection exist take from cache, if collection changes, get from server
+                if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
                   console.log("local storage empty for", this.state.subs[i])
                   await NewsDB.collection(this.state.subs[i]).get()
                 .then(async (snapshot) => {
@@ -99,20 +99,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
                       console.log("Cannot find anything in database.")
                     }
                   })
-                  // notify every time there is a new subscription that is not from cache or server
-                  if ((await LocalNotifications.requestPermission()).granted) {
-                    await LocalNotifications.schedule({
-                      notifications: [{
-                        title: 'New articles in your feed!',
-                        body: "Check them out!",
-                        id: 1,
-                        schedule: {
-                          at:new Date(new Date().getTime() + 1000),
-                          repeats:true
-                        }
-                      }]
-                    });
-                  }
+                  
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
                   await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
@@ -120,30 +107,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
                 })
                 } else {
                   this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
-                  console.log("taking from capacitor cache")
+                  // console.log("taking from capacitor cache")
                 }
               }
-              console.log("articles",this.state.articles)
-
-            //   if (this.state.subs.length !== 0) {
-            //     for (var i = 0; i < this.state.subs.length; i++) {
-            //     await NewsDB.collection(this.state.subs[i]).get()
-            //     .then((snapshot) => {
-            //       snapshot.forEach(async doc => {
-            //         if (doc.exists) {
-            //           let articleItem = doc.data();
-            //           aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description})
-            //         } else {
-            //           console.log("Cannot find anything in database.")
-            //         }
-            //       })
-            //       var source = snapshot.metadata.fromCache ? "local cache" : "server";
-            //       console.log("Sub Articles came from " + source);
-            //     }).catch(function(error) {
-            //       console.log("Error getting document:", error);
-            //     })
-            //   }
-            // }
+              // console.log("articles",this.state.articles)
             } else {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
             }
@@ -151,12 +118,15 @@ class Feed extends React.Component<FeedProps, FeedState> {
         }).catch(function(error) {
             console.log("Error getting document:", error);
         });
-        this.setState({articles: aList})
         // end of getting data from server
+        
       }
+     
     })
+    
+    
   }
-
+  
   getId() {
     // return user_id if current user else null
     return auth.currentUser?.uid;
@@ -165,6 +135,35 @@ class Feed extends React.Component<FeedProps, FeedState> {
   toggleWeatherModal() {
     this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
   }
+
+  async checkCollection(collection:string){
+    var observer = NewsDB.collection(collection).where('Title', '!=', '')
+    .onSnapshot(querySnapshot => {
+      querySnapshot.docChanges().forEach( async change => {
+        // if there are changes to the metadata, clear cache and add new docs to the 
+        if (change.doc.metadata.fromCache === false) {
+          this.clear()
+          this.setState({isChanging:!this.state.isChanging})
+          console.log("test",this.state.isChanging)
+          // send notification for every changes in collection
+        if ((await LocalNotifications.requestPermission()).granted) {
+          await LocalNotifications.schedule({
+            notifications: [{
+              title: 'New articles in your feed!',
+              body: "Check them out!",
+              id: 1,
+              schedule: {
+                at:new Date(new Date().getTime() + 1000)
+              }
+            }]
+          });
+        }
+      }
+      });
+    });
+  }
+
+  
 
   /*clear capacitor local storage */
   async clear() {
@@ -183,24 +182,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
       await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
     }
   }
-
-  // ParentComponent = (props:any) => (
-  //   <div>
-  //     <div id="children-pane">
-  //       {props.children}
-  //     </div>
-  //   </div>
-  // );
-
-  // ChildComponent = (props: {subscription:any, index:any}) =>
-  // <IonCard>
-  //       <IonCardHeader >
-  //         <IonCardTitle>{props.subscription}</IonCardTitle>
-  //         </IonCardHeader>
-  //         <IonCardContent>
-  //         <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.subscription,props.index)}>unsubscribe</IonButton>
-  //         </IonCardContent>
-  //     </IonCard>
 
 
   toggleNewsModal(){
@@ -224,17 +205,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
         if (snapshot.empty) {
           // searching through api and sending to firestore instead of searching in main collection
           await this.apiSearch(topic, 'search')
-        /* Searching topics based on string matching titles to input if a collection doesn't exist */
-          // console.log("can't find the collection, will search in all collection")
-          // var filtered = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
-          // if (filtered.length === 0) {
-          //   console.log("currently no news on", topic)
-          // } else {
-          //   filtered.forEach(filtered => {
-          //     aList.push({title: filtered.Title, link: filtered.Link, description: filtered.Description})
-          //   })
-          //   this.setState({articlesSearched: aList})
-          // }
+       
         } else {
         console.log("collection exist, will pull data from that collection")
 
@@ -267,20 +238,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
        /* Creating a new collection if topic collection doesn't exist and subscribing to it */
       if (snapshot.empty) {
         await this.apiSearch(topic, 'subscribe')
-        /* using this.state.allArticles called in constructor */
-      //   var filteredArticles = this.state.allArticles.filter(doc => doc.Title.toLowerCase().includes(topic.toLowerCase()))
-      //   if (this.state.locationBased === true) {
-      //     await this.apiSearch(topic, 'subscribe')
-      //   } else if (filteredArticles.length === 0) {
-      //     console.log("currently no news on that topic")
-      //   }
-      //   else {
-      //     filteredArticles.forEach(async filteredArticles => {
-      //       await NewsDB.collection(topic.toLowerCase()).doc(filteredArticles.Title).set({Title:filteredArticles.Title, Link: filteredArticles.Link, Description: filteredArticles.Description});
-      //     })
-      //   }
-      //   console.log("Making new collection called", topic, " and subscribing")
-      //   await this.addSubscription(topic.toLowerCase());
+       
       }
       else {
         console.log("News about "+ topic +" has been found and will be subscribed.")
@@ -310,7 +268,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     // https://api.rss2json.com/v1/api.json?rss_url=
   })
     .then(async (response) => {
-      const data = response.data
+      const data = await response.data
       console.log(data)
       await data.items.forEach((articleItem: any) => {
         /* remove <a> html tag from description */
@@ -337,30 +295,12 @@ class Feed extends React.Component<FeedProps, FeedState> {
     });
   }
 
-  // /* store news in 'all' collection into capicitor local storage on start to reduce reading*/
-  // async setMainCollection(){
-  //   let allNews: any[] = []
-  //   var allArticlesLocal = await Storage.get({key:'allArticles'})
-  //   if ((allArticlesLocal.value)?.length === undefined || JSON.parse((allArticlesLocal.value)).length === 0) {
-  //     NewsDB.collection('all').where("Title", "!=", " ")
-  //       .onSnapshot(async (snapshot) => {
-  //         snapshot.docChanges().forEach((change) => {
-  //           allNews.push(change.doc.data());
-  //         });
-  //         this.setState({allArticles:allNews})
-  //         var source = snapshot.metadata.fromCache ? "local cache" : "server";
-  //         console.log("Data came from " + source);
-  //         await Storage.set({ key: 'allArticles', value: JSON.stringify(allNews) });
-  //         console.log('Storing in local storage');
-  //       })
-  //     } else {
-  //       this.setState({allArticles:JSON.parse(allArticlesLocal.value)})
-  //       console.log('already in local storage')
-  //   }
-  // }
+
 
   // async componentDidMount() {
-  //   await this.setMainCollection()
+  //     setInterval(() => {    
+  //       this.clear()
+  //     },180000000)
   // }
 
   // async scheduleLocalNotifications() {
@@ -387,10 +327,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
 
   render() {
-    // const subs = [];
-    //   for (var i = 0; i < this.state.subs.length; i+=1) {
-    //     subs.push(<this.ChildComponent key={i} subscription={this.state.subs[i]} index={i} />);
-    // };
+    
     return (
     <IonPage>
       <IonHeader>
@@ -415,7 +352,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           </IonButton>
           </IonButtons>
         </IonToolbar> */}
-        <FeedToolbar clear={() => this.clear()}
+        <FeedToolbar 
          openWeather={() => this.setState({isWeatherModalOpen: true})} 
          showSubs={() => {this.setState({showSubscription: true})}}
          showModal={() => {this.setState({showModal: true})}}></FeedToolbar>

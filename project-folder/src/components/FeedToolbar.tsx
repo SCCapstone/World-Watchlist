@@ -1,10 +1,10 @@
 import { IonButton, IonButtons, IonIcon, IonTitle, IonToolbar } from '@ionic/react';
-import { notificationsCircleOutline, cloud, bookmarks, search } from 'ionicons/icons';
+import { cloud, bookmarks, search } from 'ionicons/icons';
 import React from 'react';
 
 
-function FeedToolbar (props: {clear: any, openWeather: any, showSubs: any, showModal: any}) {
-    let clearFunc = () => props.clear();
+function FeedToolbar (props: { openWeather: any, showSubs: any, showModal: any}) {
+    
     // let openWeather = () => props.openWeather();
     // let showSubs = () => props.showSubs();
     // let showModal = () => props.showModal();
@@ -12,11 +12,7 @@ function FeedToolbar (props: {clear: any, openWeather: any, showSubs: any, showM
     <IonTitle class='feedTitle'>
       Feed
     </IonTitle>
-    <IonButtons slot="start">
-    <IonButton onClick={props.clear}>
-    <IonIcon icon={notificationsCircleOutline} />
-    </IonButton>
-    </IonButtons>
+    
 <IonButtons slot="start">
     <IonButton onClick={props.openWeather}  fill='clear'>
         <IonIcon icon={cloud} />

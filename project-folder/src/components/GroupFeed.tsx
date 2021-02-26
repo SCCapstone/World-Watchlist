@@ -26,7 +26,8 @@ class GroupFeed extends Feed {
       isWeatherModalOpen:false,
       isSearchingModal:false,
       showSearchAlert:false,
-      showSubscribeAlert:false
+      showSubscribeAlert:false,
+      isChanging:false
     };
   
     constructor(props: FeedProps) {
