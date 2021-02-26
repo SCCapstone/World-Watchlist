@@ -240,7 +240,7 @@ class GroupView extends React.Component<MyProps, MyState> {
             {
               this.state.members.map((member) => {
                 return member.uid !== this.props.groupDetails!.owner ?
-                  <IonItem>
+                  <IonItem key={member.uid}>
                     <IonTitle>
                       {member.displayName}
                     </IonTitle>

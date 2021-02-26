@@ -146,6 +146,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.toggleGroupModal = this.toggleGroupModal.bind(this);
     this.toggleAddFriendModal = this.toggleAddFriendModal.bind(this);
     this.togglePendingRequestsModal = this.togglePendingRequestsModal.bind(this);
+    this.addFriendToGroup = this.addFriendToGroup.bind(this);
     //End Function Bindings
 
     //Begin firebase data subscriptins
@@ -155,29 +156,36 @@ class Social extends React.Component<MyProps, MyState> {
         db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
           if(doc.data()) {
             //creates a subscription to our user's friends list
-            let unsubscribeFriendsList = db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').onSnapshot((collectionSnapshot) => {
-              this.setState({})
-              let friendArray : Friend[] = []
-              let unsubscribeFriendArray : any[] = []
-              collectionSnapshot.forEach(async (collectionDocument) => {
-                //this is where we will build the profiles to display
-                let unsubscribeIndividualFriend = db.collection('profiles').doc(collectionDocument.data().friend).onSnapshot(((friendDocument) => {
-                  let friend = {
-                    uuid: collectionDocument.data().uuid,
-                    uid: collectionDocument.data().friend,
-                    displayName: friendDocument.data()!.displayName,
-                    photo: friendDocument.data()!.photo
+
+            let unsubscribeFriendsList = db.collection('friends').doc(auth.currentUser?.uid).onSnapshot((friendsListSnapshot) => {
+            let friends : Friend[] = []
+            friendsListSnapshot.data()!.friendsList.map((friend : string) => {
+              db.collection('profiles').doc(friend).onSnapshot((profileSnapshot) => {
+                db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(friend).get().then((uuidDoc) => {
+
+                  let stateFriendsList = this.state.friendsList
+                  let friendObj = {
+                    photo: profileSnapshot.data()?.photo,
+                    displayName: profileSnapshot.data()!.displayName,
+                    uuid: uuidDoc.data()!.uuid,
+                    uid: friend
                   }
-                  friendArray.push(friend)
-                }))
-                unsubscribeFriendArray.push(unsubscribeIndividualFriend)
-              })
-              this.setState({
-                friendsList: friendArray,
-                unsubscribeFriendsList: unsubscribeFriendsList,
-                unsubscribeIndiviudalFriends: unsubscribeFriendArray
+                  let sentinel = true
+                  stateFriendsList.map((stateFriend, index) => {
+                    if(stateFriendsList[index].uid === friendObj.uid) {
+                      stateFriendsList[index] = friendObj
+                      sentinel = false
+                    }
+
+                  })
+                  if(sentinel) {
+                    stateFriendsList.push(friendObj)
+                  }
+                  this.setState({friendsList: stateFriendsList})
+                })
               })
             })
+          })
 
             // create subscription to user's blocked users list
             this.state.unsubscribeBlockedUsers = db.collection('blockedUsers').doc(auth.currentUser?.uid).onSnapshot((snapshot) => {
@@ -242,7 +250,6 @@ class Social extends React.Component<MyProps, MyState> {
             })
 
             this.setState({
-              unsubscribeFriendsList: unsubscribeFriendsList,
               unsubscribeIncomingRequests: unsubscribeIncomingRequests,
               unsubscribeOutgoingRequests: unsubscribeOutgoingRequests
             })
@@ -330,6 +337,9 @@ class Social extends React.Component<MyProps, MyState> {
         })
         db.collection('incomingFriendRequests').doc(auth.currentUser?.uid).update({
           incomingFriendRequests: firebase.firestore.FieldValue.arrayRemove(targetUserId),
+        })
+        db.collection('friends').doc(auth.currentUser?.uid).update({
+          friendsList: firebase.firestore.FieldValue.arrayUnion(targetUserId)
         })
         //set unique friend uuid pair for messaging
         db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).set({
