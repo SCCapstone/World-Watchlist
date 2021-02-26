@@ -5,6 +5,7 @@ const express = require('express')
 const app = express()
 var f = require("./scraper.js");
 const cors = require('cors');
+const request = require('request');
 const { getArticles } = require('./scraper.js');
 app.use(cors())
 var config = {
@@ -52,12 +53,13 @@ async function writeDoc(articles, collection_name) {
               Link: urlLink
           })
         }
-  return 0
+  return null
 }
 
 
 /* go through rss feed and get article information*/
 async function getRSS(url, collection_name) {
+  try {
   await axios.get(url).then(
     async (response) => {
       let article_info = [];
@@ -74,13 +76,15 @@ async function getRSS(url, collection_name) {
         temp = new f.article(title, description, link);
         article_info.push(temp);
       }
-      await Promise.all(article_info);
       // console.log(article_info)
       await writeDoc(article_info, collection_name);
     }).catch((error) => {
       console.log(error);
     })
-    return 0;
+    return null
+  }catch (error) {
+    console.log(Object.keys(error), error.message); 
+  }
 }
 
 /* deletes old news and add new news to firebase */
@@ -111,14 +115,15 @@ async function sports_feed() {
 async function politics_feed() {
   url = "https://www.politico.com/rss/politicopicks.xml";
   await getRSS(url, "politics");
-  return 0
+  return null
 }
 
 /* gets the name of each collection and updates its */
 async function all_feed() {
   collectionArr = []
+  try {
   await db.listCollections()
-  .then(async snapshot=>{
+  .then(async snapshot=> {
       snapshot.forEach(async snaps=>{
         await collectionArr.push(snaps["_queryOptions"].collectionId);  // GET LIST OF ALL COLLECTIONS
       })
@@ -127,22 +132,50 @@ async function all_feed() {
   .catch(error=>console.log(error));
   // url = "https://news.google.com/rss/search?q="+
   console.log(collectionArr)
-  await collectionArr.forEach(async collectionID => {
-    await clearCollection('collectionID')
+  collectionArr.forEach(async collectionID => {
+    await deleteCollection(db,collectionID,500)
     url = "https://news.google.com/rss/search?q="+collectionID
     await getRSS(url, collectionID)
   })
-  return 0
+  return null
+  }catch (error) {
+    console.log(Object.keys(error), error.message); 
+  }
 }
 
-async function clearCollection(path) {
-  const ref = db.collection(path)
-  ref.onSnapshot((snapshot) => {
-    snapshot.docs.forEach(async (doc) => {
-      await ref.doc(doc.id).delete()
-    })
-  })
-  return 0
+
+// deleting old news.
+async function deleteCollection(db, collectionPath, batchSize) {
+  const collectionRef = db.collection(collectionPath);
+  const query = collectionRef.orderBy('__name__').limit(batchSize);
+
+  return new Promise((resolve, reject) => {
+    deleteQueryBatch(db, query, resolve).catch(reject);
+  });
+}
+
+async function deleteQueryBatch(db, query, resolve) {
+  const snapshot = await query.get();
+
+  const batchSize = snapshot.size;
+  if (batchSize === 0) {
+    // When there are no documents left, we are done
+    resolve();
+    return;
+  }
+
+  // Delete documents in a batch
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+
+  // Recurse on the next process tick, to avoid
+  // exploding the stack.
+  process.nextTick(() => {
+    deleteQueryBatch(db, query, resolve);
+  });
 }
 
 
@@ -158,9 +191,11 @@ async function thisInterval() {
   console.log("Sending to firestore.")
 }
 
-/* function schedules invocation every 8 hours. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} */
-exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun(async (context) => {
-  await all_feed()
-  console.log("all deleted and updated.")
+
+// function schedules invocation every 8 hours. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
+exports.scheduledFunction = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
+  console.log("deleting current collections and updating.")
+  return await all_feed()
+  
 })
 exports.app = functions.https.onRequest(app)
