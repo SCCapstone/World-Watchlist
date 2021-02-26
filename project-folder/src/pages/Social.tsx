@@ -147,6 +147,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.toggleAddFriendModal = this.toggleAddFriendModal.bind(this);
     this.togglePendingRequestsModal = this.togglePendingRequestsModal.bind(this);
     this.addFriendToGroup = this.addFriendToGroup.bind(this);
+    this.generateRandomString = this.generateRandomString.bind(this);
     //End Function Bindings
 
     //Begin firebase data subscriptins
@@ -303,9 +304,18 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
+  generateRandomString(length: number) {
+    var text = '';
+    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_~';
+    for (var i = 0; i < length; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
+
   async generateUniqueFriendId() : Promise<string> {
   let generateUniqueFriendIdPromise = new Promise<string>((resolve, reject) => {
-      let code = (Math.random()).toString(13);
+      let code = this.generateRandomString(50)
       db.collection('friendIds').doc(code).get().then((doc) => {
         if(!doc.exists) {
           db.collection('friendIds').doc(code).set({
@@ -323,9 +333,33 @@ class Social extends React.Component<MyProps, MyState> {
         }
       })
     })
-
     return await generateUniqueFriendIdPromise
   }
+
+  async generateUniqueGroupId() : Promise<string> {
+    let generateUniqueGroupIdPromise = new Promise<string>((resolve, reject) => {
+        let code = this.generateRandomString(50)
+        db.collection('groudIds').doc(code).get().then((doc) => {
+          if(!doc.exists) {
+            db.collection('groupIds').doc(code).set({
+              inUse: true
+            })
+            resolve(code)
+          } else {
+            if(!doc.data()?.inUse) {
+              db.collection('groupIds').doc(code).set({
+                inUse: true
+              })
+            } else {
+              this.generateUniqueGroupId()
+            }
+          }
+        })
+      })
+
+      return await generateUniqueGroupIdPromise
+  }
+
   acceptFriend(targetUserId: string) {
     //accepts a friend request from a user
     //generates a friend UUID that can uniquely identify this friend pair
@@ -353,6 +387,7 @@ class Social extends React.Component<MyProps, MyState> {
           uuid: uniqueFriendId,
           friend: auth.currentUser?.uid
         })
+        this.realtime_db.ref(uniqueFriendId).push({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
       })
     }
   }
@@ -398,31 +433,6 @@ class Social extends React.Component<MyProps, MyState> {
     return username !== "" //&& db.collection('usernames').doc(username) !== undefined
   }
 
-  async generateUniqueGroupId() : Promise<string> {
-    let generateUniqueGroupIdPromise = new Promise<string>((resolve, reject) => {
-        let code = (Math.random()).toString(13);
-        db.collection('groudIds').doc(code).get().then((doc) => {
-          if(!doc.exists) {
-            db.collection('groupIds').doc(code).set({
-              inUse: true
-            })
-            resolve(code)
-          } else {
-            if(!doc.data()?.inUse) {
-              db.collection('groupIds').doc(code).set({
-                inUse: true
-              })
-            } else {
-              this.generateUniqueGroupId()
-            }
-          }
-        })
-      })
-
-      return await generateUniqueGroupIdPromise
-  }
-
-
   createGroup() {
     this.generateUniqueGroupId().then((code) => {
       db.collection('groups').doc(code).set({
@@ -435,7 +445,9 @@ class Social extends React.Component<MyProps, MyState> {
       db.collection('profiles').doc(auth.currentUser?.uid).update({
         groups: firebase.firestore.FieldValue. arrayUnion(code),
       })
+      this.realtime_db.ref(code).push({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
     })
+
   }
 
   leaveGroup() {
