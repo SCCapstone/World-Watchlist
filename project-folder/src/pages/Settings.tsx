@@ -35,10 +35,11 @@ import './Settings.css'
 
 type MyState = {
   isBlockSourceModalOpen:boolean;
+  isAccountSettingsModalOpen:boolean;
   isChangePasswordModalOpen:boolean;
   isChangeUsernameModalOpen:boolean;
   isSignOutModalOpen:boolean;
-  test:boolean;
+  signOutAlert:boolean;
   blockedSources:string[];
   topics:[];
   currentUserName:string;
@@ -61,8 +62,9 @@ class Settings extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     isBlockSourceModalOpen: false,
+    isAccountSettingsModalOpen:false,
     isChangePasswordModalOpen: false,
-    test:false,
+    signOutAlert:false,
     isChangeUsernameModalOpen: false,
     isSignOutModalOpen: false,
     blockedSources: [],
@@ -81,20 +83,23 @@ class Settings extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props);
+    console.log("Here" + this.state.currentUserName);
     this.handleChange = this.handleChange.bind(this);
      //this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
 
         if(auth.currentUser) { // gets the name of the current user
-          db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+          db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
-              this.setState({currentUserName: doc.data()!.username})
-              var temp= db.collection('topicSubscription').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
+              this.setState({currentUserName: doc.data()!.displayName})
+              var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
                  //this.setState({blockedSources: snapshot.data()!.blockedSources})
-                 this.setState({topics: snapshot.data()!.subList})
+               //  this.setState({topics: snapshot.data()!.subList})
+                // this.setState({currentUserName: snapshot.data()!.displayName})
                 }
               })
+            
             }
           })
 
@@ -103,6 +108,7 @@ class Settings extends React.Component<MyProps, MyState> {
           this.props.history.push("/landing")
 
        this.pullImage();
+       console.log("I'm here " + this.state.currentUserName);
   }
 
 
@@ -278,15 +284,19 @@ changePassword(password:string) {
 
   changeUsername(newName:string) {
     if(this.state.currentUserName!=undefined&& newName.length > 3) { //makes sure the source is a valid site and isn't blank
-      db.collection('usernames').doc(this.state.currentUserName).get().then(document => { //works for one specific user currently
+      db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => { //works for one specific user currently
       if(document.exists) {
-        db.collection('usernames').doc(this.state.currentUserName).update({
-          "username.firebase" : newName
+        db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+          displayName:newName,
+         
+
         })
+        this.setState({currentUserName : newName});
 
       }
     })
   }
+
     }
 
 
@@ -482,31 +492,75 @@ isValidSite(siteName:string) {
         </IonContent>
 
       </IonModal>
-      <IonModal isOpen={this.state.isSignOutModalOpen}>
+      <IonModal isOpen={this.state.isAccountSettingsModalOpen}>
         <IonHeader>
           <IonToolbar class='settingsToolbar2'>
             <IonButtons>
-              <IonButton onClick={() => {this.setState({isSignOutModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonButton onClick={() => {this.setState({isAccountSettingsModalOpen: false})}} id='toBlock' fill='clear'>
               <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
               </IonButton>
             </IonButtons>
 
             <IonTitle class='settingsTitle2'>
-              Sign Out
+              Account Settings
             </IonTitle>
             </IonToolbar>
           </IonHeader>
         <IonContent>
+        <IonItem id ='changeUsername'>
+
+            Sign Out
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({signOutAlert:true})}} fill='clear'>
+
+              <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
+              </IonButton>
+              <IonAlert
+          isOpen= {this.state.signOutAlert}
+          onDidDismiss={() => this.setState({signOutAlert:false})}
+          
+          header={'Are you sure you want to sign out?'}
+         
+          
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              cssClass: 'secondary',
+              handler: blah => {
+                console.log('Confirm Cancel: blah');
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                {this.signOutUser();
+                  this.setState({isAccountSettingsModalOpen:false})
+
+                };
+              }
+            }
+          ]}
+        />
+              </IonButtons>
+              </IonItem>
         <IonItem lines='none' id='block'>
-          <IonHeader> Are you sure you want to sign out? </IonHeader>
+          <IonHeader>  </IonHeader>
           <br/>
           </IonItem>
           <IonItem>
           
-          <IonButton onClick={() => {this.setState({test:true})}}  fill='clear' placeholder='Enter new password'>
-            <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
-          </IonButton>
+          
         </IonItem>
+        <IonItem id ='changeUsername'>
+            Change Display Name
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} fill='clear'>
+
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
+              </IonButton>
+              </IonButtons>
+              </IonItem>
 
         </IonContent>
       </IonModal>
@@ -517,9 +571,12 @@ isValidSite(siteName:string) {
             </IonTitle>
           </IonToolbar>
         </IonHeader>
+        <IonItem>
         <IonAvatar>
           <img id = 'myimg' />
         </IonAvatar>
+        {this.state.currentUserName}
+        </IonItem>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
             <IonToggle onClick={(()=> {if(isPushAvailable) this.push()})} value="Notifications" />
@@ -571,41 +628,15 @@ isValidSite(siteName:string) {
 
         </IonButtons>
           </IonItem>
-            <IonItem id ='changeUsername'>
+            
 
-            Sign Out
+              <IonItem id ='changeUsername'>
+            Account Settings
           <IonButtons slot='end'>
-            <IonButton onClick={() => {this.setState({test:true})}} fill='clear'>
+            <IonButton onClick={() => {this.setState({isAccountSettingsModalOpen: true})}} fill='clear'>
 
-              <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
               </IonButton>
-              <IonAlert
-          isOpen= {this.state.test}
-          onDidDismiss={() => this.setState({test:false})}
-          
-          header={'Are you sure you want to sign out?'}
-         
-          
-          buttons={[
-            {
-              text: 'No',
-              role: 'cancel',
-              cssClass: 'secondary',
-              handler: blah => {
-                console.log('Confirm Cancel: blah');
-              }
-            },
-            {
-              text: 'Yes',
-              handler: () => {
-                {this.signOutUser();
-                  this.setState({isSignOutModalOpen:false})
-
-                };
-              }
-            }
-          ]}
-        />
               </IonButtons>
               </IonItem>
 
