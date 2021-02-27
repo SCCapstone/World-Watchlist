@@ -15,13 +15,16 @@ interface MessageProps {
 
 function Message(props: MessageProps) {
     return (
+      <div>
+      <IonLabel position='stacked'>{props.sender}</IonLabel>
       <IonItem>
         <IonAvatar slot="start">
           <img src={props.photo !== '' ? props.photo : Placeholder} />
         </IonAvatar>
-        <IonLabel>{props.sender}</IonLabel>
+
         <IonLabel>{props.content}</IonLabel>
       </IonItem>
+      </div>
     );
 }
 export default Message;

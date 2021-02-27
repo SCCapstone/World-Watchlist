@@ -36,13 +36,47 @@
 }
 
 #fileSelect {
-
   opacity:0;
-  
-float:right;
-width:30px;
-position:absolute;
- 
+  float:right;
+  width:30px;
+  position:absolute;
+}
 
- 
+.groupViewMessageBox {
+  border-top: 1px solid black;
+  height: 50px;
+  position: fixed;
+  bottom: 15px;
+  width: 100%;
+  display: flex;
+  background-color: #ffffff;
+  color: black;
+}
+
+.groupViewMessageSend {
+
+}
+
+.groupViewMessageButton {
+  margin-top: 0px;
+  margin-right: 0px;
+  height: 100%;
+}
+
+.groupViewMessageInput {
+  background-color: white;
+  font-size: 20px;
+  color: black;
+}
+
+.bottomSpaceFiller {
+  background-color: #eeeeee;
+  height: 15px;
+  bottom: 0;
+  width: 100%;
+  position: fixed;
+}
+
+.groupViewMessageContainer {
+  --background: #fff;
 }

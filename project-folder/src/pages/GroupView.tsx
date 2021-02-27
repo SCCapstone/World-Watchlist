@@ -30,8 +30,11 @@ import {
   pencilOutline,
   checkmarkOutline,
   cloudUploadOutline,
-  addOutline
+  addOutline,
+  sendOutline
 } from 'ionicons/icons'
+
+import Message from '../components/Message'
 
 type MyState = {
   articles: any,
@@ -43,7 +46,11 @@ type MyState = {
   isNicknameReadOnly: boolean,
   tempNickname: string,
   members: Member[],
-  owner: Member | undefined
+  owner: Member | undefined,
+  messages: any[],
+  photoDictionary: any,
+  currentMessage: string,
+  nameDictionary: any
 }
 
 type MyProps = {
@@ -55,7 +62,7 @@ type MyProps = {
   leaveGroup: () => void,
   deleteGroup: () => void,
   friendList: Friend[],
-  addFriendToGroup: (friend : string, group: string) => void
+  addFriendToGroup: (friend : string, group: string) => void,
 }
 
 type GroupType = {
@@ -79,6 +86,7 @@ type Member = {
   photo: string;
 }
 
+
 class GroupView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
@@ -91,9 +99,13 @@ class GroupView extends React.Component<MyProps, MyState> {
     isNicknameReadOnly: true,
     tempNickname: this.props.groupDetails.nickname,
     members: [],
-    owner: {uid: '', displayName: '', photo: ''}
+    owner: {uid: '', displayName: '', photo: ''},
+    messages: [],
+    photoDictionary: {},
+    currentMessage: '',
+    nameDictionary: {}
   };
-
+  realtime_db = firebase.database();
   constructor(props: MyProps) {
     super(props)
     this.pullImage()
@@ -109,6 +121,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           displayName: document.data()!.displayName,
           uid: memberUid
         }
+
         members.push(member)
         if(memberUid === this.props.groupDetails.owner) {
           this.setState({
@@ -118,13 +131,17 @@ class GroupView extends React.Component<MyProps, MyState> {
       })
     })
     this.setState({
-      members: members
+      members: members,
     })
   }
 
   componentDidUpdate(prevProps: MyProps) {
     if(prevProps.groupDetails.members.length !== this.props.groupDetails.members.length) {
       let members : Member[] = []
+      let photoDictionary : any = new Object()
+      photoDictionary["World-Watchlist"] = "https://firebasestorage.googleapis.com/v0/b/worldwatchlist.appspot.com/o/images%2Fearth.jpg?alt=media&token=8dfce470-5dac-4126-b3d2-4f3d42a07b8a"
+      let nameDictionary : any = new Object()
+      nameDictionary["World-Watchlist"] = "World-Watchlist"
       this.props.groupDetails.members.forEach(memberUid => {
         db.collection('profiles').doc(memberUid).get().then((document) => {
           let member : Member = {
@@ -133,6 +150,10 @@ class GroupView extends React.Component<MyProps, MyState> {
             uid: memberUid
           }
           members.push(member)
+          photoDictionary[member.uid] = member.photo
+          nameDictionary[member.uid] = member.displayName
+          console.log(photoDictionary[member.uid])
+          console.log(nameDictionary[member.uid])
           if(memberUid === this.props.groupDetails.owner) {
             this.setState({
               owner: member
@@ -141,7 +162,18 @@ class GroupView extends React.Component<MyProps, MyState> {
         })
       })
       this.setState({
-        members: members
+        members: members,
+        photoDictionary: photoDictionary,
+        nameDictionary: nameDictionary
+      })
+    }
+    if(prevProps.groupDetails.id !== this.props.groupDetails.id) {
+      this.setState({messages: []})
+      let messages : any[] = []
+      this.realtime_db.ref(this.props.groupDetails.id).orderByKey().on('child_added', (snapshot) => {
+        messages.push({...snapshot.val(), key: snapshot.key})
+        console.log({...snapshot.val(), key: snapshot.key})
+        this.setState({messages: messages})
       })
     }
   }
@@ -208,6 +240,14 @@ class GroupView extends React.Component<MyProps, MyState> {
         this.pullImage();
 
     }
+  }
+
+  sendMessage() {
+    let timestamp = Date.now()
+    this.realtime_db.ref(this.props.groupDetails.id).child(timestamp.toString()).set({message: this.state.currentMessage, sender: auth.currentUser?.uid})
+    this.setState({
+      currentMessage: ''
+    })
   }
 
 
@@ -388,6 +428,18 @@ class GroupView extends React.Component<MyProps, MyState> {
               <IonTitle>{this.props.groupDetails ? this.props.groupDetails.nickname : undefined}</IonTitle>
             </IonToolbar>
           </IonHeader>
+          <IonContent className='groupViewMessageContainer'>
+          {this.state.messages.map((message) => {
+            return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
+          })}
+            <div className='groupViewMessageBox'>
+              <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='groupViewMessageInput' />
+              <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='groupViewMessageButton'>
+                <IonIcon slot="icon-only" className='groupViewMessageSend' icon={sendOutline} />
+              </IonButton>
+            </div>
+            <div className='bottomSpaceFiller' />
+          </IonContent>
         </IonModal>
       </div>
     )

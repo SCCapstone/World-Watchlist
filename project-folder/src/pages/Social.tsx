@@ -64,6 +64,7 @@ type MyState = {
   unsubscribeOutgoingRequests: any;
   segmentSelected: string | undefined;
   unsubscribeIndiviudalFriends: any[];
+  activeMessages: any[]
 }
 
 type MyProps = {
@@ -110,7 +111,7 @@ class Social extends React.Component<MyProps, MyState> {
       members: [],
       id: '',
       profilePicture: '',
-      owner: ''
+      owner: '',
     },
     isGroupModalOpen: false,
     unsubscribeFriendsList: () => {},
@@ -118,7 +119,8 @@ class Social extends React.Component<MyProps, MyState> {
     unsubscribeIncomingRequests: () => {},
     unsubscribeOutgoingRequests: () => {},
     unsubscribeIndiviudalFriends: [],
-    segmentSelected: 'groups'
+    segmentSelected: 'groups',
+    activeMessages: []
   };
 
 
@@ -387,7 +389,8 @@ class Social extends React.Component<MyProps, MyState> {
           uuid: uniqueFriendId,
           friend: auth.currentUser?.uid
         })
-        this.realtime_db.ref(uniqueFriendId).push({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
+        let timestamp = Date.now()
+        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
       })
     }
   }
@@ -445,7 +448,8 @@ class Social extends React.Component<MyProps, MyState> {
       db.collection('profiles').doc(auth.currentUser?.uid).update({
         groups: firebase.firestore.FieldValue. arrayUnion(code),
       })
-      this.realtime_db.ref(code).push({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
+      let timestamp = Date.now()
+      this.realtime_db.ref(code).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
     })
 
   }
