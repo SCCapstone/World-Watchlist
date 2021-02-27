@@ -32,7 +32,7 @@ class GroupFeed extends Feed {
   
     constructor(props: FeedProps) {
       super(props)
-      let aList : articleList = [];
+      let aList : any = [];
       auth.onAuthStateChanged(async () => {
         if(auth.currentUser) {
           //gets the username of our user
@@ -61,7 +61,7 @@ class GroupFeed extends Feed {
                         var a = document.createElement("a"); 
                         a.innerHTML = html; 
                         var text = a.textContent || a.innerText || ""; 
-                        aList.push({title: articleItem.Title, link: articleItem.Link, description: text})
+                        aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate:articleItem.pubDate})
                       } else {
                         console.log("Cannot find anything in database.")
                       }

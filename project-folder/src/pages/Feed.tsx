@@ -94,12 +94,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
                       var a = document.createElement("a");
                       a.innerHTML = html;
                       var text = a.textContent || a.innerText || "";
-                      aList.push({title: articleItem.Title, link: articleItem.Link, description: text})
+                      aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
                     } else {
                       console.log("Cannot find anything in database.")
                     }
                   })
-                  
                   var source = snapshot.metadata.fromCache ? "local cache" : "server";
                   console.log("Sub Articles came from " + source);
                   await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
@@ -214,7 +213,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
             var a = document.createElement("a");
             a.innerHTML = html;
             var text = a.textContent || a.innerText || "";
-            aList.push({title: articleItem.Title, link: articleItem.Link, description: text})
+            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
           }
           this.setState({articlesSearched: aList})
         })
@@ -260,7 +259,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     let rssurl = "https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3D"+temp+"%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
     await axios({
       method: 'GET',
-      url:'https://api.rss2json.com/v1/api.json?rss_url='+rssurl
+      url:'https://api.rss2json.com/v1/api.json?rss_url='+rssurl+"&api_key=ygho9vm848pakf5b24oawteww7slkcj2ccgiu13w"
     // url: "https://send-rss-get-json.herokuapp.com/convert/?u="+"https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
     // https://api.rss2json.com/v1/api.json?rss_url=
     })
@@ -273,7 +272,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
         var a = document.createElement("a");
         a.innerHTML = html;
         var text = a.textContent || a.innerText || "";
-        aList.push({title: articleItem.title, link: articleItem.link, description: text})
+        var pathArray = articleItem.link.split( '/' );
+        var protocol = pathArray[0];
+        var host = pathArray[2];
+        var baseUrl = protocol + '//' + host;
+        aList.push({title: articleItem.title, link: articleItem.link, description: text, source: baseUrl, pubDate:articleItem.pubDate})
       })
       if (type==='search') {
         this.setState({articlesSearched: aList})
@@ -283,7 +286,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
           var a = document.createElement("a");
           a.innerHTML = html;
           var text = a.textContent || a.innerText || "";
-          await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title:newsItem.title, Link: newsItem.link, Description: text});
+          var pathArray = newsItem.link.split( '/' );
+          var protocol = pathArray[0];
+          var host = pathArray[2];
+          var baseUrl = protocol + '//' + host;
+          await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title: newsItem.title, Link: newsItem.link, Description: text, source: baseUrl, pubDate:newsItem.pubDate});
         })
         await this.addSubscription(topic.toLowerCase());
 

@@ -15,11 +15,19 @@ function Article(props: {theArticle: article}) {
       <meta httpEquiv="Cache-control" content="no-cache"></meta>
           <IonCardHeader>
             <IonCardTitle>{props.theArticle.title}</IonCardTitle>
+            <IonCardSubtitle>
+            {props.theArticle.pubDate}
+            </IonCardSubtitle>
           </IonCardHeader>
           <IonCardContent>
               {props.theArticle.description}
             </IonCardContent>
-            <IonCardContent><a onClick={()=>openURL(props.theArticle.link)}>source</a></IonCardContent>
+           
+            <IonCardContent>
+            news source: {props.theArticle.source}
+            <br></br>
+              <a onClick={()=>openURL(props.theArticle.link)}>link</a>
+              </IonCardContent>
         </IonCard>
 }
 
