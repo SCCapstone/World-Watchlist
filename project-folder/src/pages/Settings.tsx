@@ -512,7 +512,6 @@ isValidSite(siteName:string) {
             Sign Out
           <IonButtons slot='end'>
             <IonButton onClick={() => {this.setState({signOutAlert:true})}} fill='clear'>
-
               <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
               </IonButton>
               <IonAlert
@@ -544,14 +543,8 @@ isValidSite(siteName:string) {
         />
               </IonButtons>
               </IonItem>
-        <IonItem lines='none' id='block'>
-          <IonHeader>  </IonHeader>
-          <br/>
-          </IonItem>
-          <IonItem>
+        
           
-          
-        </IonItem>
         <IonItem id ='changeUsername'>
             Change Display Name
           <IonButtons slot='end'>
@@ -561,6 +554,16 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
+
+               <IonItem id ='updateEmail'>
+          Change Password
+        <IonButtons slot='end'>
+          <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
+
+            <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
+          </IonButton>
+          </IonButtons>
+          </IonItem>
 
         </IonContent>
       </IonModal>
@@ -591,27 +594,6 @@ isValidSite(siteName:string) {
           </IonButton>
         </IonButtons>
         </IonItem>
-
-        <IonItem id ='updateEmail'>
-          Change Password
-        <IonButtons slot='end'>
-          <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
-
-            <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
-          </IonButton>
-          </IonButtons>
-          </IonItem>
-
-          <IonItem id ='changeUsername'>
-            Change Username
-          <IonButtons slot='end'>
-            <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} fill='clear'>
-
-              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
-              </IonButton>
-              </IonButtons>
-              </IonItem>
-
 
                <IonItem id ='updateEmail'>
                Change Profile Picture
