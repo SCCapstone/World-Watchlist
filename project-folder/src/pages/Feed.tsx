@@ -107,10 +107,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
                 })
                 } else {
                   this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
-                  // console.log("taking from capacitor cache")
+                  console.log("taking from capacitor cache")
                 }
               }
-              // console.log("articles",this.state.articles)
+              console.log("articles",this.state.articles)
             } else {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
             }
@@ -138,28 +138,25 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   async checkCollection(collection:string){
     var observer = NewsDB.collection(collection).where('Title', '!=', '')
-    .onSnapshot(querySnapshot => {
-      querySnapshot.docChanges().forEach( async change => {
+    .onSnapshot(async querySnapshot => {
         // if there are changes to the metadata, clear cache and add new docs to the 
-        if (change.doc.metadata.fromCache === false) {
+        if (querySnapshot.metadata.fromCache === false) {
           this.clear()
-          this.setState({isChanging:!this.state.isChanging})
-          console.log("test",this.state.isChanging)
+          this.setState({isChanging:true})
+          if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
-        if ((await LocalNotifications.requestPermission()).granted) {
-          await LocalNotifications.schedule({
-            notifications: [{
-              title: 'New articles in your feed!',
-              body: "Check them out!",
-              id: 1,
-              schedule: {
-                at:new Date(new Date().getTime() + 1000)
-              }
-            }]
-          });
-        }
+            await LocalNotifications.schedule({
+              notifications: [{
+                title: 'New articles in your feed!',
+                body: "Check them out!",
+                id: 1,
+                schedule: {
+                  at:new Date(new Date().getTime() + 1000),
+                  repeats:false,
+                }
+              }]
+            });
       }
-      });
     });
   }
 
@@ -266,7 +263,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       url:'https://api.rss2json.com/v1/api.json?rss_url='+rssurl
     // url: "https://send-rss-get-json.herokuapp.com/convert/?u="+"https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
     // https://api.rss2json.com/v1/api.json?rss_url=
-  })
+    })
     .then(async (response) => {
       const data = await response.data
       console.log(data)
@@ -289,6 +286,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title:newsItem.title, Link: newsItem.link, Description: text});
         })
         await this.addSubscription(topic.toLowerCase());
+
       }
     }).catch((error) => {
       console.log(error)
