@@ -136,6 +136,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
     }).catch((error) => {
       console.log(error)
     });
+    this.setState({showLoading: false})
   }
 
   /* get latitude and longitude of location */
@@ -211,9 +212,9 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
         </IonButton>
         <IonLoading
         isOpen={this.state.showLoading}
-        onDidDismiss={() =>  this.subscribe(this.state.lat, this.state.long) && this.setState({showLoading: false})}
+        onDidDismiss={() =>  this.subscribe(this.state.lat, this.state.long)}
         message={'Getting data from API'}
-        duration={750}
+        duration={1000}
         />
 
       {/* <ParentComponent>

@@ -389,9 +389,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
        />
       <IonLoading
         isOpen={this.state.showLoading}
-        onDidDismiss={() => this.setState({showLoading: false})}
         message={'Loading...'}
-        duration={5000}
+        duration={7000}
       />
 
 

@@ -1,7 +1,13 @@
 import React from 'react';
 import { article } from './ArticleTypes';
-import './Article.css'
+import { Plugins } from '@capacitor/core';
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/react';
+import './Article.css'
+const { Browser } = Plugins;
+
+async function openURL(url:any){
+  await Browser.open({ url: url });
+}
 
 function Article(props: {theArticle: article}) {
     //console.log(props.theArticle);
@@ -13,7 +19,8 @@ function Article(props: {theArticle: article}) {
           <IonCardContent>
               {props.theArticle.description}
             </IonCardContent>
-            <IonCardContent><a href={props.theArticle.link}>source</a></IonCardContent>
+            <IonCardContent><a onClick={()=>openURL(props.theArticle.link)}>source</a></IonCardContent>
         </IonCard>
 }
+
 export default Article;

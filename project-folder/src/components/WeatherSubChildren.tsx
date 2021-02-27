@@ -3,7 +3,8 @@ import ParentComponent from './SubscriptionParent';
 import WeatherSubChild from './WeatherSubChild';
 
 function WeatherSubChildren(props: {subs: Array<any>, func: any}) {
-    let subs = props.subs.map((item, index) => {return <WeatherSubChild 
+    let subs = props.subs.map((item, index) => {return <WeatherSubChild
+        key={item.location} 
         weather_code={item.weather_code}
         temp={item.temp} location={item.location}
         index={index} func={props.func}></WeatherSubChild>})
