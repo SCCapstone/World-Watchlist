@@ -428,10 +428,12 @@ class GroupView extends React.Component<MyProps, MyState> {
               <IonTitle>{this.props.groupDetails ? this.props.groupDetails.nickname : undefined}</IonTitle>
             </IonToolbar>
           </IonHeader>
-          <IonContent className='groupViewMessageContainer'>
-          {this.state.messages.map((message) => {
-            return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
-          })}
+          <IonContent className='groupViewMessageContainer' scrollY={true}>
+          <div className='messageContainerDiv'>
+            {this.state.messages.map((message) => {
+              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
+            })}
+          </div>
             <div className='groupViewMessageBox'>
               <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='groupViewMessageInput' />
               <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='groupViewMessageButton'>

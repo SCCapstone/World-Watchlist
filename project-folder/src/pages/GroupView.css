@@ -80,3 +80,10 @@
 .groupViewMessageContainer {
   --background: #fff;
 }
+
+.messageContainerDiv {
+  position: fixed;
+  bottom: 65px;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
