@@ -1,5 +1,6 @@
 
 import firebase from 'firebase';
+
 var firebaseConfig = {
   apiKey: "AIzaSyCAmbJVaYRk_N6RBcg_VnH865_9FzstE_I",
   authDomain: "worldwatchlist.firebaseapp.com",

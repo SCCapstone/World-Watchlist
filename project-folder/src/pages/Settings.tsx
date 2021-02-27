@@ -1,8 +1,8 @@
 // Clay Mallory
-// File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86. I tried to implement this a few other ways that apparently work in Javascript, but not Typescript and this is the only solution I found
-import React from 'react';
+// File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86.
+import React, { useState } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { PushNotification, PushNotificationToken, PushNotificationActionPerformed } from '@capacitor/core';
+import { PushNotification, PushNotificationToken, PushNotificationActionPerformed, Capacitor, Plugins, CameraResultType, FilesystemDirectory} from '@capacitor/core';
 
 import {
   IonPage,
@@ -19,22 +19,29 @@ import {
   IonModal,
   IonInput,
   IonAvatar,
-  IonChip
+  IonChip,
+  IonAlert
 
 } from '@ionic/react'
 import firebase, {db, auth} from '../firebase'
-import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
-import { Capacitor, Plugins, CameraResultType, FilesystemDirectory } from '@capacitor/core';
+import {addCircleOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
  const { PushNotifications } = Plugins;
+ const { Toast } = Plugins;
  const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
+ const { FCMPlugin } = Plugins;
+
 
 
 type MyState = {
   isBlockSourceModalOpen:boolean;
+  isAccountSettingsModalOpen:boolean;
   isChangePasswordModalOpen:boolean;
   isChangeUsernameModalOpen:boolean;
+  isSignOutModalOpen:boolean;
+  signOutAlert:boolean;
   blockedSources:string[];
+  topics:[];
   currentUserName:string;
   sourceToBlock:string;
   sourceToUnBlock:string;
@@ -55,9 +62,13 @@ class Settings extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     isBlockSourceModalOpen: false,
+    isAccountSettingsModalOpen:false,
     isChangePasswordModalOpen: false,
+    signOutAlert:false,
     isChangeUsernameModalOpen: false,
+    isSignOutModalOpen: false,
     blockedSources: [],
+    topics:[],
     currentUserName :'',
     sourceToBlock:"",
     sourceToUnBlock:"",
@@ -72,35 +83,55 @@ class Settings extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props);
+    console.log("Here" + this.state.currentUserName);
     this.handleChange = this.handleChange.bind(this);
-     this.handleSubmit = this.handleSubmit.bind(this);
+     //this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
 
         if(auth.currentUser) { // gets the name of the current user
-          db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
+          db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
-              this.setState({currentUserName: doc.data()!.username})
-              var temp= db.collection('usernames').doc(this.state.currentUserName).onSnapshot((snapshot) => { //blockedSources not in firebase?
+              this.setState({currentUserName: doc.data()!.displayName})
+              var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
-                 this.setState({blockedSources: snapshot.data()!.blockedSources})
+                 //this.setState({blockedSources: snapshot.data()!.blockedSources})
+               //  this.setState({topics: snapshot.data()!.subList})
+                // this.setState({currentUserName: snapshot.data()!.displayName})
                 }
               })
+            
             }
           })
 
         }
+        else
+          this.props.history.push("/landing")
 
        this.pullImage();
+       console.log("I'm here " + this.state.currentUserName);
   }
 
 
 
-
+  async show() {
+  await Toast.show({
+    text: 'Hello!'
+  });
+}
 
   push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
-    console.log('here');
+    
     // Register with Apple / Google to receive push via APNS/FCM
+    console.log('here again');
     PushNotifications.register();
+    var temp = this.state.topics;
+
+    for(var i = 0; i < temp.length; i++) {
+      PushNotifications.register().then(()=> {
+        console.log("subscribed to" + temp[i]);
+        FCMPlugin.subscribeTo({topic:temp[i]})
+      }).catch((err)=>console.log(err));
+  }
 
     // On succcess, we should be able to receive notifications
     PushNotifications.addListener('registration',
@@ -218,9 +249,12 @@ changeEmail(newEmail: string) {
 }
 
 signOutUser() {
-  if ( auth.currentUser) {
+  if (auth.currentUser) {
     auth.signOut()
+    this.props.history.push("/landing")
   }
+  const alert = document.createElement('IonAlert');
+
 }
 
 changePassword(password:string) {
@@ -250,19 +284,18 @@ changePassword(password:string) {
 
   changeUsername(newName:string) {
     if(this.state.currentUserName!=undefined&& newName.length > 3) { //makes sure the source is a valid site and isn't blank
-      db.collection('usernames').doc(this.state.currentUserName).get().then(document => { //works for one specific user currently
+      db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => { //works for one specific user currently
       if(document.exists) {
-        db.collection('usernames').doc(this.state.currentUserName).update({
-          "username.firebase" : newName
+        db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+          displayName:newName,
+         
+
         })
+        this.setState({currentUserName : newName});
 
       }
     })
   }
-    }
-
-    handleSubmit(){
-
 
     }
 
@@ -316,32 +349,18 @@ changePassword(password:string) {
 
 
    uploadImage() {
-   // const i = document.getElementById('image')!.files[0];
     var y = React.createRef();
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
       var newPicRef = storageRef.child('images/new.jpg');
       var file = document.getElementById('image');
-     // var v = file.files;
       if(file!=null) {
       file.addEventListener('change', function(evt) {
         if(evt.target!=null) {
-     // let firstFile = evt.target.files[0] // upload the first file only
-      //let uploadTask = storageRef.put(firstFile)
       }
   })
   }
-
-
     }
-
-
-
-
-
-
-
-
 
 
 addToList(name:string) {
@@ -473,6 +492,81 @@ isValidSite(siteName:string) {
         </IonContent>
 
       </IonModal>
+      <IonModal isOpen={this.state.isAccountSettingsModalOpen}>
+        <IonHeader>
+          <IonToolbar class='settingsToolbar2'>
+            <IonButtons>
+              <IonButton onClick={() => {this.setState({isAccountSettingsModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
+              </IonButton>
+            </IonButtons>
+
+            <IonTitle class='settingsTitle2'>
+              Account Settings
+            </IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        <IonContent>
+        <IonItem id ='changeUsername'>
+
+            Sign Out
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({signOutAlert:true})}} fill='clear'>
+              <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
+              </IonButton>
+              <IonAlert
+          isOpen= {this.state.signOutAlert}
+          onDidDismiss={() => this.setState({signOutAlert:false})}
+          
+          header={'Are you sure you want to sign out?'}
+         
+          
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              cssClass: 'secondary',
+              handler: blah => {
+                console.log('Confirm Cancel: blah');
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                {this.signOutUser();
+                  this.setState({isAccountSettingsModalOpen:false})
+
+                };
+              }
+            }
+          ]}
+        />
+              </IonButtons>
+              </IonItem>
+        
+          
+        <IonItem id ='changeUsername'>
+            Change Display Name
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} fill='clear'>
+
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
+              </IonButton>
+              </IonButtons>
+              </IonItem>
+
+               <IonItem id ='updateEmail'>
+          Change Password
+        <IonButtons slot='end'>
+          <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
+
+            <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
+          </IonButton>
+          </IonButtons>
+          </IonItem>
+
+        </IonContent>
+      </IonModal>
         <IonHeader>
           <IonToolbar class='settingsToolbar'>
             <IonTitle class='settingsTitle'>
@@ -480,12 +574,15 @@ isValidSite(siteName:string) {
             </IonTitle>
           </IonToolbar>
         </IonHeader>
+        <IonItem>
         <IonAvatar>
           <img id = 'myimg' />
         </IonAvatar>
+        {this.state.currentUserName}
+        </IonItem>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
-            <IonToggle onClick={(()=> {console.log('here');if(isPushAvailable) this.push()})} value="Notifications" />
+            <IonToggle onClick={(()=> {if(isPushAvailable) this.push()})} value="Notifications" />
           </IonItem>
 
         <IonContent>
@@ -498,49 +595,33 @@ isValidSite(siteName:string) {
         </IonButtons>
         </IonItem>
 
-        <IonItem id ='updateEmail'>
-          Change Password
-        <IonButtons slot='end'>
-          <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
-
-            <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
-          </IonButton>
-          </IonButtons>
-          </IonItem>
-
-          <IonItem id ='changeUsername'>
-            Change Username
-          <IonButtons slot='end'>
-            <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} fill='clear'>
-
-              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
-              </IonButton>
-              </IonButtons>
-              </IonItem>
-
-
                <IonItem id ='updateEmail'>
                Change Profile Picture
                <IonButtons slot = 'end'>
 
                   <IonButton id = 'submit'>
 
-<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+        <input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
 
- <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
-</IonButton>
+       <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
+        </IonButton>
 
 
 
         </IonButtons>
           </IonItem>
-            <IonItem>
+            
 
+              <IonItem id ='changeUsername'>
+            Account Settings
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({isAccountSettingsModalOpen: true})}} fill='clear'>
 
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
+              </IonButton>
+              </IonButtons>
+              </IonItem>
 
-
-
-          </IonItem>
         </IonContent>
       </IonPage>
       )
