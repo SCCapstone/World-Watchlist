@@ -106,10 +106,11 @@ class GroupView extends React.Component<MyProps, MyState> {
     nameDictionary: {}
   };
   realtime_db = firebase.database();
+  anchorRef: React.RefObject<HTMLDivElement>;
   constructor(props: MyProps) {
     super(props)
     this.pullImage()
-
+    this.anchorRef = React.createRef()
   }
 
   componentDidMount() {
@@ -173,7 +174,10 @@ class GroupView extends React.Component<MyProps, MyState> {
       this.realtime_db.ref(this.props.groupDetails.id).orderByKey().on('child_added', (snapshot) => {
         messages.push({...snapshot.val(), key: snapshot.key})
         console.log({...snapshot.val(), key: snapshot.key})
+
         this.setState({messages: messages})
+        this.anchorRef.current!.scrollIntoView()
+
       })
     }
   }
@@ -408,7 +412,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           </IonContent>
         </IonPopover>
 
-        <IonModal swipeToClose={true} isOpen={this.props.isGroupModalOpen}>
+        <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isGroupModalOpen}>
           <IonHeader>
             <IonToolbar>
               <IonButtons slot = 'start'>
@@ -433,6 +437,8 @@ class GroupView extends React.Component<MyProps, MyState> {
             {this.state.messages.map((message) => {
               return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
             })}
+            <div className='groupViewAnchor'  />
+            <div className='groupViewAnchor2' ref={this.anchorRef} />
           </div>
             <div className='groupViewMessageBox'>
               <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='groupViewMessageInput' />
