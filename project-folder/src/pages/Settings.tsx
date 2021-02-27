@@ -1,8 +1,8 @@
 // Clay Mallory
-// File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86. I tried to implement this a few other ways that apparently work in Javascript, but not Typescript and this is the only solution I found
-import React from 'react';
+// File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86.
+import React, { useState } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { PushNotification, PushNotificationToken, PushNotificationActionPerformed } from '@capacitor/core';
+import { PushNotification, PushNotificationToken, PushNotificationActionPerformed, Capacitor, Plugins, CameraResultType, FilesystemDirectory} from '@capacitor/core';
 
 import {
   IonPage,
@@ -19,22 +19,28 @@ import {
   IonModal,
   IonInput,
   IonAvatar,
-  IonChip
+  IonChip,
+  IonAlert
 
 } from '@ionic/react'
 import firebase, {db, auth} from '../firebase'
-import {addCircleOutline, closeCircleOutline, newspaperOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
-import { Capacitor, Plugins, CameraResultType, FilesystemDirectory } from '@capacitor/core';
+import {addCircleOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
  const { PushNotifications } = Plugins;
+ const { Toast } = Plugins;
  const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
+ const { FCMPlugin } = Plugins;
+
 
 
 type MyState = {
   isBlockSourceModalOpen:boolean;
   isChangePasswordModalOpen:boolean;
   isChangeUsernameModalOpen:boolean;
+  isSignOutModalOpen:boolean;
+  test:boolean;
   blockedSources:string[];
+  topics:[];
   currentUserName:string;
   sourceToBlock:string;
   sourceToUnBlock:string;
@@ -56,8 +62,11 @@ class Settings extends React.Component<MyProps, MyState> {
   state: MyState = {
     isBlockSourceModalOpen: false,
     isChangePasswordModalOpen: false,
+    test:false,
     isChangeUsernameModalOpen: false,
+    isSignOutModalOpen: false,
     blockedSources: [],
+    topics:[],
     currentUserName :'',
     sourceToBlock:"",
     sourceToUnBlock:"",
@@ -73,34 +82,50 @@ class Settings extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-     this.handleSubmit = this.handleSubmit.bind(this);
+     //this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
 
         if(auth.currentUser) { // gets the name of the current user
           db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
               this.setState({currentUserName: doc.data()!.username})
-              var temp= db.collection('usernames').doc(this.state.currentUserName).onSnapshot((snapshot) => { //blockedSources not in firebase?
+              var temp= db.collection('topicSubscription').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
-                 this.setState({blockedSources: snapshot.data()!.blockedSources})
+                 //this.setState({blockedSources: snapshot.data()!.blockedSources})
+                 this.setState({topics: snapshot.data()!.subList})
                 }
               })
             }
           })
 
         }
+        else
+          this.props.history.push("/landing")
 
        this.pullImage();
   }
 
 
 
-
+  async show() {
+  await Toast.show({
+    text: 'Hello!'
+  });
+}
 
   push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
-    console.log('here');
+    
     // Register with Apple / Google to receive push via APNS/FCM
+    console.log('here again');
     PushNotifications.register();
+    var temp = this.state.topics;
+
+    for(var i = 0; i < temp.length; i++) {
+      PushNotifications.register().then(()=> {
+        console.log("subscribed to" + temp[i]);
+        FCMPlugin.subscribeTo({topic:temp[i]})
+      }).catch((err)=>console.log(err));
+  }
 
     // On succcess, we should be able to receive notifications
     PushNotifications.addListener('registration',
@@ -218,9 +243,12 @@ changeEmail(newEmail: string) {
 }
 
 signOutUser() {
-  if ( auth.currentUser) {
+  if (auth.currentUser) {
     auth.signOut()
+    this.props.history.push("/landing")
   }
+  const alert = document.createElement('IonAlert');
+
 }
 
 changePassword(password:string) {
@@ -259,11 +287,6 @@ changePassword(password:string) {
       }
     })
   }
-    }
-
-    handleSubmit(){
-
-
     }
 
 
@@ -316,32 +339,18 @@ changePassword(password:string) {
 
 
    uploadImage() {
-   // const i = document.getElementById('image')!.files[0];
     var y = React.createRef();
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
       var newPicRef = storageRef.child('images/new.jpg');
       var file = document.getElementById('image');
-     // var v = file.files;
       if(file!=null) {
       file.addEventListener('change', function(evt) {
         if(evt.target!=null) {
-     // let firstFile = evt.target.files[0] // upload the first file only
-      //let uploadTask = storageRef.put(firstFile)
       }
   })
   }
-
-
     }
-
-
-
-
-
-
-
-
 
 
 addToList(name:string) {
@@ -473,6 +482,34 @@ isValidSite(siteName:string) {
         </IonContent>
 
       </IonModal>
+      <IonModal isOpen={this.state.isSignOutModalOpen}>
+        <IonHeader>
+          <IonToolbar class='settingsToolbar2'>
+            <IonButtons>
+              <IonButton onClick={() => {this.setState({isSignOutModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonIcon id='closeBlockIcon' icon={arrowBackOutline}/>
+              </IonButton>
+            </IonButtons>
+
+            <IonTitle class='settingsTitle2'>
+              Sign Out
+            </IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        <IonContent>
+        <IonItem lines='none' id='block'>
+          <IonHeader> Are you sure you want to sign out? </IonHeader>
+          <br/>
+          </IonItem>
+          <IonItem>
+          
+          <IonButton onClick={() => {this.setState({test:true})}}  fill='clear' placeholder='Enter new password'>
+            <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
+          </IonButton>
+        </IonItem>
+
+        </IonContent>
+      </IonModal>
         <IonHeader>
           <IonToolbar class='settingsToolbar'>
             <IonTitle class='settingsTitle'>
@@ -485,7 +522,7 @@ isValidSite(siteName:string) {
         </IonAvatar>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
-            <IonToggle onClick={(()=> {console.log('here');if(isPushAvailable) this.push()})} value="Notifications" />
+            <IonToggle onClick={(()=> {if(isPushAvailable) this.push()})} value="Notifications" />
           </IonItem>
 
         <IonContent>
@@ -525,22 +562,53 @@ isValidSite(siteName:string) {
 
                   <IonButton id = 'submit'>
 
-<input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+        <input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
 
- <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
-</IonButton>
+       <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
+        </IonButton>
 
 
 
         </IonButtons>
           </IonItem>
-            <IonItem>
+            <IonItem id ='changeUsername'>
 
+            Sign Out
+          <IonButtons slot='end'>
+            <IonButton onClick={() => {this.setState({test:true})}} fill='clear'>
 
+              <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
+              </IonButton>
+              <IonAlert
+          isOpen= {this.state.test}
+          onDidDismiss={() => this.setState({test:false})}
+          
+          header={'Are you sure you want to sign out?'}
+         
+          
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              cssClass: 'secondary',
+              handler: blah => {
+                console.log('Confirm Cancel: blah');
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                {this.signOutUser();
+                  this.setState({isSignOutModalOpen:false})
 
+                };
+              }
+            }
+          ]}
+        />
+              </IonButtons>
+              </IonItem>
 
-
-          </IonItem>
         </IonContent>
       </IonPage>
       )

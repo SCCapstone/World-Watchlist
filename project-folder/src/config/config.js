@@ -1,4 +1,5 @@
 import firebase from 'firebase';
+
 var config = {
   apiKey: "AIzaSyCiQa3wPMFOp_PidtF-8arljaCT3XFMLhc",
   authDomain: "world-watchlist-server-8f86e.firebaseapp.com",
@@ -26,5 +27,7 @@ secondaryApp.firestore().enablePersistence()
           // ...
       }
   });
+
+  
 export const NewsDB = secondaryApp.firestore();
 export default secondaryApp;
