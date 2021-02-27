@@ -83,7 +83,23 @@
 
 .messageContainerDiv {
   position: fixed;
+  top: 60px;
+  width: 100%;
   bottom: 65px;
   overflow: auto;
   scroll-behavior: smooth;
+}
+
+.modalScroll {
+  overflow-y: scroll;
+}
+
+.groupViewAnchor {
+  background-color: white;
+  width: 100%;
+  height: 68px;
+}
+.groupViewAnchor2 {
+  background-color: red;
+  width: 100%;
 }
