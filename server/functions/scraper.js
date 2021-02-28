@@ -1,8 +1,10 @@
-function article(title, description, link, image) {
+function article(title, description, link, source, pubDate) {
     this.title = title;
     this.description = description;
     this.link = link;
-    this.image = image;
+    // this.image = image;
+    this.source = source;
+    this.pubDate = pubDate
 }
 
 // exporting functions and constructor
@@ -52,6 +54,21 @@ module.exports = {
             return null;
         }
         return title;
+    },
+    getDate: function(itemObj) {
+        let pubDate = null;
+        if ( "pubDate" in itemObj ) // check if item has title
+            itemObj = itemObj["pubDate"];
+        if( "_text" in itemObj) { // check item's child
+            pubDate = itemObj._text;
+        } else if ( "_cdata" in itemObj) {
+            pubDate = itemObj._cdata;
+        } 
+        else {
+            //console.log(itemObj);
+            return null;
+        }
+        return pubDate;
     },
     getLink: function(itemObj) {
         let link = null;

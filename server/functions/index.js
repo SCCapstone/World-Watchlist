@@ -2,12 +2,27 @@ const functions = require('firebase-functions');
 const axios = require('axios');
 var convert = require('xml-js');
 const express = require('express')
-const app = express()
 var f = require("./scraper.js");
-const cors = require('cors');
-const request = require('request');
+const bodyParser = require("body-parser");
+const cors = require('cors')({origin: true});
 const { getArticles } = require('./scraper.js');
-app.use(cors())
+
+
+
+
+const app = express();
+
+app.use(cors);
+
+app.get('/favicon.ico', function(req, res) { 
+  res.status(204);
+  res.end();    
+});
+
+
+app.use(express.json()) // for parsing application/json
+app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
 var config = {
   apiKey: "AIzaSyCiQa3wPMFOp_PidtF-8arljaCT3XFMLhc",
   authDomain: "world-watchlist-server-8f86e.firebaseapp.com",
@@ -23,7 +38,6 @@ nytimes: https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.
 bbc: http://feeds.bbci.co.uk/news/rss.xml
 */
 const admin = require('firebase-admin');
-const serviceAccount = require('./world-watchlist-server-8f86e-firebase-adminsdk-uzswz-478530228e.json');
 
 admin.initializeApp({
   config
@@ -40,6 +54,8 @@ async function writeDoc(articles, collection_name) {
         title = await articles[i].title.replace(/\//g, "-");
         description = await articles[i].description;
         urlLink = await articles[i].link;
+        source = await articles[i].source;
+        pubDate = await articles[i].pubDate
         /* replacing all forward slash with dash to avoid errors */
         // article_list.push({'Title': title, 'Description': description, 'Link': urlLink});
         // URL_ID = (urlLink.split('/').pop());
@@ -50,7 +66,9 @@ async function writeDoc(articles, collection_name) {
           {
               Title: title,
               Description: description,
-              Link: urlLink
+              Link: urlLink,
+              source: source,
+              pubDate: pubDate
           })
         }
   return null
@@ -73,7 +91,12 @@ async function getRSS(url, collection_name) {
         title = await f.getTitle(item);
         link = await f.getLink(item);
         description = await f.getDesc(item);
-        temp = new f.article(title, description, link);
+        var pathArray = link.split( '/' );
+        var protocol = pathArray[0];
+        var host = pathArray[2];
+        var baseUrl = protocol + '//' + host;
+        pubDate = await f.getDate(item)
+        temp = new f.article(title, description, link, baseUrl, pubDate);
         article_info.push(temp);
       }
       // console.log(article_info)
@@ -119,7 +142,30 @@ async function politics_feed() {
 }
 
 /* gets the name of each collection and updates its */
-async function all_feed() {
+async function updateALL() {
+  collectionArr = []
+  try {
+  await db.listCollections()
+  .then(async snapshot=> {
+      snapshot.forEach(async snaps=>{
+        await collectionArr.push(snaps["_queryOptions"].collectionId);  // GET LIST OF ALL COLLECTIONS
+      })
+    await Promise.all(collectionArr);
+  })
+  .catch(error=>console.log(error));
+  // url = "https://news.google.com/rss/search?q="+
+  console.log(collectionArr)
+  collectionArr.forEach(async collectionID => {
+    url = "https://news.google.com/rss/search?q="+collectionID
+    await getRSS(url, collectionID)
+  })
+  return null
+  }catch (error) {
+    console.log(Object.keys(error), error.message); 
+  }
+}
+
+async function deleteAll(){
   collectionArr = []
   try {
   await db.listCollections()
@@ -134,8 +180,7 @@ async function all_feed() {
   console.log(collectionArr)
   collectionArr.forEach(async collectionID => {
     await deleteCollection(db,collectionID,500)
-    url = "https://news.google.com/rss/search?q="+collectionID
-    await getRSS(url, collectionID)
+    
   })
   return null
   }catch (error) {
@@ -179,23 +224,65 @@ async function deleteQueryBatch(db, query, resolve) {
 }
 
 
-async function thisInterval() {
-  // await politics_feed()
-  // all_feed()
-  // health_feed();
-  // world_feed();
-  // technology_feed();
-  // gaming_feed();
-  // sports_feed();
-  // politics_feed();
-  console.log("Sending to firestore.")
-}
+// async function thisInterval() {
+//   await politics_feed()
+//   all_feed()
+//   health_feed();
+//   world_feed();
+//   technology_feed();
+//   gaming_feed();
+//   sports_feed();
+//   politics_feed();
+//   console.log("Sending to firestore.")
+// }
+
+// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
+
+// delete every 7 hours and 59 minute
 
 
-// function schedules invocation every 8 hours. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
-exports.scheduledFunction = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
-  console.log("deleting current collections and updating.")
-  return await all_feed()
-  
+// rsstojson api! get rss feed and return it INTO JSON! YES NOW WE DON'T have to USE AN API AND WORRY ABOUT LIMIT
+app.get('/:topic', async function(req,res)
+{
+  var result2 = null
+  var info2 = null
+  var topic = req.params.topic
+  var googleRSS = "https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
+  var article_info = [];
+  var title = link = description = image = date = null;
+  await axios.get(googleRSS).then(
+    async (response) => {
+      result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
+      info2 = await JSON.parse(result2);
+      // get 10 initially
+      for ( i = 0 ; i < 12 ; ++i ) {
+        item = info2.rss.channel.item[i];
+        title = await f.getTitle(item);
+        link = await f.getLink(item);
+        description = await f.getDesc(item);
+        var pathArray = link.split( '/' );
+        var protocol = pathArray[0];
+        var host = pathArray[2];
+        var baseUrl = protocol + '//' + host;
+        pubDate = await f.getDate(item)
+        temp = new f.article(title, description, link, baseUrl, pubDate);
+        article_info.push(temp);
+      }
+    }).catch((error) => {
+      console.log(error);
+    })
+    res.send(article_info)
 })
+
+exports.scheduledDelete = functions.pubsub.schedule('59 7 * * *').onRun(async (context) => {
+  console.log("deleting current collections and updating.")
+  await deleteAll()
+    
+})
+// // update right after every 8 hours
+exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
+  console.log("deleting current collections and updating.")
+  await updateALL()
+})
+
 exports.app = functions.https.onRequest(app)

@@ -16,6 +16,7 @@ export type FeedState = {
     isSearchingModal:boolean,
     showSearchAlert:boolean,
     showSubscribeAlert:boolean,
+<<<<<<< HEAD
     isChanging:boolean
 }
 export type GroupFeedState = {
@@ -37,6 +38,11 @@ export type GroupFeedState = {
   isWeatherModalOpen: boolean,
   groupId: string;
 }
+=======
+    isChanging:boolean,
+  }
+  
+>>>>>>> 424bbdd94799a9ad1ee9ab6cea4a33de224ed1a9
 export type FeedProps = {
     history: any;
     location: any;
