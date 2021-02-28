@@ -24,3 +24,28 @@
     margin-left: 10px;
     margin-right: 60px;
 }
+
+#addFriendModalCloseIcon {
+    color:white;
+}
+
+
+#searchButton {
+    --background: #000000;
+    --color: #ededed;
+}
+
+#newsToolbar {
+    --background: #418b7c;
+
+}
+
+#newsTitle {
+    --color: #ededed;
+    text-align: center;
+}
+
+#addTopic {
+    color: #ededed;
+}
+

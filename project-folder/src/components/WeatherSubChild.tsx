@@ -1,6 +1,8 @@
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/react';
 import React from 'react';
 
+import './WeatherSubChild.css'
+
 
 function WeatherSubChild (props: {weather_code:any, temp:any, location: any, index:any, func: any}) {
     function unsubClick(e: any) {
@@ -14,7 +16,7 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
         </IonCardHeader>
         <IonCardContent>
         {props.weather_code}
-        <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={unsubClick}>unsub</IonButton>
+        <IonButton id="unsubButton" expand="block" fill="outline" type="submit" shape="round" onClick={unsubClick}>Unsubscribe</IonButton>
         </IonCardContent>
       </IonCard>);}
 

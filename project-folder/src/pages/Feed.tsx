@@ -422,8 +422,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
         <IonSearchbar placeholder="Enter a Topic or Location" value={this.state.topicSearched} onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
 
-      <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={async () => await this.searchTopic(this.state.topicSearched)}>
-          search
+      <IonButton id="searchButton" expand="block" fill="outline" type="submit" shape="round" onClick={async () => await this.searchTopic(this.state.topicSearched)}>
+          Search
       </IonButton>
 
       <IonAlert
@@ -445,18 +445,18 @@ class Feed extends React.Component<FeedProps, FeedState> {
   {/* </IonItem> */}
       <IonModal isOpen={this.state.isSearchingModal}>
       <IonHeader>
-      <IonToolbar>
+      <IonToolbar id="newsToolbar">
       <IonButtons slot='start'>
                 <IonButton onClick={() => this.setState({isSearchingModal: false})} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
-        <IonButton color="secondary" onClick={()=> this.subscribe(this.state.topicSearched) && this.setState({showSubscribeAlert:true})} fill='clear'>
-        <IonIcon icon={addCircle}/>
+        <IonButton onClick={()=> this.subscribe(this.state.topicSearched) && this.setState({showSubscribeAlert:true})} fill='clear'>
+        <IonIcon id="addTopic" icon={addCircle}/>
         </IonButton>
       </IonButtons>
-      <IonTitle>
+      <IonTitle id="newsTitle">
           News
         </IonTitle>
       </IonToolbar>
