@@ -14,7 +14,9 @@ import {
   IonListHeader,
   IonLabel,
   IonItem,
-  IonInput
+  IonInput,
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/react'
 
 import './GroupView.css'
@@ -35,9 +37,13 @@ import {
 } from 'ionicons/icons'
 
 import Message from '../components/Message'
+import GroupFeed from '../components/GroupFeed';
+import { article } from '../components/ArticleTypes';
 
 type MyState = {
-  articles: any,
+  articles: article[],
+  subscriptions: string[],
+  groupSegment: string|undefined,
   groupViewPopoverEvent: any,
   isGroupViewPopoverOpen: boolean,
   isSettingsModalOpen: boolean,
@@ -91,6 +97,8 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     articles: [],
+    subscriptions: [],
+    groupSegment: 'feed',
     groupViewPopoverEvent: undefined,
     isGroupViewPopoverOpen: false,
     isSettingsModalOpen: false,
@@ -176,7 +184,8 @@ class GroupView extends React.Component<MyProps, MyState> {
         console.log({...snapshot.val(), key: snapshot.key})
 
         this.setState({messages: messages})
-        this.anchorRef.current!.scrollIntoView()
+        if ( this.state.groupSegment === "messages")
+          this.anchorRef.current!.scrollIntoView();
 
       })
     }
@@ -253,7 +262,14 @@ class GroupView extends React.Component<MyProps, MyState> {
       currentMessage: ''
     })
   }
-
+  handleSegmentSwitch(e: any) {
+    let segmentValue = e.detail.value;
+    this.setState({groupSegment: segmentValue});
+    if (segmentValue === "messages") {
+      console.log("Messages selected");
+      this.anchorRef.current!.scrollIntoView();
+    }
+  }
 
 
   render() {
@@ -432,6 +448,16 @@ class GroupView extends React.Component<MyProps, MyState> {
               <IonTitle>{this.props.groupDetails ? this.props.groupDetails.nickname : undefined}</IonTitle>
             </IonToolbar>
           </IonHeader>
+          {/* Pulled from Social Page */}
+          <IonSegment onIonChange={this.handleSegmentSwitch.bind(this)} value={this.state.groupSegment}>
+          <IonSegmentButton value='messages'>
+            <IonLabel>Messages</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value='feed'>
+            <IonLabel>Feed</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+          {(this.state.groupSegment === "messages") ?
           <IonContent className='groupViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
@@ -448,6 +474,12 @@ class GroupView extends React.Component<MyProps, MyState> {
             </div>
             <div className='bottomSpaceFiller' />
           </IonContent>
+            
+          :
+          <IonContent>
+            <GroupFeed headerName="Group News" articles={this.state.articles}></GroupFeed>
+          </IonContent>
+  }
         </IonModal>
       </div>
     )
