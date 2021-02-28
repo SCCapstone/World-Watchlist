@@ -100,7 +100,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
         </IonCardHeader>
         <IonCardContent>
         {props.weather_code}
-        <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
+        <IonButton id="unsubButton" expand="block" color="dark" type="submit" shape="round" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
         </IonCardContent>
       </IonCard>
 
@@ -208,7 +208,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
         <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
         <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)
           && this.setState({showLoading: true })}>
-          search
+          Search
         </IonButton>
         <IonLoading
         isOpen={this.state.showLoading}
