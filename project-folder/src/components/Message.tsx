@@ -1,6 +1,6 @@
 import React from 'react';
 import Placeholder from '../images/placeholder.png'
-
+import './Message.css'
 import {
   IonAvatar,
   IonItem,
