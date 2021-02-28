@@ -118,13 +118,13 @@ class PendingRequests extends React.Component<MyProps, MyState> {
     return (
       <IonModal isOpen={this.props.isPendingRequestsModalOpen}>
         <IonHeader>
-          <IonToolbar class='socialToolbar2'>
+          <IonToolbar id='socialToolbar2'>
             <IonButtons slot='start'>
               <IonButton onClick={() => {this.props.togglePendingRequestsModal()}} id='addFriendModalCloseButton' fill='clear'>
                 <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
               </IonButton>
             </IonButtons>
-            <IonTitle class="socialTitle2">
+            <IonTitle id="socialTitle2">
               Pending Requests
             </IonTitle>
           </IonToolbar>

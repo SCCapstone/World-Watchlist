@@ -123,6 +123,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     })
   }
 
+
   async getSubscribedArticles(){
     this.setState({articles:[]})
     let aList : any[] = [];
