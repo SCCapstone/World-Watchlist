@@ -5,7 +5,7 @@ import { article } from "./ArticleTypes"
 import ChildrenComponent from "./SubscriptionChildren"
 
 function SubscriptionModal(props: {showModal: boolean, closeButton: any, unsubButton: any, subscriptions: string[]}) {
-    return (<IonModal isOpen={props.showModal}>
+    return (<IonModal isOpen={props.showModal} onDidDismiss={props.closeButton}>
 <IonHeader>
   <IonToolbar class='feedToolbar2'>
     <IonButtons slot='start'>
