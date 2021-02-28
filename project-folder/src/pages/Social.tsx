@@ -642,12 +642,12 @@ class Social extends React.Component<MyProps, MyState> {
               Social
             </IonTitle>
             <IonButtons slot="start">
-              <IonButton onClick={() => {this.setState({isPendingRequestsModalOpen: true})}}  fill='clear'>
+              <IonButton class='socialHeaderButton' onClick={() => {this.setState({isPendingRequestsModalOpen: true})}}  fill='clear'>
                 <IonIcon icon={listOutline}/>
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton onClick={(event : any) => {event.persist(); this.setState({isSocialPopoverOpen: true, socialPopoverEvent: event})}} fill='clear'>
+              <IonButton class='socialHeaderButton' onClick={(event : any) => {event.persist(); this.setState({isSocialPopoverOpen: true, socialPopoverEvent: event})}} fill='clear'>
                 <IonIcon icon={addOutline} />
               </IonButton>
             </IonButtons>

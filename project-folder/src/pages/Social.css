@@ -28,6 +28,10 @@
   --inner-padding-top: 10px;
 }
 
+.socialHeaderButton {
+  --color: #fff;
+  color: #fff;
+}
 
 #incomingFriendRequestHeader {
   font-size: 22px;
