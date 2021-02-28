@@ -423,6 +423,13 @@ class Social extends React.Component<MyProps, MyState> {
         })
         db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).delete()
         db.collection('friends').doc(targetUserId).collection('uuids').doc(auth.currentUser?.uid).delete()
+        db.collection('friends').doc(auth.currentUser?.uid).update({
+          friendsList: firebase.firestore.FieldValue.arrayRemove(targetUserId)
+        })
+        db.collection('friends').doc(targetUserId).update({
+          friendsList: firebase.firestore.FieldValue.arrayRemove(auth.currentUser?.uid)
+        })
+        this.setState({isFriendModalOpen: false})
       })
     }
   }
