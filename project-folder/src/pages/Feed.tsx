@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  IonRefresher, IonRefresherContent,
   IonPage,
   IonHeader,
   IonToolbar,
@@ -23,6 +24,7 @@ import {
   IonCheckbox,
   IonList, IonListHeader, IonAlert, IonToast
 } from '@ionic/react'
+import { RefresherEventDetail } from '@ionic/core';
 import './Feed.css'
 import { NewsDB } from '../config/config';
 import firebase, {db,auth} from '../firebase'
@@ -64,7 +66,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
   constructor(props: FeedProps) {
     super(props)
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
-    let aList : any[] = [];
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         //gets the username of our user
@@ -72,43 +73,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid)
           .onSnapshot(async (sub_list) => {
-            this.setState({articles:[]})
             if (sub_list.exists) {
-            
               this.setState({subs: await sub_list.data()!.subList});
               console.log("subs",this.state.subs)
-              for (var i = 0; i < this.state.subs.length; i++) {
-                /* Observe any changes in firestore and send a notification*/
-                await this.checkCollection(this.state.subs[i])
-                aList = []
-                var articlesLocal = await Storage.get({key:this.state.subs[i]})
-                // check local storage if collection exist take from cache, if collection changes, get from server
-                if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
-                  console.log("local storage empty for", this.state.subs[i])
-                  await NewsDB.collection(this.state.subs[i]).get()
-                .then(async (snapshot) => {
-                  snapshot.forEach(async doc => {
-                    if (doc.exists) {
-                      let articleItem = doc.data();
-                      var html = articleItem.Description;
-                      var a = document.createElement("a");
-                      a.innerHTML = html;
-                      var text = a.textContent || a.innerText || "";
-                      aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
-                    } else {
-                      console.log("Cannot find anything in database.")
-                    }
-                  })
-                  var source = snapshot.metadata.fromCache ? "local cache" : "server";
-                  console.log("Sub Articles came from " + source);
-                  await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
-                  this.setState({articles: [...this.state.articles, ...aList]})
-                })
-                } else {
-                  this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
-                  console.log("taking from capacitor cache")
-                }
-              }
+              // get articles
+              await this.getSubscribedArticles()
               console.log("articles",this.state.articles)
             } else {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
@@ -118,12 +87,73 @@ class Feed extends React.Component<FeedProps, FeedState> {
             console.log("Error getting document:", error);
         });
         // end of getting data from server
-        
       }
-     
     })
-    
-    
+  }
+
+  async getSubscribedArticles(){
+    this.setState({articles:[]})
+    let aList : any[] = [];
+    for (var i = 0; i < this.state.subs.length; i++) {
+      /* Observe any changes in firestore and send a notification*/
+      await this.checkCollection(this.state.subs[i])
+      aList = []
+      var articlesLocal = await Storage.get({key:this.state.subs[i]})
+      // check local storage if collection exist take from cache, if collection changes, get from server
+      if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
+        console.log("local storage empty for", this.state.subs[i])
+        await NewsDB.collection(this.state.subs[i]).get()
+      .then(async (snapshot) => {
+        snapshot.forEach(async doc => {
+          if (doc.exists) {
+            let articleItem = doc.data();
+            var html = articleItem.Description;
+            var a = document.createElement("a");
+            a.innerHTML = html;
+            var text = a.textContent || a.innerText || "";
+            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
+          } else {
+            console.log("Cannot find anything in database.")
+          }
+        })
+        var source = snapshot.metadata.fromCache ? "local cache" : "server";
+        console.log("Sub Articles came from " + source);
+        await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
+        this.setState({articles: [...this.state.articles, ...aList]})
+      })
+      } else {
+        this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
+        console.log("taking from capacitor cache")
+      }
+      this.setState({isChanging:false})
+    }
+  }
+
+  // refresh articles on feed
+  async doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    this.setState({articles:[]})
+    let aList : any[] = [];
+    for (var i = 0; i < this.state.subs.length; i++) {
+        aList = []
+        await NewsDB.collection(this.state.subs[i]).get()
+      .then(async (snapshot) => {
+        snapshot.forEach(async doc => {
+          if (doc.exists) {
+            let articleItem = doc.data();
+            var html = articleItem.Description;
+            var a = document.createElement("a");
+            a.innerHTML = html;
+            var text = a.textContent || a.innerText || "";
+            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
+          }
+        })
+      })
+    }
+    setTimeout(() => {
+      console.log('refreshing ended');
+      event.detail.complete();
+      this.setState({articles: [...this.state.articles, ...aList]})
+    }, 500);
   }
   
   getId() {
@@ -135,27 +165,36 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
   }
 
+  // check server collection for changes
   async checkCollection(collection:string){
     var observer = NewsDB.collection(collection).where('Title', '!=', '')
     .onSnapshot(async querySnapshot => {
+        const LocalNotificationPendingList = await LocalNotifications.getPending()
         // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
+          // clear cache so new articles can be added to cache
           this.clear()
           this.setState({isChanging:true})
           if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
             await LocalNotifications.schedule({
               notifications: [{
-                title: 'New articles in your feed!',
+                title: 'Changes in your feed!',
                 body: "Check them out!",
                 id: 1,
                 schedule: {
-                  at:new Date(new Date().getTime() + 1000),
-                  repeats:false,
-                }
+                  // notification 1 minutes after change in collections
+                  at:new Date(new Date().getTime() + 60000),
+                  repeats:false
+                },
               }]
             });
       }
+      // makes sure they can't be more than 1 notifications on single changes
+      if (LocalNotificationPendingList.notifications.length>0) {
+        LocalNotifications.cancel(LocalNotificationPendingList)
+      }
+      console.log(LocalNotificationPendingList)
     });
   }
 
@@ -182,7 +221,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   toggleNewsModal(){
     this.setState({isSearchingModal: true})
-
   }
 
   /* search firebase database for topic*/
@@ -357,7 +395,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
          showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
       </IonHeader>
       <IonContent>
-
+      <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={event=>this.doRefresh(event)}>
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
         <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
         {/* Modal for searching topics */}
     <IonModal isOpen={this.state.showModal}>
