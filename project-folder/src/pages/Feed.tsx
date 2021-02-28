@@ -404,7 +404,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonRefresher>
         <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
         {/* Modal for searching topics */}
-    <IonModal isOpen={this.state.showModal}>
+    <IonModal isOpen={this.state.showModal} onDidDismiss={() =>this.setState({showModal: false})}>
         <IonHeader>
             <IonToolbar class='feedToolbar2'>
         <IonButtons slot='start'>
@@ -444,7 +444,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
   {/* <IonLabel>Location based search</IonLabel> */}
   {/* <IonCheckbox onIonChange={e=> this.setState({locationBased:e.detail.checked}) }></IonCheckbox> */}
   {/* </IonItem> */}
-      <IonModal isOpen={this.state.isSearchingModal}>
+      <IonModal isOpen={this.state.isSearchingModal} >
       <IonHeader>
       <IonToolbar id="newsToolbar">
       <IonButtons slot='start'>
