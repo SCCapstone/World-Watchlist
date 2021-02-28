@@ -69,44 +69,14 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   constructor(props: FeedProps) {
     super(props)
-    this.clear()
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
-
-
-        //gets the username of our user
-        await db.collection("users").doc(auth.currentUser.uid).get().then(async docs => {
           // everytime there is a new subscription, update news onto main feed
-          await db.collection("profiles").doc(auth.currentUser?.uid)
-          .onSnapshot(async (doc) => {
-             this.setState({blockedSources:  doc.data()!.blockedSources});
-
-            if(doc.data()) {
-              
-             
-               await new Promise(r => setTimeout(r, 1000));
-        /* this.state.articles.forEach(element => {
-           
-           var domain = new URL(element.link).host;
-           //console.log(domain);
-
-           
-           if(this.state.blockedSources.includes(domain)) {
-             this.state.articles.splice(this.state.articles.indexOf(element),1)
-            // console.log(domain);
-           }
-
-             });*/
-            }
-          })
-          
           db.collection("topicSubscription").doc(auth.currentUser?.uid)
           .onSnapshot(async (sub_list) => {
-            
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
-
               console.log("subs",this.state.subs)
               // get articles
               await this.getSubscribedArticles()
@@ -115,18 +85,21 @@ class Feed extends React.Component<FeedProps, FeedState> {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
             }
           })
-        }).catch(function(error) {
-            console.log("Error getting document:", error);
-        });
+        
         // end of getting data from server
       }
     })
   }
 
-
   async getSubscribedArticles(){
     this.setState({articles:[]})
+    // get blocked sources on firestore
     let aList : any[] = [];
+    db.collection("profiles").doc(auth.currentUser?.uid)
+          .onSnapshot(async (doc) => {
+          this.setState({blockedSources:  await doc.data()!.blockedSources});
+    })
+    console.log(this.state.blockedSources)
     for (var i = 0; i < this.state.subs.length; i++) {
       /* Observe any changes in firestore and send a notification*/
       await this.checkCollection(this.state.subs[i])
@@ -139,20 +112,16 @@ class Feed extends React.Component<FeedProps, FeedState> {
       .then(async (snapshot) => {
         snapshot.forEach(async doc => {
           if (doc.exists) {
-            console.log("here")
             let articleItem = doc.data();
             var html = articleItem.Description;
             var a = document.createElement("a");
             a.innerHTML = html;
             var text = a.textContent || a.innerText || "";
             //await new Promise(r => setTimeout(r, 1000));
-            var domain = new URL(articleItem.Link).host;
-
-            console.log(domain);
+            var domain = (articleItem.source)
             if(!this.state.blockedSources.includes(domain)) {
               console.log("blocked")
-
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
             console.log("Cannot find anything in database.")
@@ -164,19 +133,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         this.setState({articles: [...this.state.articles, ...aList]})
       })
       } else {
-        //var temp = this.state.articles;
-        //console.log(this.state.blockedSources)
-    
-
-           
-           /*if(this.state.blockedSources.includes(domain)) {
-             temp.splice(temp.indexOf(element),1)
-             console.log(domain);
-           }*/
-
-            
-        //this.setState({articles:temp})
-
         this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
         console.log("taking from capacitor cache")
       }
@@ -187,23 +143,39 @@ class Feed extends React.Component<FeedProps, FeedState> {
   // refresh articles on feed
   async doRefresh(event: CustomEvent<RefresherEventDetail>) {
     this.setState({articles:[]})
+    // get blocked sources on firestore
     let aList : any[] = [];
+    db.collection("profiles").doc(auth.currentUser?.uid)
+          .onSnapshot(async (doc) => {
+          this.setState({blockedSources:  await doc.data()!.blockedSources});
+    })
     for (var i = 0; i < this.state.subs.length; i++) {
-        aList = []
+      /* Observe any changes in firestore and send a notification*/
+      await this.checkCollection(this.state.subs[i])
+      aList = []
+      // check local storage if collection exist take from cache, if collection changes, get from server
+        console.log("local storage empty for", this.state.subs[i])
         await NewsDB.collection(this.state.subs[i]).get()
       .then(async (snapshot) => {
         snapshot.forEach(async doc => {
           if (doc.exists) {
-            console.log(this.state.blockedSources)
             let articleItem = doc.data();
             var html = articleItem.Description;
             var a = document.createElement("a");
             a.innerHTML = html;
             var text = a.textContent || a.innerText || "";
-            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
+            //await new Promise(r => setTimeout(r, 1000));
+            var domain = (articleItem.source)
+            if(!this.state.blockedSources.includes(domain)) {
+              console.log("blocked")
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
+            }
+          } else {
+            console.log("Cannot find anything in database.")
           }
         })
       })
+      this.setState({isChanging:false})
     }
     setTimeout(() => {
       console.log('refreshing ended');
