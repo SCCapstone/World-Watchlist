@@ -15,28 +15,34 @@ async function get(){
   
 }
 
- function yeet(a:article) { //yeets an article
-  var temp = [];
-   db.collection("profiles").doc(auth.currentUser?.uid)
-          .onSnapshot(async (doc) => {
-             temp = doc.data()!.blockedSources
-             temp.push(new URL(a.link).host)
-             db.collection('profiles').doc(auth.currentUser?.uid).update({
-               blockedSources:temp
+//  function yeet(a:article) { //yeets an article
+//   var temp = [];
+//    db.collection("profiles").doc(auth.currentUser?.uid)
+//           .onSnapshot(async (doc) => {
+//              temp = doc.data()!.blockedSources
+//              temp.push(new URL(a.link).host)
+//              db.collection('profiles').doc(auth.currentUser?.uid).update({
+//                blockedSources:temp
 
-       // blockedSources : firebase.firestore.FieldValue.arrayUnion(str)
+//        // blockedSources : firebase.firestore.FieldValue.arrayUnion(str)
 
-           })
+//            })
 
-  })
+//   })
  
-         }
+//          }
 
 
 
 
 function Article(props: {theArticle: article}) {
     //console.log(props.theArticle);
+    function blockSource() {
+      const ref = db.collection("profiles").doc(auth.currentUser?.uid)
+      const res = ref.update({
+        blockedSources: firebase.firestore.FieldValue.arrayUnion(props.theArticle.source)
+      });
+    }
     return <IonCard>
       <meta httpEquiv="Cache-control" content="no-cache"></meta>
           <IonCardHeader>
@@ -52,12 +58,7 @@ function Article(props: {theArticle: article}) {
             <IonCardContent>
             news source: {props.theArticle.source}
             <IonItem>
-            <IonButton onClick={()=> {
-            const ref = db.collection("profiles").doc(auth.currentUser?.uid)
-            const res = ref.update({
-              blockedSources: firebase.firestore.FieldValue.arrayUnion(props.theArticle.source)
-            });
-          }} slot = 'end'>Block this Source</IonButton>
+            <IonButton onClick={blockSource} slot = 'end'>Block this Source</IonButton>
             </IonItem>
             <br></br>
               <a onClick={()=>openURL(props.theArticle.link)}>link</a>
