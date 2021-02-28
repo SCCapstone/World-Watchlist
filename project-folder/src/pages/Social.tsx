@@ -37,6 +37,7 @@ import './Social.css'
 import Messenger from './Messenger'
 import AddFriends from './AddFriends';
 import PendingRequests from './PendingRequests';
+import GroupFeed from '../components/GroupFeed';
 
 
 type MyState = {
@@ -544,6 +545,7 @@ class Social extends React.Component<MyProps, MyState> {
 
     render() {
 
+      let groupState = "group";
       return (
       <IonPage>
         <AddFriends
@@ -564,7 +566,7 @@ class Social extends React.Component<MyProps, MyState> {
           togglePendingRequestsModal = {this.togglePendingRequestsModal}
 
         />
-
+        
         <GroupView
           isGroupModalOpen={this.state.isGroupModalOpen}
           groupDetails={this.state.groupDetails}

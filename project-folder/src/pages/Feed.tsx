@@ -37,6 +37,7 @@ import ChildrenComponent from '../components/SubscriptionChildren';
 import { FeedProps, FeedState } from '../components/FeedTypes';
 import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
+import { tempaddSubscription, tempremoveSubscription } from '../components/TempFunctions';
 const { Storage } = Plugins;
 
 
@@ -168,12 +169,14 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   async addSubscription(sub: string) {
+    // tempaddSubscription(sub, this.getId());
     if (sub!== "") {
       await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
     }
   }
 
   async removeSubscription(index:any) {
+    // tempremoveSubscription(index, this.getId(), this.state.subs);
     if (this.state.subs[index] !== "") {
       await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
     }
