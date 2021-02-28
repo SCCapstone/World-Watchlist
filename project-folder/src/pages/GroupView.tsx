@@ -41,6 +41,7 @@ import GroupFeed from '../components/GroupFeed';
 import { article } from '../components/ArticleTypes';
 import { tempremoveSubscription, tempsubscribe } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
+import SearchModal from '../components/SearchModal';
 
 // type SubState = {
 //   showModal: boolean,
@@ -54,6 +55,7 @@ type MyState = {
   blockedSources: string[],
   subscriptions: string[],
   showSubscriptionModal: boolean,
+  showSearchModal: boolean,
   groupSegment: string|undefined,
   groupViewPopoverEvent: any,
   isGroupViewPopoverOpen: boolean,
@@ -112,6 +114,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     blockedSources:[],
     subscriptions: [],
     showSubscriptionModal: false,
+    showSearchModal: false,
     groupSegment: 'feed',
     groupViewPopoverEvent: undefined,
     isGroupViewPopoverOpen: false,
@@ -436,6 +439,21 @@ class GroupView extends React.Component<MyProps, MyState> {
       unsubButton={this.unsubscribeButton.bind(this)}
       subscriptions={this.state.subscriptions}></SubscriptionModal>
 
+      {/* <SearchModal showModal={this.state.showSearchModal}
+      closeModal={}
+      topicSearched={}
+      handleTopicChange={}
+      searchTopicButton={}
+      showSearchAlert={}
+      dismissSearchAlertButton={}
+      showLoading={}
+      showSearchingModal={}
+      closeSearchingModal={}
+      addTopicButton={}
+      articlesSearched={}
+      showSubscribeAlert={}
+      dismissSubscribeAlertButton={}></SearchModal> */}
+
         <IonPopover
           cssClass='groupViewPopover'
           event={this.state.groupViewPopoverEvent}
@@ -453,6 +471,18 @@ class GroupView extends React.Component<MyProps, MyState> {
                 <IonLabel>Add Member</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' icon={addOutline}/>
               </IonItem>
+              { (auth.currentUser?.uid === this.props.groupDetails.owner) ?
+              <div>
+              <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, showSubscriptionModal: true})}}>
+                <IonLabel>Subscriptions</IonLabel>
+                <IonIcon className='groupViewPopoverIcon' slot='end' /*icon={}*//>
+              </IonItem>
+              <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, isSettingsModalOpen: true})}}>
+                <IonLabel>Search for Subscriptions</IonLabel>
+                <IonIcon className='groupViewPopoverIcon' slot='end' /*icon={settingsOutline}*//>
+              </IonItem>
+              </div> : null
+              }
               <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, isSettingsModalOpen: true})}}>
                 <IonLabel>Settings</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' icon={settingsOutline}/>
