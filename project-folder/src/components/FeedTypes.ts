@@ -16,10 +16,13 @@ export type FeedState = {
     isSearchingModal:boolean,
     showSearchAlert:boolean,
     showSubscribeAlert:boolean,
-    isChanging:boolean
+    isChanging:boolean,
   }
   
 export type FeedProps = {
     history: any;
     location: any;
   }
+export type GroupFeedProps = {
+  groupId: string;
+}

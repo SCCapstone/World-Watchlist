@@ -4,6 +4,8 @@ interface articleType {
     url: string;
     title: string;
     description: string;
+    source:any;
+    pubDate:any;
 }
 
 function ArticleItem(props: {entry: articleType}) {

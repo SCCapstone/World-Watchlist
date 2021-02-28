@@ -37,6 +37,7 @@ import './Social.css'
 import Messenger from './Messenger'
 import AddFriends from './AddFriends';
 import PendingRequests from './PendingRequests';
+import GroupFeed from '../components/GroupFeed';
 
 
 type MyState = {
@@ -418,13 +419,17 @@ class Social extends React.Component<MyProps, MyState> {
     }
   }
 
-  blockUser(username: string) { // adds given friend to blocked list, users on blocked list are excluded from stuff
-    if(username !== "") {
-      let chosenUser = db.collection('usernames').doc(username);
-      if( chosenUser === undefined)
-        return;
+  blockUser(userid: string) { // adds given friend to blocked list, users on blocked list are excluded from stuff
+    if(userid !== "") {
+      // assuming userid exists
+      // let chosenUser = db.collection('usernames').doc(username);
+      // let chosenUser = db.collection('email').doc(userid).get().then(docData => {
+      //   if (docData.exists)
+      //     return docData.data()?.userid}).catch(catchData => console.log("Data crash!"));
+      // if( chosenUser === undefined)
+      //   return;
       console.log("User exists, attempting to block");
-      db.collection('blockedUsers').doc(auth.currentUser?.uid).update({blocked: firebase.firestore.FieldValue.arrayUnion(username)});
+      db.collection('blockedUsers').doc(auth.currentUser?.uid).update({blocked: firebase.firestore.FieldValue.arrayUnion(userid)});
       console.log("User should be added to blocked list");
       /*if ( this.isFriend(username))
        *  this.removeFriend(username); // remove user once added to blocked list, line included for future possibility
@@ -540,6 +545,7 @@ class Social extends React.Component<MyProps, MyState> {
 
     render() {
 
+      let groupState = "group";
       return (
       <IonPage>
         <AddFriends
@@ -560,7 +566,7 @@ class Social extends React.Component<MyProps, MyState> {
           togglePendingRequestsModal = {this.togglePendingRequestsModal}
 
         />
-
+        
         <GroupView
           isGroupModalOpen={this.state.isGroupModalOpen}
           groupDetails={this.state.groupDetails}

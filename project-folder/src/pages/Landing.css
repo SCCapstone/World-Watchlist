@@ -1,5 +1,5 @@
 .landingContent {
-  --background: #fbffdbed;
+  --background: #e8e9ec;
   text-align: center;
 }
 
@@ -10,7 +10,7 @@
   --background: #93ccfa;
   text-align:center;
   margin-top: 10px;
-  color:black;
+  color:#2d539e;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
