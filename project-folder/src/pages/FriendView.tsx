@@ -97,6 +97,9 @@ class FriendView extends React.Component<MyProps, MyState> {
         db.collection('profiles').doc(auth.currentUser!.uid).get().then((document) => {
           nameDictionary[auth.currentUser!.uid] = document.data()!.displayName
           photoDictionary[auth.currentUser!.uid] = document.data()!.photo
+          photoDictionary[this.props.friendDetails.uid] = this.props.friendDetails.photo
+          nameDictionary[this.props.friendDetails.uid] = this.props.friendDetails.displayName
+          console.log(this.props.friendDetails.photo)
         })
       }
       let messages : any[] = []
