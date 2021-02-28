@@ -251,22 +251,16 @@ class Feed extends React.Component<FeedProps, FeedState> {
     await this.removeSubscription(index);
   }
 
-  /* using an api to turn rss feeds into json to avoid cors policy errors */
   async apiSearch(topic: any, type:string) {
     let aList : articleList = [];
-    /* needed for the api.rss2json to work */
-    let temp = topic.replace(/\ /g,"%2520")
-    let rssurl = "https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3D"+temp+"%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
     await axios({
       method: 'GET',
-      url:'https://api.rss2json.com/v1/api.json?rss_url='+rssurl+"&api_key=ygho9vm848pakf5b24oawteww7slkcj2ccgiu13w"
-    // url: "https://send-rss-get-json.herokuapp.com/convert/?u="+"https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
-    // https://api.rss2json.com/v1/api.json?rss_url=
+      /* using server api to turn rss feeds into json to avoid cors policy errors */
+      url:'https://world-watchlist-server-8f86e.web.app/'+topic
     })
     .then(async (response) => {
-      const data = await response.data
-      console.log(data)
-      await data.items.forEach((articleItem: any) => {
+      console.log(response)
+      await response.data.forEach((articleItem: any) => {
         /* remove <a> html tag from description */
         var html = articleItem.description;
         var a = document.createElement("a");

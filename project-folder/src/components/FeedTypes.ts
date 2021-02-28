@@ -16,7 +16,7 @@ export type FeedState = {
     isSearchingModal:boolean,
     showSearchAlert:boolean,
     showSubscribeAlert:boolean,
-    isChanging:boolean
+    isChanging:boolean,
   }
   
 export type FeedProps = {
