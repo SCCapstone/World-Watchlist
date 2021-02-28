@@ -6,3 +6,8 @@
 .messageItem {
   --background: #fff;
 }
+
+.messageContent {
+  color: #000;
+  --color: #000;
+}
