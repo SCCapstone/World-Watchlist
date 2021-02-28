@@ -26,6 +26,7 @@ import {
 } from '@ionic/react'
 import { RefresherEventDetail } from '@ionic/core';
 import './Feed.css'
+import './AllPages.css'
 import { NewsDB } from '../config/config';
 import firebase, {db,auth} from '../firebase'
 import ArticleList from '../components/ArticleList';
