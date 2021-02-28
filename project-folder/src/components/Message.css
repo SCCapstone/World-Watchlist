@@ -1,0 +1,9 @@
+.messageLabel {
+  --color: #000;
+  color: #000;
+}
+
+.messageItem {
+  --background: #fff;
+  color: #000;
+}

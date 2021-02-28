@@ -1,6 +1,6 @@
 import React from 'react';
 import Placeholder from '../images/placeholder.png'
-
+import './Message.css'
 import {
   IonAvatar,
   IonItem,
@@ -16,13 +16,13 @@ interface MessageProps {
 function Message(props: MessageProps) {
     return (
       <div>
-      <IonLabel position='stacked'>{props.sender}</IonLabel>
-      <IonItem>
+      <IonLabel class='messageLabel' position='stacked'>{props.sender}</IonLabel>
+      <IonItem class='messageItem'>
         <IonAvatar slot="start">
           <img src={props.photo !== '' ? props.photo : Placeholder} />
         </IonAvatar>
 
-        <IonLabel>{props.content}</IonLabel>
+        <IonLabel class='messageContent'>{props.content}</IonLabel>
       </IonItem>
       </div>
     );

@@ -17,7 +17,7 @@ import {
   IonInput
 } from '@ionic/react'
 
-import './GroupView.css'
+import './AddFriends.css'
 
 import firebase, {db, auth} from '../firebase'
 import Placeholder from '../images/placeholder.png'
@@ -74,9 +74,11 @@ class AddFriends extends React.Component<MyProps, MyState> {
           </IonToolbar>
         </IonHeader>
         <IonContent>
+        <IonLabel class='addFriendDescription'>
+        Please input the email of the user you wish to add.
+        </IonLabel>
           <IonItem lines='none' id='searchFriendItem'>
             <IonInput id='addFriendSearch' onIonChange={(e) => {this.setState({targetUserId: (e.target as HTMLInputElement).value})}} />
-
             <IonButton onClick={() => {this.props.addFriend(this.state.targetUserId)}} slot='end' id='addFriendButton' fill='clear'>
               <IonIcon id='addFriendButtonIcon' icon={addCircleOutline} />
             </IonButton>

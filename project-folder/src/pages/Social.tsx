@@ -34,11 +34,9 @@ import {
 } from 'ionicons/icons'
 
 import './Social.css'
-import Messenger from './Messenger'
 import AddFriends from './AddFriends';
 import PendingRequests from './PendingRequests';
-import GroupFeed from '../components/GroupFeed';
-
+import FriendView from './FriendView'
 
 type MyState = {
   isAddFriendModalOpen: boolean;
@@ -65,7 +63,9 @@ type MyState = {
   unsubscribeOutgoingRequests: any;
   segmentSelected: string | undefined;
   unsubscribeIndiviudalFriends: any[];
-  activeMessages: any[]
+  activeMessages: any[];
+  isFriendModalOpen: boolean;
+  friendDetails: Friend
 }
 
 type MyProps = {
@@ -114,6 +114,12 @@ class Social extends React.Component<MyProps, MyState> {
       profilePicture: '',
       owner: '',
     },
+    friendDetails: {
+      uuid: '',
+      uid: '',
+      displayName: '',
+      photo: ''
+    },
     isGroupModalOpen: false,
     unsubscribeFriendsList: () => {},
     unsubscribeBlockedUsers: null,
@@ -121,7 +127,8 @@ class Social extends React.Component<MyProps, MyState> {
     unsubscribeOutgoingRequests: () => {},
     unsubscribeIndiviudalFriends: [],
     segmentSelected: 'groups',
-    activeMessages: []
+    activeMessages: [],
+    isFriendModalOpen: false
   };
 
 
@@ -151,6 +158,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.togglePendingRequestsModal = this.togglePendingRequestsModal.bind(this);
     this.addFriendToGroup = this.addFriendToGroup.bind(this);
     this.generateRandomString = this.generateRandomString.bind(this);
+    this.toggleFriendModal = this.toggleFriendModal.bind(this);
     //End Function Bindings
 
     //Begin firebase data subscriptins
@@ -536,7 +544,9 @@ class Social extends React.Component<MyProps, MyState> {
   togglePendingRequestsModal() {
     this.setState({isPendingRequestsModalOpen: !this.state.isPendingRequestsModalOpen})
   }
-
+  toggleFriendModal() {
+    this.setState({isFriendModalOpen: !this.state.isFriendModalOpen})
+  }
 
 
 
@@ -566,7 +576,7 @@ class Social extends React.Component<MyProps, MyState> {
           togglePendingRequestsModal = {this.togglePendingRequestsModal}
 
         />
-        
+
         <GroupView
           isGroupModalOpen={this.state.isGroupModalOpen}
           groupDetails={this.state.groupDetails}
@@ -576,6 +586,14 @@ class Social extends React.Component<MyProps, MyState> {
           deleteGroup={this.deleteGroup}
           friendList={this.state.friendsList}
           addFriendToGroup={this.addFriendToGroup}
+        />
+
+        <FriendView
+          {...this.props}
+          friendDetails = {this.state.friendDetails}
+          isFriendModalOpen = {this.state.isFriendModalOpen}
+          toggleFriendModal = {this.toggleFriendModal}
+          removeFriend = {this.removeFriend}
         />
 
         <IonPopover
@@ -658,7 +676,7 @@ class Social extends React.Component<MyProps, MyState> {
         <div>
         {this.state.friendsList.map((friend: Friend) => {
           return (
-            <IonItem onClick={() => {}} lines='none' button={true} className='socialGroupItem' key={friend.uid}>
+            <IonItem onClick={() => {this.setState({friendDetails: friend, isFriendModalOpen: true})}} lines='none' button={true} className='socialGroupItem' key={friend.uid}>
               <IonAvatar slot='start' className='socialGroupAvatar'>
                 <img src = {friend.photo ? friend.photo : Placeholder}/>
               </IonAvatar>

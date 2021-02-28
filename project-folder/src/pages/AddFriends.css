@@ -1,0 +1,45 @@
+s#addFriendModalCloseButton {
+  --color: #ff0000;
+}
+
+#addFriendModalCloseIcon {
+  font-size: 32px;
+}
+
+#addFriendSearch {
+  border: 1px solid black;
+  border-radius: 10px;
+  --padding-start: 10px;
+}
+
+#addFriendButtonIcon {
+  font-size: 28px;
+}
+
+
+.socialToolbar {
+  --background: #3171e0;
+  --color: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.socialTitle {
+  text-align: center;
+  margin-left: auto;
+  margin-right: 50px;
+  padding-left: 90px;
+}
+
+.socialToolbar2 {
+  --background: #418b7c;
+  --color: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.socialTitle2{
+  text-align: center;
+  margin-left: 10px;
+  margin-right: 60px;
+}
