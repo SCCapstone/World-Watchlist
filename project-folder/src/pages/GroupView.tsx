@@ -39,10 +39,20 @@ import {
 import Message from '../components/Message'
 import GroupFeed from '../components/GroupFeed';
 import { article } from '../components/ArticleTypes';
+import { tempremoveSubscription, tempsubscribe } from '../components/TempFunctions';
+import SubscriptionModal from '../components/SubscriptionModal';
+
+// type SubState = {
+//   showModal: boolean,
+//   closeButton: () => {},
+//   unsubscribeButton: () => {},
+//   subscriptions: string[]
+// }
 
 type MyState = {
   articles: article[],
   subscriptions: string[],
+  showSubscriptionModal: boolean,
   groupSegment: string|undefined,
   groupViewPopoverEvent: any,
   isGroupViewPopoverOpen: boolean,
@@ -99,6 +109,7 @@ class GroupView extends React.Component<MyProps, MyState> {
   state: MyState = {
     articles: [],
     subscriptions: [],
+    showSubscriptionModal: false,
     groupSegment: 'feed',
     groupViewPopoverEvent: undefined,
     isGroupViewPopoverOpen: false,
@@ -269,6 +280,9 @@ class GroupView extends React.Component<MyProps, MyState> {
       currentMessage: ''
     })
   }
+  getId() {
+    return this.props.groupDetails.id;
+  }
   handleSegmentSwitch(e: any) {
     let segmentValue = e.detail.value;
     this.setState({groupSegment: segmentValue});
@@ -276,6 +290,15 @@ class GroupView extends React.Component<MyProps, MyState> {
       console.log("Messages selected");
       this.anchorRef.current!.scrollIntoView();
     }
+  }
+  closeButton() {
+    this.setState({showSubscriptionModal: false});
+  }
+  unsubscribeButton(index: number) {
+    tempremoveSubscription(index, this.getId(), this.state.subscriptions);
+  }
+  subscribeButton(topic: string) {
+    tempsubscribe(topic, this.getId())
   }
   
 
@@ -405,6 +428,11 @@ class GroupView extends React.Component<MyProps, MyState> {
         </IonList>
       </IonContent>
       </IonModal>
+
+      <SubscriptionModal showModal={this.state.showSubscriptionModal}
+      closeButton={this.closeButton.bind(this)}
+      unsubButton={this.unsubscribeButton.bind(this)}
+      subscriptions={this.state.subscriptions}></SubscriptionModal>
 
         <IonPopover
           cssClass='groupViewPopover'
