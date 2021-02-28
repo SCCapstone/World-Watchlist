@@ -22,7 +22,7 @@ function Message(props: MessageProps) {
           <img src={props.photo !== '' ? props.photo : Placeholder} />
         </IonAvatar>
 
-        <IonLabel className='messageContent'>{props.content}</IonLabel>
+        <IonLabel class='messageContent'>{props.content}</IonLabel>
       </IonItem>
       </div>
     );
