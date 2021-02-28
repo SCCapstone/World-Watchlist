@@ -28,6 +28,10 @@
   --inner-padding-top: 10px;
 }
 
+.socialHeaderButton {
+  --color: #fff;
+  color: #fff;
+}
 
 #incomingFriendRequestHeader {
   font-size: 22px;
@@ -144,7 +148,10 @@
   margin-left: 10px;
   margin-right: 60px;
 }
+<<<<<<< HEAD
 
 #closeCreateGroupModalIcon {
   color: white;
 }
+=======
+>>>>>>> 14976cd233a39d2c2ce13461ef9ad6b5fd269592
