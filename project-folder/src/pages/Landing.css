@@ -16,7 +16,7 @@
   margin-right: auto;
 }
 .landingToolbar {
-    --background: #418b7c;
+    --background: #3171e0;
     text-align:center;
     --color: white;
 }
@@ -114,6 +114,7 @@
   font-weight: bold;
   padding-top: 30px;
   padding-bottom: 20px;
+  color: #2d539e;
 }
 
 .loginTitle {
