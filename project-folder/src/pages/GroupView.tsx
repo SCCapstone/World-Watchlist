@@ -42,6 +42,7 @@ import { article } from '../components/ArticleTypes';
 
 type MyState = {
   articles: article[],
+  blockedSources: string[],
   subscriptions: string[],
   groupSegment: string|undefined,
   groupViewPopoverEvent: any,
@@ -97,6 +98,7 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
     articles: [],
+    blockedSources:[],
     subscriptions: [],
     groupSegment: 'feed',
     groupViewPopoverEvent: undefined,

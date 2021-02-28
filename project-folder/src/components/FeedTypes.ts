@@ -3,6 +3,7 @@ import { articleList } from "./ArticleTypes"
 export type FeedState = {
     articles: articleList;
     subs: string[];
+    blockedSources: string[],
     articlesSearched:any[],
     subscribedArticles: any;
     CurrentUser:any;

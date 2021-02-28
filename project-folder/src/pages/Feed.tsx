@@ -48,6 +48,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
   state: FeedState = {
     articles: [],
     subs: [],
+    blockedSources: [],
     articlesSearched:[],
     subscribedArticles: undefined,
     CurrentUser: null,
@@ -66,16 +67,44 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   constructor(props: FeedProps) {
     super(props)
+    this.clear()
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
+
+
         //gets the username of our user
-        await db.collection("users").doc(auth.currentUser.uid).get().then(async doc => {
+        await db.collection("users").doc(auth.currentUser.uid).get().then(async docs => {
           // everytime there is a new subscription, update news onto main feed
+          await db.collection("profiles").doc(auth.currentUser?.uid)
+          .onSnapshot(async (doc) => {
+             this.setState({blockedSources:  doc.data()!.blockedSources});
+
+            if(doc.data()) {
+              
+             
+               await new Promise(r => setTimeout(r, 1000));
+        /* this.state.articles.forEach(element => {
+           
+           var domain = new URL(element.link).host;
+           //console.log(domain);
+
+           
+           if(this.state.blockedSources.includes(domain)) {
+             this.state.articles.splice(this.state.articles.indexOf(element),1)
+            // console.log(domain);
+           }
+
+             });*/
+            }
+          })
+          
           db.collection("topicSubscription").doc(auth.currentUser?.uid)
           .onSnapshot(async (sub_list) => {
+            
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
+
               console.log("subs",this.state.subs)
               // get articles
               await this.getSubscribedArticles()
@@ -107,12 +136,21 @@ class Feed extends React.Component<FeedProps, FeedState> {
       .then(async (snapshot) => {
         snapshot.forEach(async doc => {
           if (doc.exists) {
+            console.log("here")
             let articleItem = doc.data();
             var html = articleItem.Description;
             var a = document.createElement("a");
             a.innerHTML = html;
             var text = a.textContent || a.innerText || "";
-            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
+            //await new Promise(r => setTimeout(r, 1000));
+            var domain = new URL(articleItem.Link).host;
+
+            console.log(domain);
+            if(!this.state.blockedSources.includes(domain)) {
+              console.log("blocked")
+
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate})
+            }
           } else {
             console.log("Cannot find anything in database.")
           }
@@ -123,6 +161,19 @@ class Feed extends React.Component<FeedProps, FeedState> {
         this.setState({articles: [...this.state.articles, ...aList]})
       })
       } else {
+        //var temp = this.state.articles;
+        //console.log(this.state.blockedSources)
+    
+
+           
+           /*if(this.state.blockedSources.includes(domain)) {
+             temp.splice(temp.indexOf(element),1)
+             console.log(domain);
+           }*/
+
+            
+        //this.setState({articles:temp})
+
         this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
         console.log("taking from capacitor cache")
       }
@@ -140,6 +191,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       .then(async (snapshot) => {
         snapshot.forEach(async doc => {
           if (doc.exists) {
+            console.log(this.state.blockedSources)
             let articleItem = doc.data();
             var html = articleItem.Description;
             var a = document.createElement("a");
