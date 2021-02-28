@@ -2,6 +2,7 @@ import { IonButton, IonButtons, IonIcon, IonTitle, IonToolbar } from '@ionic/rea
 import { cloud, bookmarks, search } from 'ionicons/icons';
 import React from 'react';
 
+import './FeedToolbar.css'
 
 function FeedToolbar (props: { openWeather: any, showSubs: any, showModal: any}) {
     
@@ -14,17 +15,17 @@ function FeedToolbar (props: { openWeather: any, showSubs: any, showModal: any})
     </IonTitle>
     
 <IonButtons slot="start">
-    <IonButton onClick={props.openWeather}  fill='clear'>
+    <IonButton id="feedButton" onClick={props.openWeather}  fill='clear'>
         <IonIcon icon={cloud} />
     </IonButton>
     </IonButtons>
     <IonButtons slot="end">
-    <IonButton onClick={props.showSubs}  fill='clear'>
+    <IonButton id="feedButton" onClick={props.showSubs}  fill='clear'>
         <IonIcon icon={bookmarks} />
     </IonButton>
     </IonButtons>
     <IonButtons slot="end">
-    <IonButton onClick={props.showModal}  fill='clear'>
+    <IonButton id="feedButton" onClick={props.showModal}  fill='clear'>
         <IonIcon icon={search} />
     </IonButton>
     </IonButtons>

@@ -11,7 +11,7 @@ function ChildComponent (props: {subscription:any, index:any, func: any }) {
         <IonCardTitle>{props.subscription}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
-        <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={unsubClick}>unsubscribe</IonButton>
+        <IonButton id="unsubButton" expand="block" fill="outline" type="submit" shape="round" onClick={unsubClick}>Unsubscribe</IonButton>
         </IonCardContent>
     </IonCard>);}
 
