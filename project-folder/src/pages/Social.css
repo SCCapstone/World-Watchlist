@@ -28,6 +28,10 @@
   --inner-padding-top: 10px;
 }
 
+.socialHeaderButton {
+  --color: #fff;
+  color: #fff;
+}
 
 #incomingFriendRequestHeader {
   font-size: 22px;
@@ -70,12 +74,6 @@
 }
 
 .socialGroupAvatar {
-
-}
-
-.friendListItem {
-  margin-left:20px;
-  color: #F428CFF;
 
 }
 
@@ -122,13 +120,14 @@
   --color: white;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .socialTitle {
   text-align: center;
   margin-left: auto;
   margin-right: 50px;
-  padding-left: 90px;
+  padding-left: 80px;
 }
 
 .socialToolbar2 {
@@ -142,4 +141,8 @@
   text-align: center;
   margin-left: 10px;
   margin-right: 60px;
+}
+
+#closeCreateGroupModalIcon {
+  color: white;
 }

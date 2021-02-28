@@ -57,7 +57,8 @@ type MyState = {
   messages: any[],
   photoDictionary: any,
   currentMessage: string,
-  nameDictionary: any
+  nameDictionary: any,
+  blockedList: string[]
 }
 
 type MyProps = {
@@ -113,7 +114,8 @@ class GroupView extends React.Component<MyProps, MyState> {
     messages: [],
     photoDictionary: {},
     currentMessage: '',
-    nameDictionary: {}
+    nameDictionary: {},
+    blockedList: []
   };
   realtime_db = firebase.database();
   anchorRef: React.RefObject<HTMLDivElement>;
@@ -148,6 +150,11 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   componentDidUpdate(prevProps: MyProps) {
     if(prevProps.groupDetails.members.length !== this.props.groupDetails.members.length) {
+      if(auth.currentUser) {
+        db.collection('blockedUsers').doc(auth.currentUser?.uid).get().then((document) => {
+          this.setState({blockedList: document.data()!.blocked})
+        })
+      }
       let members : Member[] = []
       let photoDictionary : any = new Object()
       photoDictionary["World-Watchlist"] = "https://firebasestorage.googleapis.com/v0/b/worldwatchlist.appspot.com/o/images%2Fearth.jpg?alt=media&token=8dfce470-5dac-4126-b3d2-4f3d42a07b8a"
@@ -272,6 +279,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       this.anchorRef.current!.scrollIntoView();
     }
   }
+  
 
 
   render() {
@@ -451,11 +459,11 @@ class GroupView extends React.Component<MyProps, MyState> {
             </IonToolbar>
           </IonHeader>
           {/* Pulled from Social Page */}
-          <IonSegment onIonChange={this.handleSegmentSwitch.bind(this)} value={this.state.groupSegment}>
-          <IonSegmentButton value='messages'>
+          <IonSegment id="groupSegment" onIonChange={this.handleSegmentSwitch.bind(this)} value={this.state.groupSegment}>
+          <IonSegmentButton value='messages' class="groupSegmentButton">
             <IonLabel>Messages</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value='feed'>
+          <IonSegmentButton value='feed' class="groupSegmentButton">
             <IonLabel>Feed</IonLabel>
           </IonSegmentButton>
         </IonSegment>
@@ -463,7 +471,9 @@ class GroupView extends React.Component<MyProps, MyState> {
           <IonContent className='groupViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
+              return !this.state.blockedList.includes(message.sender) ?
+               <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message}  photo={this.state.photoDictionary[message.sender]} /> :
+               <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} />
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />
@@ -476,7 +486,7 @@ class GroupView extends React.Component<MyProps, MyState> {
             </div>
             <div className='bottomSpaceFiller' />
           </IonContent>
-            
+
           :
           <IonContent>
             <GroupFeed headerName="Group News" articles={this.state.articles}></GroupFeed>

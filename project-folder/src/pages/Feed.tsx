@@ -26,6 +26,7 @@ import {
 } from '@ionic/react'
 import { RefresherEventDetail } from '@ionic/core';
 import './Feed.css'
+import './AllPages.css'
 import { NewsDB } from '../config/config';
 import firebase, {db,auth} from '../firebase'
 import ArticleList from '../components/ArticleList';
@@ -40,6 +41,7 @@ import { FeedProps, FeedState } from '../components/FeedTypes';
 import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
 import { tempaddSubscription, tempremoveSubscription } from '../components/TempFunctions';
+import SubscriptionModal from '../components/SubscriptionModal';
 const { Storage } = Plugins;
 
 
@@ -455,7 +457,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonRefresher>
         <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
         {/* Modal for searching topics */}
-    <IonModal isOpen={this.state.showModal}>
+    <IonModal isOpen={this.state.showModal} onDidDismiss={() =>this.setState({showModal: false})}>
         <IonHeader>
             <IonToolbar class='feedToolbar2'>
         <IonButtons slot='start'>
@@ -474,8 +476,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
         <IonSearchbar placeholder="Enter a Topic or Location" value={this.state.topicSearched} onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
 
-      <IonButton expand="block" fill="outline" color="secondary" type="submit" onClick={async () => await this.searchTopic(this.state.topicSearched)}>
-          search
+      <IonButton id="searchButton" expand="block" fill="outline" type="submit" shape="round" onClick={async () => await this.searchTopic(this.state.topicSearched)}>
+          Search
       </IonButton>
 
       <IonAlert
@@ -495,20 +497,20 @@ class Feed extends React.Component<FeedProps, FeedState> {
   {/* <IonLabel>Location based search</IonLabel> */}
   {/* <IonCheckbox onIonChange={e=> this.setState({locationBased:e.detail.checked}) }></IonCheckbox> */}
   {/* </IonItem> */}
-      <IonModal isOpen={this.state.isSearchingModal}>
+      <IonModal isOpen={this.state.isSearchingModal} >
       <IonHeader>
-      <IonToolbar>
+      <IonToolbar id="newsToolbar">
       <IonButtons slot='start'>
                 <IonButton onClick={() => this.setState({isSearchingModal: false})} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
-        <IonButton color="secondary" onClick={()=> this.subscribe(this.state.topicSearched) && this.setState({showSubscribeAlert:true})} fill='clear'>
-        <IonIcon icon={addCircle}/>
+        <IonButton onClick={()=> this.subscribe(this.state.topicSearched) && this.setState({showSubscribeAlert:true})} fill='clear'>
+        <IonIcon id="addTopic" icon={addCircle}/>
         </IonButton>
       </IonButtons>
-      <IonTitle>
+      <IonTitle id="newsTitle">
           News
         </IonTitle>
       </IonToolbar>
@@ -525,7 +527,12 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonModal>
         </IonContent>
     </IonModal>
-    <IonModal isOpen={this.state.showSubscription}>
+    <SubscriptionModal showModal={this.state.showSubscription}
+    closeButton={() => {this.setState({showSubscription: false})}}
+    unsubButton={this.unsubscribe.bind(this)}
+    subscriptions={this.state.subs}
+    ></SubscriptionModal>
+    {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
           <IonToolbar class='feedToolbar2'>
             <IonButtons slot='start'>
@@ -541,11 +548,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
           <IonCard>
         {/* <ParentComponent>
        {subs}
-      </ParentComponent> */}
+      </ParentComponent>
             <ChildrenComponent subs={this.state.subs} func={this.unsubscribe.bind(this)}></ChildrenComponent>
           </IonCard>
         </IonContent>
-    </IonModal>
+    </IonModal> */}
     <FeedList headerName="Recent News" articleList={this.state.articles}></FeedList>
     {/* <IonList>
         <IonListHeader>

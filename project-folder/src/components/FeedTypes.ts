@@ -17,9 +17,27 @@ export type FeedState = {
     isSearchingModal:boolean,
     showSearchAlert:boolean,
     showSubscribeAlert:boolean,
-    isChanging:boolean,
-  }
-  
+    isChanging:boolean
+}
+export type GroupFeedState = {
+  articles: articleList;
+  subs: string[];
+  articlesSearched:any[],
+  subscribedArticles: any;
+  CurrentUser:any;
+  topicSearched:any;
+  showLoading:boolean;
+  showModal:boolean,
+  showSubscription:boolean,
+  allArticles:any[],
+  locationBased:boolean,
+  isSearchingModal:boolean,
+  showSearchAlert:boolean,
+  showSubscribeAlert:boolean,
+  isChanging:boolean,
+  isWeatherModalOpen: boolean,
+  groupId: string;
+}
 export type FeedProps = {
     history: any;
     location: any;
