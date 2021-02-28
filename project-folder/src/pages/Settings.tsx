@@ -1,5 +1,5 @@
-// Clay Mallory
-// File input code borrowed from Input code taken from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86.
+// (Mostly) Clay Mallory
+// File input code borrowed from https://medium.com/front-end-weekly/file-input-with-react-js-and-typescript-64dcea4b0a86.
 import React, { useState } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
 import { PushNotification, PushNotificationToken, PushNotificationActionPerformed, Capacitor, Plugins, CameraResultType, FilesystemDirectory} from '@capacitor/core';
@@ -49,6 +49,7 @@ type MyState = {
   newPassword:string;
   newUsername:string;
   notifications: [{}];
+  isSubbed:boolean;
 
 
 }
@@ -73,6 +74,7 @@ class Settings extends React.Component<MyProps, MyState> {
     sourceToBlock:"",
     sourceToUnBlock:"",
     localList: [],
+    isSubbed:false,
     newPassword:'',
     newUsername:'',
     notifications:[{ id: 'id', title: 'Test Push', body: "This is my first push notification" }]
@@ -92,6 +94,8 @@ class Settings extends React.Component<MyProps, MyState> {
           db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
               this.setState({currentUserName: doc.data()!.displayName})
+              this.setState({currentUserName: doc.data()!.isSubbed})
+
               var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
                  //this.setState({blockedSources: snapshot.data()!.blockedSources})
@@ -121,11 +125,8 @@ class Settings extends React.Component<MyProps, MyState> {
 
   push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
     
-    // Register with Apple / Google to receive push via APNS/FCM
-    console.log('here again');
     PushNotifications.register();
     var temp = this.state.topics;
-
     for(var i = 0; i < temp.length; i++) {
       PushNotifications.register().then(()=> {
         console.log("subscribed to" + temp[i]);
@@ -267,6 +268,20 @@ changePassword(password:string) {
 
   })
 }
+}
+
+notify() {
+  if(isPushAvailable&&this.state.isSubbed) 
+    this.push();
+  else if(!this.state.isSubbed) {
+
+  }
+db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+          notifications:this.state.isSubbed,
+         
+        })
+
+    
 }
 
 /*changeEmail(email:string) {
@@ -579,10 +594,11 @@ isValidSite(siteName:string) {
           <img id = 'myimg' />
         </IonAvatar>
         {this.state.currentUserName}
+        {console.log("testname " + this.state.currentUserName)}
         </IonItem>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
-            <IonToggle onClick={(()=> {if(isPushAvailable) this.push()})} value="Notifications" />
+            <IonToggle checked = {this.state.isSubbed} onClick={(()=> {this.state.isSubbed = !this.state.isSubbed; this.notify()})} value="Notifications" />
           </IonItem>
 
         <IonContent>

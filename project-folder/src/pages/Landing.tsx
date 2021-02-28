@@ -121,7 +121,8 @@ class Landing extends React.Component<MyProps, MyState> {
       blockedSources:[],
       groups: [],
       displayName: this.state.username,
-      photo: ''
+      photo: '',
+      notifications: false
     })
     const createEmail : Promise<void> = db.collection('emails').doc(this.state.registerEmail).set({
       userid: auth.currentUser?.uid
