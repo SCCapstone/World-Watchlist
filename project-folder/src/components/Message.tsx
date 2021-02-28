@@ -16,8 +16,8 @@ interface MessageProps {
 function Message(props: MessageProps) {
     return (
       <div>
-      <IonLabel position='stacked'>{props.sender}</IonLabel>
-      <IonItem>
+      <IonLabel class='messageLabel' position='stacked'>{props.sender}</IonLabel>
+      <IonItem class='messageItem'>
         <IonAvatar slot="start">
           <img src={props.photo !== '' ? props.photo : Placeholder} />
         </IonAvatar>
