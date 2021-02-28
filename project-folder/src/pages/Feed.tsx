@@ -40,6 +40,7 @@ import { FeedProps, FeedState } from '../components/FeedTypes';
 import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
 import { tempaddSubscription, tempremoveSubscription } from '../components/TempFunctions';
+import SubscriptionModal from '../components/SubscriptionModal';
 const { Storage } = Plugins;
 
 
@@ -473,7 +474,12 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonModal>
         </IonContent>
     </IonModal>
-    <IonModal isOpen={this.state.showSubscription}>
+    <SubscriptionModal showModal={this.state.showSubscription}
+    closeButton={() => {this.setState({showSubscription: false})}}
+    unsubButton={this.unsubscribe.bind(this)}
+    subscriptions={this.state.subs}
+    ></SubscriptionModal>
+    {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
           <IonToolbar class='feedToolbar2'>
             <IonButtons slot='start'>
@@ -489,11 +495,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
           <IonCard>
         {/* <ParentComponent>
        {subs}
-      </ParentComponent> */}
+      </ParentComponent>
             <ChildrenComponent subs={this.state.subs} func={this.unsubscribe.bind(this)}></ChildrenComponent>
           </IonCard>
         </IonContent>
-    </IonModal>
+    </IonModal> */}
     <FeedList headerName="Recent News" articleList={this.state.articles}></FeedList>
     {/* <IonList>
         <IonListHeader>

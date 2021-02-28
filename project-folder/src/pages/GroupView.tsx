@@ -270,6 +270,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       this.anchorRef.current!.scrollIntoView();
     }
   }
+  
 
 
   render() {
@@ -449,11 +450,11 @@ class GroupView extends React.Component<MyProps, MyState> {
             </IonToolbar>
           </IonHeader>
           {/* Pulled from Social Page */}
-          <IonSegment onIonChange={this.handleSegmentSwitch.bind(this)} value={this.state.groupSegment}>
-          <IonSegmentButton value='messages'>
+          <IonSegment id="groupSegment" onIonChange={this.handleSegmentSwitch.bind(this)} value={this.state.groupSegment}>
+          <IonSegmentButton value='messages' class="groupSegmentButton">
             <IonLabel>Messages</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value='feed'>
+          <IonSegmentButton value='feed' class="groupSegmentButton">
             <IonLabel>Feed</IonLabel>
           </IonSegmentButton>
         </IonSegment>
