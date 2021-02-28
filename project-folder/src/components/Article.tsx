@@ -11,6 +11,10 @@ async function openURL(url:any){
   await Browser.open({ url: url });
 }
 
+async function get(){
+  
+}
+
  function yeet(a:article) { //yeets an article
   var temp = [];
    db.collection("profiles").doc(auth.currentUser?.uid)
@@ -48,20 +52,12 @@ function Article(props: {theArticle: article}) {
             <IonCardContent>
             news source: {props.theArticle.source}
             <IonItem>
-            <IonButton onClick={()=> {var temp = [];
-   db.collection("profiles").doc(auth.currentUser?.uid)
-          .onSnapshot(async (doc) => {
-             temp = doc.data()!.blockedSources
-             temp.push(new URL(props.theArticle.link).host)
-             db.collection('profiles').doc(auth.currentUser?.uid).update({
-              // blockedSources:temp
-             
-
-        blockedSources : firebase.firestore.FieldValue.arrayUnion(new URL(props.theArticle.link).host)
-
-           })
-             
-  })}} slot = 'end'>Block this Source</IonButton>
+            <IonButton onClick={()=> {
+            const ref = db.collection("profiles").doc(auth.currentUser?.uid)
+            const res = ref.update({
+              blockedSources: firebase.firestore.FieldValue.arrayUnion(props.theArticle.source)
+            });
+          }} slot = 'end'>Block this Source</IonButton>
             </IonItem>
             <br></br>
               <a onClick={()=>openURL(props.theArticle.link)}>link</a>

@@ -145,10 +145,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.setState({articles:[]})
     // get blocked sources on firestore
     let aList : any[] = [];
-    db.collection("profiles").doc(auth.currentUser?.uid)
-          .onSnapshot(async (doc) => {
-          this.setState({blockedSources:  await doc.data()!.blockedSources});
-    })
     for (var i = 0; i < this.state.subs.length; i++) {
       /* Observe any changes in firestore and send a notification*/
       await this.checkCollection(this.state.subs[i])
