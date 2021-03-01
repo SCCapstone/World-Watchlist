@@ -39,7 +39,7 @@ import {
 import Message from '../components/Message'
 import GroupFeed from '../components/GroupFeed';
 import { article, articleList } from '../components/ArticleTypes';
-import { hasTopics, tempapiSearch, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
+import { hasTopics, tempapiSearch, tempGetSubscribedArticles, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 import SearchModal from '../components/SearchModal';
 import { NewsDB } from '../config/config';
@@ -374,13 +374,16 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
   async addGroupSubscriptionListener() {
     if (this.props.groupDetails.id !== "") {
-      let listener = db.collection("topicSubscription").doc(this.props.groupDetails.id).onSnapshot((docData) => {
+      let listener = db.collection("topicSubscription").doc(this.props.groupDetails.id).onSnapshot(async (docData) => {
         if (docData.exists) {
           let list = docData.data()?.subList;
           this.setState({subscriptions: list});
         } else {
           db.collection("topicSubscription").doc(this.props.groupDetails.id).set({subList: []});
         }
+        let newArticles = await tempGetSubscribedArticles(this.state.blockedSources, this.state.subscriptions, this.state.articles);
+        console.log(newArticles);
+        this.setState({articles: newArticles})
       })
       this.setState({subscriptionListener: listener});
     } else {
