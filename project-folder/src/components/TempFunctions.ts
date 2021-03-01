@@ -211,25 +211,31 @@ export const tempcheckCollection = async (collection:string) => {
     var observer = NewsDB.collection(collection).where('Title', '!=', '')
     .onSnapshot(async querySnapshot => {
         // if there are changes to the metadata, clear cache and add new docs to the 
+      const LocalNotificationPendingList = await LocalNotifications.getPending()
+        // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
+          // clear cache so new articles can be added to cache
           tempclear();
-            isChanging = true;
-        //   this.setState({isChanging:true})
+          isChanging = true;
           if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
             await LocalNotifications.schedule({
               notifications: [{
-                title: 'New articles in your feed!',
+                title: 'Changes in your feed!',
                 body: "Check them out!",
                 id: 1,
                 schedule: {
-                  at:new Date(new Date().getTime() + 1000),
-                  repeats:false,
-                }
+                  // notification 1 minutes after change in collections
+                  at:new Date(new Date().getTime() + 60000),
+                  repeats:false
+                },
               }]
             });
-      }
-    });
+          }
+          if (LocalNotificationPendingList.notifications.length>0) {
+            LocalNotifications.cancel(LocalNotificationPendingList)
+          }
+        })
     return isChanging;
 }
 
