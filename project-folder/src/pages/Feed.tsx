@@ -40,7 +40,7 @@ import ChildrenComponent from '../components/SubscriptionChildren';
 import { FeedProps, FeedState } from '../components/FeedTypes';
 import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
-import { tempaddSubscription, tempremoveSubscription } from '../components/TempFunctions';
+import { tempaddSubscription, tempremoveSubscription, tempapiSearch, tempsubscribe,  } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 const { Storage } = Plugins;
 
@@ -72,6 +72,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
+        
+        db.collection("profiles").doc(auth.currentUser?.uid)
+          .onSnapshot(async (doc) => {
+          this.setState({blockedSources:  await doc.data()!.blockedSources});
+      })
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid)
           .onSnapshot(async (sub_list) => {
@@ -85,7 +90,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
             }
           })
-        
         // end of getting data from server
       }
     })
@@ -95,10 +99,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.setState({articles:[]})
     // get blocked sources on firestore
     let aList : any[] = [];
-    db.collection("profiles").doc(auth.currentUser?.uid)
-          .onSnapshot(async (doc) => {
-          this.setState({blockedSources:  await doc.data()!.blockedSources});
-    })
+    
     console.log(this.state.blockedSources)
     for (var i = 0; i < this.state.subs.length; i++) {
       /* Observe any changes in firestore and send a notification*/
@@ -163,7 +164,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
             //await new Promise(r => setTimeout(r, 1000));
             var domain = (articleItem.source)
             if(!this.state.blockedSources.includes(domain)) {
-              console.log("blocked")
               aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
@@ -264,8 +264,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
         .then(async (snapshot) => {
         if (snapshot.empty) {
           // searching through api and sending to firestore instead of searching in main collection
-          await this.apiSearch(topic, 'search')
-       
+          this.setState({articlesSearched :await tempapiSearch(topic, 'search', auth.currentUser?.uid)})
+          console.log(this.state.articlesSearched)
         } else {
         console.log("collection exist, will pull data from that collection")
 
@@ -351,7 +351,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
           await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title: newsItem.title, Link: newsItem.link, Description: text, source: baseUrl, pubDate:newsItem.pubDate});
         })
         await this.addSubscription(topic.toLowerCase());
-
       }
     }).catch((error) => {
       console.log(error)
@@ -475,7 +474,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
-        <IonButton onClick={()=> this.subscribe(this.state.topicSearched) && this.setState({showSubscribeAlert:true})} fill='clear'>
+        <IonButton onClick={()=> tempsubscribe(this.state.topicSearched, auth.currentUser?.uid) && this.setState({showSubscribeAlert:true})} fill='clear'>
         <IonIcon id="addTopic" icon={addCircle}/>
         </IonButton>
       </IonButtons>

@@ -77,7 +77,7 @@ class Settings extends React.Component<MyProps, MyState> {
     isSubbed:false,
     newPassword:'',
     newUsername:'',
-    notifications:[{ id: 'id', title: 'Test Push', body: "This is my first push notification" }]
+    notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }]
 
 
   };
@@ -94,7 +94,8 @@ class Settings extends React.Component<MyProps, MyState> {
           db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
               this.setState({currentUserName: doc.data()!.displayName})
-              this.setState({currentUserName: doc.data()!.isSubbed})
+              this.setState({isSubbed: doc.data()!.isSubbed})
+              console.log(this.state.isSubbed)
 
               var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
@@ -112,7 +113,7 @@ class Settings extends React.Component<MyProps, MyState> {
           this.props.history.push("/landing")
 
        this.pullImage();
-       console.log("I'm here " + this.state.currentUserName);
+      
   }
 
 
@@ -129,7 +130,6 @@ class Settings extends React.Component<MyProps, MyState> {
     var temp = this.state.topics;
     for(var i = 0; i < temp.length; i++) {
       PushNotifications.register().then(()=> {
-        console.log("subscribed to" + temp[i]);
         FCMPlugin.subscribeTo({topic:temp[i]})
       }).catch((err)=>console.log(err));
   }
@@ -271,15 +271,17 @@ changePassword(password:string) {
 }
 
 notify() {
+
+  db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+          notifications:this.state.isSubbed,
+         
+        })
   if(isPushAvailable&&this.state.isSubbed) 
     this.push();
   else if(!this.state.isSubbed) {
 
   }
-db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
-          notifications:this.state.isSubbed,
-         
-        })
+
 
     
 }
@@ -331,8 +333,7 @@ db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
 
       })
       .catch((error) => {
-  // A full list of error codes is available at
-  // https://firebase.google.com/docs/storage/web/handle-errors
+
   switch (error.code) {
     case 'storage/object-not-found':
     firebase.storage().ref().child('placeholder.png').getDownloadURL().then((url)=> {
@@ -598,7 +599,7 @@ isValidSite(siteName:string) {
         </IonItem>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
-            <IonToggle checked = {this.state.isSubbed} onClick={(()=> {this.state.isSubbed = !this.state.isSubbed; this.notify()})} value="Notifications" />
+            <IonToggle checked = {this.state.isSubbed} onClick={(()=> {this.state.isSubbed = !this.state.isSubbed; this.push();this.notify()})} value="Notifications" />
           </IonItem>
 
         <IonContent>

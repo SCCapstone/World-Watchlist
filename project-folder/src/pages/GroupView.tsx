@@ -569,7 +569,7 @@ class GroupView extends React.Component<MyProps, MyState> {
                 <IonLabel>Subscriptions</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' /*icon={}*//>
               </IonItem>
-              <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, isSettingsModalOpen: true})}}>
+              <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, showSearchModal: true})}}>
                 <IonLabel>Search for Subscriptions</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' /*icon={settingsOutline}*//>
               </IonItem>
