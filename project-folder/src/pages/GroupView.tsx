@@ -39,7 +39,7 @@ import {
 import Message from '../components/Message'
 import GroupFeed from '../components/GroupFeed';
 import { article, articleList } from '../components/ArticleTypes';
-import { tempapiSearch, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
+import { hasTopics, tempapiSearch, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 import SearchModal from '../components/SearchModal';
 import { NewsDB } from '../config/config';
@@ -55,6 +55,7 @@ type MyState = {
   articles: article[],
   blockedSources: string[],
   subscriptions: string[],
+  subscriptionListener: any,
   showSubscriptionModal: boolean,
   showSearchModal: boolean,
   topicSearched: string,
@@ -120,6 +121,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     articles: [],
     blockedSources:[],
     subscriptions: [],
+    subscriptionListener: null,
     showSubscriptionModal: false,
     showSearchModal: false,
     topicSearched: "",
@@ -173,9 +175,11 @@ class GroupView extends React.Component<MyProps, MyState> {
     this.setState({
       members: members,
     })
+    this.addGroupSubscriptionListener();
   }
 
   componentDidUpdate(prevProps: MyProps) {
+    console.log(this.props.groupDetails.id);
     if(prevProps.groupDetails.members.length !== this.props.groupDetails.members.length) {
       if(auth.currentUser) {
         db.collection('blockedUsers').doc(auth.currentUser?.uid).get().then((document) => {
@@ -222,7 +226,7 @@ class GroupView extends React.Component<MyProps, MyState> {
         this.setState({messages: messages})
         if ( this.state.groupSegment === "messages")
           this.anchorRef.current!.scrollIntoView();
-
+      this.addGroupSubscriptionListener();
       })
     }
   }
@@ -316,7 +320,10 @@ class GroupView extends React.Component<MyProps, MyState> {
     this.setState({showSubscriptionModal: false});
   }
   
-  unsubscribeButton(index: number) {
+  unsubscribeButton(sub: string, index: number) {
+    console.log("Index to remove: "+index);
+    console.log("Subscriptions: ");
+    console.log(this.state.subscriptions);
     tempremoveSubscription(index, this.getId(), this.state.subscriptions);
   }
 
@@ -334,10 +341,14 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   async handleSearchTopic() {
     this.setState({showLoading: true, articlesSearched: []});
+    // console.log(this.state.topicSearched)
     if (validTopic(this.state.topicSearched)) {
       this.setState({showSearchingModal: true});
       let searched = await tempsearchTopic(this.state.topicSearched, this.props.groupDetails.id);
+      console.log("These be searched");
+      console.log(searched);
       this.setState({articlesSearched: searched});
+      console.log(this.state.articlesSearched);
     } else {
       console.log("Invalid topic");
       this.setState({showSearchAlert: true});
@@ -360,6 +371,21 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   handleDismissSubscribe() {
     this.setState({showSubscriptionModal: false});
+  }
+  async addGroupSubscriptionListener() {
+    if (this.props.groupDetails.id !== "") {
+      let listener = db.collection("topicSubscription").doc(this.props.groupDetails.id).onSnapshot((docData) => {
+        if (docData.exists) {
+          let list = docData.data()?.subList;
+          this.setState({subscriptions: list});
+        } else {
+          db.collection("topicSubscription").doc(this.props.groupDetails.id).set({subList: []});
+        }
+      })
+      this.setState({subscriptionListener: listener});
+    } else {
+      console.log("id is missing");
+    }
   }
   // // copied from Feed.tsx
   // async searchTopic(topic:any) {
@@ -539,7 +565,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       showSearchAlert={this.state.showSearchAlert}
       dismissSearchAlertButton={this.handleDismissSearch.bind(this)}
       showLoading={this.state.showLoading}
-      showSearchingModal={this.state.showSearchModal}
+      showSearchingModal={this.state.showSearchingModal}
       closeSearchingModal={this.handleCloseSearchModal.bind(this)}
       addTopicButton={this.handleAddTopic.bind(this)}
       articlesSearched={this.state.articlesSearched}

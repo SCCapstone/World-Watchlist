@@ -27,7 +27,7 @@ function SearchModal(props: {showModal: boolean, closeModal: any, topicSearched:
     <IonSearchbar placeholder="Enter a Topic or Location" value={props.topicSearched} onIonInput={props.handleTopicChange} animated>
   </IonSearchbar>
 
-  <IonButton id="searchButton" expand="block" fill="outline" type="submit" shape="round" onClick={async () => await props.searchTopicButton}>
+  <IonButton id="searchButton" expand="block" fill="outline" type="submit" shape="round" onClick={props.searchTopicButton}>
       Search
   </IonButton>
 
