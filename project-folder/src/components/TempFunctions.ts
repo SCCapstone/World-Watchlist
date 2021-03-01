@@ -5,7 +5,7 @@ import firebase from "firebase"
 import { addListener } from "process";
 import { NewsDB } from "../config/config";
 import { db } from "../firebase"
-import { articleList } from "./ArticleTypes";
+import { article, articleList } from "./ArticleTypes";
 const { Storage } = Plugins;
 
 export const hasTopics = async (userId: string|undefined) => {
@@ -146,6 +146,64 @@ export const getArticles = async (userId: string|undefined) => {
     }
     })
     return {articles: articles, subs: subscriptions};
+}
+
+export const tempGetSubscribedArticles = async (blockedSources: string[], subscriptions: string[], articles: article[]) => {
+    // this.setState({articles:[]})
+    // get blocked sources on firestore
+    let aList : any[] = [];
+    let newArticles: article[] = [];
+    console.log(blockedSources)
+    for (var i = 0; i < subscriptions.length; i++) {
+      /* Observe any changes in firestore and send a notification*/
+      let isChanging = await tempcheckCollection(subscriptions[i])
+      aList = []
+      var articlesLocal = await Storage.get({key:subscriptions[i]})
+      // check local storage if collection exist take from cache, if collection changes, get from server
+      if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || isChanging === true) {
+        console.log("local storage empty for", subscriptions[i])
+        await NewsDB.collection(subscriptions[i]).get()
+      .then(async (snapshot) => {
+        snapshot.forEach(async doc => {
+          if (doc.exists) {
+            let articleItem = doc.data();
+            var html = articleItem.Description;
+            var a = document.createElement("a");
+            a.innerHTML = html;
+            var text = a.textContent || a.innerText || "";
+            //await new Promise(r => setTimeout(r, 1000));
+            var domain = (articleItem.source)
+            if(!blockedSources.includes(domain)) {
+              console.log("blocked")
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
+            }
+          } else {
+            console.log("Cannot find anything in database.")
+          }
+        })
+        var source = snapshot.metadata.fromCache ? "local cache" : "server";
+        console.log("Sub Articles came from " + source);
+        await Storage.set({ key: subscriptions[i], value: JSON.stringify(aList)});
+        console.log("List to be pushed");
+        console.log(aList);
+        newArticles = newArticles.concat(aList);
+        // this.setState({articles: [...this.state.articles, ...aList]});
+      })
+      } else {
+        let parsed = JSON.parse(articlesLocal.value);
+        // console.log("parsed data");
+        // console.log(parsed);
+        newArticles = newArticles.concat(parsed);
+        // console.log("Concatenated list");
+        // console.log(newArticles);
+        // this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
+        // console.log("taking from capacitor cache");
+      }
+    //   this.setState({isChanging:false}) // ignoring
+    }
+    console.log("Returning articles");
+    console.log(newArticles);
+    return newArticles;
 }
 
 export const tempcheckCollection = async (collection:string) => {
