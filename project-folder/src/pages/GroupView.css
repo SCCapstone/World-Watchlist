@@ -112,3 +112,27 @@
   text-align: center;
   padding-right: 20px;
 }
+
+#incomingFriendRequestHeader {
+  border-style: solid;
+  border-width: medium;
+  border-radius: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  border: 3px solid #4e8fff;
+  padding: 10px;
+  text-align: center;
+}
+
+#outgoingFriendRequestHeader {
+  border-style: solid;
+  border-width: medium;
+  border-radius: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  border: 3px solid #4e8fff;
+  padding: 10px;
+  text-align: center;
+}
