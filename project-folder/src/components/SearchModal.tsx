@@ -8,7 +8,8 @@ function SearchModal(props: {showModal: boolean, closeModal: any, topicSearched:
      handleTopicChange: any, searchTopicButton: any, showSearchAlert: boolean,
       dismissSearchAlertButton: any, showLoading: boolean, showSearchingModal: boolean, closeSearchingModal: any,
     addTopicButton: any, articlesSearched: article[], showSubscribeAlert: boolean, dismissSubscribeAlertButton: any}) {
-    <IonModal isOpen={props.showModal} onDidDismiss={props.closeModal}>
+        return (
+        <IonModal isOpen={props.showModal} onDidDismiss={props.closeModal}>
     <IonHeader>
         <IonToolbar class='feedToolbar2'>
     <IonButtons slot='start'>
@@ -75,6 +76,7 @@ function SearchModal(props: {showModal: boolean, closeModal: any, topicSearched:
    </IonContent>
    </IonModal>
      </IonContent>
- </IonModal>
+ </IonModal>);
+
 }
 export default SearchModal;

@@ -2,6 +2,7 @@
 import { LocalNotifications, Plugins } from "@capacitor/core";
 import axios from "axios";
 import firebase from "firebase"
+import { addListener } from "process";
 import { NewsDB } from "../config/config";
 import { db } from "../firebase"
 import { articleList } from "./ArticleTypes";
@@ -160,6 +161,44 @@ export const tempcheckCollection = async (collection:string) => {
       }
     });
     return isChanging;
+}
+
+export const tempsearchTopic = async (topic:any, userId: string|undefined) => {
+    let aList : articleList = [];
+      if (validTopic(topic)/*topic === null || topic === undefined || topic === ''*/) {
+        console.log("Enter a valid topic");
+      } else {
+        // this.toggleNewsModal()
+        /* cache data on topic search */
+        await NewsDB.collection(topic.toLowerCase()).get()
+        .then(async (snapshot) => {
+        if (snapshot.empty) {
+          // searching through api and sending to firestore instead of searching in main collection
+          await tempapiSearch(topic, 'search', userId)
+       
+        } else {
+        console.log("collection exist, will pull data from that collection")
+
+        aList = [];
+        snapshot.docChanges().forEach((change) => {
+          if (change.doc.exists) {
+            let articleItem = change.doc.data();
+            var html = articleItem.Description;
+            var a = document.createElement("a");
+            a.innerHTML = html;
+            var text = a.textContent || a.innerText || "";
+            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
+          }
+        //   this.setState({articlesSearched: aList})
+        })
+        }
+      })
+    }
+    return aList;
+}
+
+export const validTopic = (topic: string) => {
+    return topic !== null && topic !== undefined && topic !== "";
 }
 
 export const tempclear = async () => {

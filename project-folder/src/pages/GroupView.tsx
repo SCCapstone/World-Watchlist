@@ -38,10 +38,11 @@ import {
 
 import Message from '../components/Message'
 import GroupFeed from '../components/GroupFeed';
-import { article } from '../components/ArticleTypes';
-import { tempremoveSubscription, tempsubscribe } from '../components/TempFunctions';
+import { article, articleList } from '../components/ArticleTypes';
+import { tempapiSearch, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 import SearchModal from '../components/SearchModal';
+import { NewsDB } from '../config/config';
 
 // type SubState = {
 //   showModal: boolean,
@@ -56,6 +57,12 @@ type MyState = {
   subscriptions: string[],
   showSubscriptionModal: boolean,
   showSearchModal: boolean,
+  topicSearched: string,
+  showSearchAlert: boolean,
+  showLoading: boolean,
+  showSearchingModal: boolean,
+  articlesSearched: article[],
+  showSubscribeAlert: boolean,
   groupSegment: string|undefined,
   groupViewPopoverEvent: any,
   isGroupViewPopoverOpen: boolean,
@@ -115,6 +122,12 @@ class GroupView extends React.Component<MyProps, MyState> {
     subscriptions: [],
     showSubscriptionModal: false,
     showSearchModal: false,
+    topicSearched: "",
+    showSearchAlert: false,
+    showLoading: false,
+    showSearchingModal: false,
+    articlesSearched: [],
+    showSubscribeAlert: false,
     groupSegment: 'feed',
     groupViewPopoverEvent: undefined,
     isGroupViewPopoverOpen: false,
@@ -285,9 +298,11 @@ class GroupView extends React.Component<MyProps, MyState> {
       currentMessage: ''
     })
   }
+
   getId() {
     return this.props.groupDetails.id;
   }
+
   handleSegmentSwitch(e: any) {
     let segmentValue = e.detail.value;
     this.setState({groupSegment: segmentValue});
@@ -296,17 +311,94 @@ class GroupView extends React.Component<MyProps, MyState> {
       this.anchorRef.current!.scrollIntoView();
     }
   }
-  closeButton() {
+
+  subscribeCloseButton() {
     this.setState({showSubscriptionModal: false});
   }
+  
   unsubscribeButton(index: number) {
     tempremoveSubscription(index, this.getId(), this.state.subscriptions);
   }
-  subscribeButton(topic: string) {
-    tempsubscribe(topic, this.getId())
-  }
-  
 
+  subscribeButton(topic: string) {
+    tempsubscribe(topic, this.getId());
+  }
+
+  searchCloseButton() {
+    this.setState({showSearchModal: false});
+  }
+
+  handleTopicChange(e: any) {
+    this.setState({topicSearched: e.target.value});
+  }
+
+  async handleSearchTopic() {
+    this.setState({showLoading: true, articlesSearched: []});
+    if (validTopic(this.state.topicSearched)) {
+      this.setState({showSearchingModal: true});
+      let searched = await tempsearchTopic(this.state.topicSearched, this.props.groupDetails.id);
+      this.setState({articlesSearched: searched});
+    } else {
+      console.log("Invalid topic");
+      this.setState({showSearchAlert: true});
+    }
+    this.setState({showLoading: false});
+  }
+
+  handleDismissSearch() {
+    this.setState({showSearchAlert: false});
+  }
+
+  handleCloseSearchModal() {
+    this.setState({showSearchModal: false});
+  }
+
+  handleAddTopic() {
+    tempsubscribe(this.state.topicSearched, this.props.groupDetails.id);
+    this.setState({showSubscribeAlert: true});
+  }
+
+  handleDismissSubscribe() {
+    this.setState({showSubscriptionModal: false});
+  }
+  // // copied from Feed.tsx
+  // async searchTopic(topic:any) {
+  //   this.setState({showLoading: true})
+  //   this.setState({articlesSearched:[]})
+  //     if (topic === null || topic === undefined || topic === '') {
+  //       console.log("Enter a valid topic");
+  //       this.setState({showSearchAlert:true})
+  //     } else {
+  //       this.toggleNewsModal()
+  //       let aList : articleList = [];
+  //       /* cache data on topic search */
+  //       await NewsDB.collection(topic.toLowerCase()).get()
+  //       .then(async (snapshot) => {
+  //       if (snapshot.empty) {
+  //         // searching through api and sending to firestore instead of searching in main collection
+  //         await tempapiSearch(topic, 'search', this.props.groupDetails.id)
+       
+  //       } else {
+  //       console.log("collection exist, will pull data from that collection")
+
+  //       aList = [];
+  //       snapshot.docChanges().forEach((change) => {
+  //         if (change.doc.exists) {
+  //           let articleItem = change.doc.data();
+  //           var html = articleItem.Description;
+  //           var a = document.createElement("a");
+  //           a.innerHTML = html;
+  //           var text = a.textContent || a.innerText || "";
+  //           aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
+  //         }
+  //         this.setState({articlesSearched: aList})
+  //       })
+  //       }
+  //     })
+  //   }
+  //   this.setState({showLoading: false})
+  //   return 0
+  // }
 
   render() {
     return (
@@ -435,24 +527,24 @@ class GroupView extends React.Component<MyProps, MyState> {
       </IonModal>
 
       <SubscriptionModal showModal={this.state.showSubscriptionModal}
-      closeButton={this.closeButton.bind(this)}
+      closeButton={this.subscribeCloseButton.bind(this)}
       unsubButton={this.unsubscribeButton.bind(this)}
       subscriptions={this.state.subscriptions}></SubscriptionModal>
 
-      {/* <SearchModal showModal={this.state.showSearchModal}
-      closeModal={}
-      topicSearched={}
-      handleTopicChange={}
-      searchTopicButton={}
-      showSearchAlert={}
-      dismissSearchAlertButton={}
-      showLoading={}
-      showSearchingModal={}
-      closeSearchingModal={}
-      addTopicButton={}
-      articlesSearched={}
-      showSubscribeAlert={}
-      dismissSubscribeAlertButton={}></SearchModal> */}
+      <SearchModal showModal={this.state.showSearchModal}
+      closeModal={this.searchCloseButton.bind(this)}
+      topicSearched={this.state.topicSearched}
+      handleTopicChange={this.handleTopicChange.bind(this)}
+      searchTopicButton={this.handleSearchTopic.bind(this)}
+      showSearchAlert={this.state.showSearchAlert}
+      dismissSearchAlertButton={this.handleDismissSearch.bind(this)}
+      showLoading={this.state.showLoading}
+      showSearchingModal={this.state.showSearchModal}
+      closeSearchingModal={this.handleCloseSearchModal.bind(this)}
+      addTopicButton={this.handleAddTopic.bind(this)}
+      articlesSearched={this.state.articlesSearched}
+      showSubscribeAlert={this.state.showSubscribeAlert}
+      dismissSubscribeAlertButton={this.handleDismissSubscribe.bind(this)}></SearchModal>
 
         <IonPopover
           cssClass='groupViewPopover'
