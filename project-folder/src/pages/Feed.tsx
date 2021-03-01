@@ -75,7 +75,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
         
         db.collection("profiles").doc(auth.currentUser?.uid)
           .onSnapshot(async (doc) => {
-          this.setState({blockedSources:  await doc.data()!.blockedSources});
+            if (doc.exists)
+              this.setState({blockedSources:  await doc.data()!.blockedSources});
+            else {
+              db.collection("profiles").doc(auth.currentUser?.uid).set({blockedSources: []});
+            }
       })
           // everytime there is a new subscription, update news onto main feed
           db.collection("topicSubscription").doc(auth.currentUser?.uid)
