@@ -166,7 +166,7 @@ class Landing extends React.Component<MyProps, MyState> {
                   <IonInput value={this.state.loginPassword}  className='loginInput' type='password' placeholder = 'Password' onIonChange={(e) => {this.setState({loginPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
-              <IonButton onClick={() => {this.login()}} className='loginButton'>Submit</IonButton>
+              <IonButton shape = 'round' onClick={() => {this.login()}} className='loginButton'>Submit</IonButton>
             </div>
           :
             <div className='registerContainer'>
@@ -174,7 +174,7 @@ class Landing extends React.Component<MyProps, MyState> {
               <h1 id='header'>Register for an account</h1>
                 <IonItem lines='none' className='registerItem'>
                 <IonLabel className='registerLabel' position='floating' id = 'email'></IonLabel>
-                  <IonInput value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
+                  <IonInput id = 'test' value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
@@ -192,11 +192,11 @@ class Landing extends React.Component<MyProps, MyState> {
                   <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
-              <IonButton onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
+              <IonButton shape = 'round' onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
             </div>
         }
 
-          <IonButton className = 'landingSwitch' onClick={() => {if(this.state.btnText=='Create an Account') this.state.btnText='Log In'; else this.state.btnText='Create an Account';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
+          <IonButton shape = 'round' className = 'landingSwitch' onClick={() => {if(this.state.btnText=='Create an Account') this.state.btnText='Log In'; else this.state.btnText='Create an Account';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
         </IonContent>
       </IonPage>
       )

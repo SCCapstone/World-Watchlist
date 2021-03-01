@@ -1,14 +1,17 @@
 .landingContent {
-  --background: #e8e9ec;
+  --background: #3f5069;
   text-align: center;
 }
 
+
 .loginInput {
-  width: 50%;
-  border-bottom: 2px solid #3171e0;
+ width: 50%;
+  border-radius: 15px;
+  background:transparent;
+  border:1px solid #000;
   text-align:center;
   margin-top: 10px;
-  color:#2d539e;
+  color:black;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -50,11 +53,15 @@
 }
 
 .registerInput {
-  width: 60%;
-  border-bottom: 2px solid #3171e0;
+
+ width: 50%;
+  border-radius: 15px;
+  background:transparent;
+  border:1px solid #000;
   text-align:center;
   margin-top: 10px;
-  color:#2d539e;
+  color:black;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -63,6 +70,7 @@
   --background: transparent;
   margin-left: auto;
   margin-right: auto;
+
 }
 
 
@@ -110,7 +118,7 @@
   font-weight: bold;
   padding-top: 30px;
   padding-bottom: 20px;
-  color: #2d539e;
+  color: black;
 }
 
 .loginTitle {
