@@ -8,6 +8,22 @@ import { db } from "../firebase"
 import { articleList } from "./ArticleTypes";
 const { Storage } = Plugins;
 
+export const hasTopics = async (userId: string|undefined) => {
+    if (userId !== undefined && userId !== null && userId !== "") {
+        db.collection("topicSubscription").doc(userId).get().then((docData) => {
+            if (!docData.exists) {
+                console.log("Making new list");
+                db.collection("topicSubscription").doc(userId).set({subList: []});
+            } else {
+                console.log("Already has list");
+            }
+        })
+    } else {
+        console.log("Invalid user id: "+userId+".");
+        console.log(userId);
+    }
+}
+
 export const tempaddSubscription = async (sub: string, userId: string|undefined) => {
     console.log("Temp add called");
   if (sub!== "")
@@ -161,7 +177,7 @@ export const tempcheckCollection = async (collection:string) => {
 
 export const tempsearchTopic = async (topic:any, userId: string|undefined) => {
     let aList : articleList = [];
-      if (validTopic(topic)/*topic === null || topic === undefined || topic === ''*/) {
+      if (!validTopic(topic)/*topic === null || topic === undefined || topic === ''*/) {
         console.log("Enter a valid topic");
       } else {
         // this.toggleNewsModal()
@@ -170,8 +186,8 @@ export const tempsearchTopic = async (topic:any, userId: string|undefined) => {
         .then(async (snapshot) => {
         if (snapshot.empty) {
           // searching through api and sending to firestore instead of searching in main collection
-          await tempapiSearch(topic, 'search', userId)
-       
+          console.log("Search temp api");
+          aList = await tempapiSearch(topic, 'search', userId);
         } else {
         console.log("collection exist, will pull data from that collection")
 
@@ -187,9 +203,12 @@ export const tempsearchTopic = async (topic:any, userId: string|undefined) => {
           }
         //   this.setState({articlesSearched: aList})
         })
+        console.log(aList);
         }
       })
     }
+    console.log("Printing temp search topic list");
+    console.log(aList);
     return aList;
 }
 
