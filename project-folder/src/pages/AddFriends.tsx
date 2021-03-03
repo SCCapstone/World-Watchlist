@@ -60,7 +60,7 @@ class AddFriends extends React.Component<MyProps, MyState> {
 
   render() {
     return (
-      <IonModal isOpen={this.props.isAddFriendModalOpen}>
+      <IonModal isOpen={this.props.isAddFriendModalOpen} onDidDismiss={this.props.toggleAddFriendModal}>
         <IonHeader>
           <IonToolbar class='socialToolbar2'>
             <IonButtons slot='start'>

@@ -116,7 +116,7 @@ class PendingRequests extends React.Component<MyProps, MyState> {
 
   render() {
     return (
-      <IonModal isOpen={this.props.isPendingRequestsModalOpen}>
+      <IonModal isOpen={this.props.isPendingRequestsModalOpen} onDidDismiss={() => {this.props.togglePendingRequestsModal()}}>
         <IonHeader>
           <IonToolbar id='socialToolbar2'>
             <IonButtons slot='start'>

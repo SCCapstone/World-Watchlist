@@ -409,7 +409,7 @@ isValidSite(siteName:string) {
       const { notifications } = this.state;
       return (
       <IonPage>
-      <IonModal isOpen={this.state.isBlockSourceModalOpen}>
+      <IonModal isOpen={this.state.isBlockSourceModalOpen} onDidDismiss={() => {this.setState({isBlockSourceModalOpen: false})}}>
         <IonHeader>
           <IonToolbar class='settingsToolbar2'>
             <IonButtons>
@@ -458,7 +458,7 @@ isValidSite(siteName:string) {
 
 
 
-      <IonModal isOpen={this.state.isChangePasswordModalOpen}>
+      <IonModal isOpen={this.state.isChangePasswordModalOpen} onDidDismiss={() => {this.setState({isChangePasswordModalOpen: false})}}>
         <IonHeader>
           <IonToolbar class='settingsToolbar2'>
             <IonButtons>
@@ -483,7 +483,7 @@ isValidSite(siteName:string) {
         </IonContent>
       </IonModal>
 
-      <IonModal isOpen={this.state.isChangeUsernameModalOpen}>
+      <IonModal isOpen={this.state.isChangeUsernameModalOpen} onDidDismiss={() => {this.setState({isChangeUsernameModalOpen: false})}}>
         <IonHeader>
           <IonToolbar class='settingsToolbar2'>
             <IonButtons>
@@ -508,7 +508,7 @@ isValidSite(siteName:string) {
         </IonContent>
 
       </IonModal>
-      <IonModal isOpen={this.state.isAccountSettingsModalOpen}>
+      <IonModal isOpen={this.state.isAccountSettingsModalOpen} onDidDismiss={() => {this.setState({isAccountSettingsModalOpen: false})}}>
         <IonHeader>
           <IonToolbar class='settingsToolbar2'>
             <IonButtons>

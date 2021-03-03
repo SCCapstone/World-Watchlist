@@ -299,8 +299,15 @@ class Social extends React.Component<MyProps, MyState> {
           db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
             outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(document.data()!.userid)
           })
+          this.setState({isAddFriendModalOpen: false});
+        } else {
+          alert("User email not found");
         }
       })
+    } else if ( email === "") {
+      alert("String was empty");
+    } else {
+      alert("You cannot enter your own email");
     }
   }
 
@@ -543,16 +550,16 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
   toggleGroupModal() {
-    this.setState({isGroupModalOpen: !this.state.isGroupModalOpen})
+    this.setState({isGroupModalOpen: /*!this.state.isGroupModalOpen*/false})
   }
   toggleAddFriendModal() {
-    this.setState({isAddFriendModalOpen: !this.state.isAddFriendModalOpen})
+    this.setState({isAddFriendModalOpen: /*!this.state.isAddFriendModalOpen*/false})
   }
   togglePendingRequestsModal() {
-    this.setState({isPendingRequestsModalOpen: !this.state.isPendingRequestsModalOpen})
+    this.setState({isPendingRequestsModalOpen: /*!this.state.isPendingRequestsModalOpen*/false})
   }
   toggleFriendModal() {
-    this.setState({isFriendModalOpen: !this.state.isFriendModalOpen})
+    this.setState({isFriendModalOpen: /*!this.state.isFriendModalOpen*/false})
   }
 
 
@@ -614,12 +621,12 @@ class Social extends React.Component<MyProps, MyState> {
               <IonListHeader id='socialPopoverListHeader'><b>Social Options</b></IonListHeader>
               <IonItem button={true} onClick={() => {this.setState({isSocialPopoverOpen: false, isAddFriendModalOpen: true})}}><IonLabel>Add Friend</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={personAddOutline}/></IonItem>
               <IonItem button={true}  onClick={() => {this.setState({isSocialPopoverOpen: false, isCreateGroupModalOpen: true})}}><IonLabel>Create Group</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={addCircleOutline}/></IonItem>
-              <IonItem button={true}><IonLabel>New Message</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={sendOutline}/></IonItem>
+              {/* <IonItem button={true}><IonLabel>New Message</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={sendOutline}/></IonItem> */}
             </IonList>
           </IonContent>
         </IonPopover>
 
-        <IonModal isOpen={this.state.isCreateGroupModalOpen}>
+        <IonModal isOpen={this.state.isCreateGroupModalOpen} onDidDismiss={() => {this.setState({isCreateGroupModalOpen: false})}}>
           <IonHeader>
             <IonToolbar class='socialToolbar2'>
             <IonButtons slot='start'>
