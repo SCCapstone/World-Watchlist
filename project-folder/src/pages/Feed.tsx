@@ -190,7 +190,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
   }
   
   toggleWeatherModal() {
-    this.setState({isWeatherModalOpen: !this.state.isWeatherModalOpen})
+    this.setState({isWeatherModalOpen: false/*!this.state.isWeatherModalOpen}*/});
   }
 
   // check server collection for changes

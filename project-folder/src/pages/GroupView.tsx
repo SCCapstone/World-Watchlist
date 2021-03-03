@@ -43,6 +43,7 @@ import { hasTopics, tempapiSearch, tempGetSubscribedArticles, tempremoveSubscrip
 import SubscriptionModal from '../components/SubscriptionModal';
 import SearchModal from '../components/SearchModal';
 import { NewsDB } from '../config/config';
+import FeedList from '../components/FeedList';
 
 // type SubState = {
 //   showModal: boolean,
@@ -432,7 +433,7 @@ class GroupView extends React.Component<MyProps, MyState> {
   render() {
     return (
       <div>
-      <IonModal swipeToClose={false} isOpen={this.state.isMembersModalOpen}>
+      <IonModal swipeToClose={false} isOpen={this.state.isMembersModalOpen} onDidDismiss={() => {this.setState({isMembersModalOpen: false})}}>
         <IonHeader>
           <IonToolbar>
             <IonButtons slot = 'start'>
@@ -469,7 +470,7 @@ class GroupView extends React.Component<MyProps, MyState> {
         </IonContent>
       </IonModal>
 
-      <IonModal swipeToClose={false} isOpen={this.state.isSettingsModalOpen}>
+      <IonModal swipeToClose={false} isOpen={this.state.isSettingsModalOpen} onDidDismiss={() => {this.setState({isSettingsModalOpen: false})}}>
         <IonHeader>
           <IonToolbar>
             <IonButtons slot = 'start'>
@@ -523,7 +524,7 @@ class GroupView extends React.Component<MyProps, MyState> {
         </IonContent>
       </IonModal>
 
-      <IonModal swipeToClose={false} isOpen={this.state.isFriendsListModalOpen}>
+      <IonModal swipeToClose={false} isOpen={this.state.isFriendsListModalOpen} onDidDismiss={() => {this.setState({isFriendsListModalOpen: false})}}>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot = 'start'>
@@ -617,7 +618,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           </IonContent>
         </IonPopover>
 
-        <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isGroupModalOpen}>
+        <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isGroupModalOpen} onDidDismiss={this.props.toggleGroupModal}>
           <IonHeader>
             <IonToolbar>
               <IonButtons slot = 'start'>
@@ -668,7 +669,7 @@ class GroupView extends React.Component<MyProps, MyState> {
 
           :
           <IonContent>
-            <GroupFeed headerName="Group News" articles={this.state.articles}></GroupFeed>
+            <FeedList headerName="Group News" articleList={this.state.articles}></FeedList>
           </IonContent>
   }
         </IonModal>

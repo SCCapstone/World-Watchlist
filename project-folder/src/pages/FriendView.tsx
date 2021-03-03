@@ -146,7 +146,7 @@ class FriendView extends React.Component<MyProps, MyState> {
           </IonContent>
         </IonPopover>
 
-        <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isFriendModalOpen}>
+        <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isFriendModalOpen} onDidDismiss={this.props.toggleFriendModal}>
           <IonHeader>
             <IonToolbar>
               <IonButtons slot = 'start'>

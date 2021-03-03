@@ -191,14 +191,14 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       //     temp={this.state.subscription[i].temp} location={this.state.subscription[i].location} index={i} />);
       // };
       return (
-      <IonModal isOpen={this.props.isOpen}>
+      <IonModal isOpen={this.props.isOpen} onDidDismiss={this.props.toggleWeatherModal}>
         <IonHeader>
           <IonToolbar className='weatherToolbar'>
             <IonTitle className='weatherTitle'>
               Weather
             </IonTitle>
             <IonButtons slot='start'>
-                <IonButton onClick={() => {this.props.toggleWeatherModal()}} fill='clear'>
+                <IonButton onClick={this.props.toggleWeatherModal} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
             </IonButtons>
