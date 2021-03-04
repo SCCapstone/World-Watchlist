@@ -1,0 +1,16 @@
+.weatherToolbar {
+    --background: #3171e0;
+    --color: white;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.weatherTitle {
+    text-align: center;
+    margin-left: auto;
+    margin-right: 60px;
+}
+
+#addFriendModalCloseIcon {
+    color:white;
+}

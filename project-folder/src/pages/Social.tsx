@@ -20,7 +20,7 @@ import {
   IonSegmentButton
 } from '@ionic/react'
 
-import GroupView from './GroupView'
+import GroupView from '../components/GroupView'
 import Placeholder from '../images/placeholder.png'
 
 import firebase, {db, auth} from '../firebase'
@@ -34,9 +34,9 @@ import {
 } from 'ionicons/icons'
 
 import './Social.css'
-import AddFriends from './AddFriends';
-import PendingRequests from './PendingRequests';
-import FriendView from './FriendView'
+import AddFriends from '../components/AddFriends';
+import PendingRequests from '../components/PendingRequests';
+import FriendView from '../components/FriendView'
 
 type MyState = {
   isAddFriendModalOpen: boolean;

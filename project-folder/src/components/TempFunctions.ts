@@ -283,3 +283,17 @@ export const validTopic = (topic: string) => {
 export const tempclear = async () => {
     await Storage.clear();
 }
+
+export const isValidEmail = (email: string) : string[] => {
+  let errors: string[] = [];
+  if (!email.includes('@'))
+    errors.push("Invalid email");
+  return errors;
+}
+
+export const isValidPassword = (password: string) : string[] => {
+  let errors: string[] = [];
+  if (password.length < 6 || password.length > 20)
+    errors.push("Password must have 6-20 characters");
+  return errors;
+}

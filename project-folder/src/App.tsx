@@ -32,16 +32,42 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { auth } from './firebase';
+// import { auth } from 'firebase-admin';
 
+async function isLoggedIn () {
+  let loggedIn: (boolean|undefined) = false;
+  let status = auth.onAuthStateChanged((user) => {
+    if (user) {
+      console.log("Logged in");
+      loggedIn = true;
+    } else {
+      console.log("Not logged in");
+      loggedIn = false;
+    }
+  })
+  console.log(loggedIn);
+  return loggedIn;
+}
+async function backToLogin() {
+  let logged = await isLoggedIn();
+  if (logged === false)
+    return <Redirect exact to="/landing"/>;
+}
+async function skipLogin() {
+  let logged = await isLoggedIn();
+  if ( logged === true)
+    return <Redirect exact to="/main/settings"/>;
+}
 const App: React.FC = () => (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
-        <Route path="/main" component={Tabs}/>
-          <Route path="/Weather" component={Weather}/>
-          <Route path="/feed" component={Feed}/>
-          <Route path="/main" component={Tabs}/>
-          <Route path="/landing" component={Landing} exact={true} />
+        <Route path="/main" component={Tabs} render={backToLogin}/>
+          <Route path="/Weather" component={Weather} render={backToLogin}/>
+          <Route path="/feed" component={Feed} render={backToLogin}/>
+          <Route path="/main" component={Tabs} render={backToLogin}/>
+          <Route path="/landing" component={Landing} exact={true} render={skipLogin}/>
           <Route exact path="/" render={() => <Redirect to="/landing" />} />
         </IonRouterOutlet>
       </IonReactRouter>

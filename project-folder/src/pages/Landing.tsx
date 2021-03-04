@@ -15,6 +15,8 @@ import {
 
 import './Landing.css'
 import firebase, {auth, db} from '../firebase.js'
+import { isValidEmail, isValidPassword } from '../components/TempFunctions';
+import Errors from '../components/Errors';
 
 type MyState = {
   loginEmail: string;
@@ -25,6 +27,7 @@ type MyState = {
   shouldLoginShow: boolean;
   username: string;
   btnText: string;
+  error_messages: string[];
 }
 
 type MyProps = {
@@ -44,7 +47,8 @@ class Landing extends React.Component<MyProps, MyState> {
     registerConfirmPassword: '',
     shouldLoginShow: true,
     username: '',
-    btnText: ''
+    btnText: '',
+    error_messages: []
   };
 
 
@@ -96,24 +100,34 @@ class Landing extends React.Component<MyProps, MyState> {
     if(this.state.registerConfirmPassword !== this.state.registerPassword) {
       guard = false
     }
+    let emailReturn = isValidEmail(this.state.registerEmail);
+    let passReturn = isValidPassword(this.state.registerPassword);
+    let messages = emailReturn.concat(passReturn);
+    console.log(messages);
+    console.log(messages === this.state.error_messages);
+    if ( messages !== this.state.error_messages)
+      this.setState({error_messages: messages})
+    if (messages.length !== 0)
+      guard = false;
     //attempts to register a user
     //field checks
+    if (guard) {
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+        auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
+          //user successfully registers
+          //reroute here
+          this.uploadDataToFirebase().then((result) => {
+            this.props.history.push("/main")
+          })
+        //admin.storage.ref().child(this.state.username+'#'+this.state.usernameIdentifier.toString() + '/new.jpg').put('../images/placeholder.png')
+        //firebase.put('asdf');
 
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
-      auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
-        //user successfully registers
-        //reroute here
-        this.uploadDataToFirebase().then((result) => {
-          this.props.history.push("/main")
+        }).catch((error) => {
+          //error handling
+          console.log(error.message)
         })
-       //admin.storage.ref().child(this.state.username+'#'+this.state.usernameIdentifier.toString() + '/new.jpg').put('../images/placeholder.png')
-       //firebase.put('asdf');
-
-      }).catch((error) => {
-        //error handling
-        console.log(error.message)
       })
-    })
+    }
   }
 
   async uploadDataToFirebase() {
@@ -193,6 +207,8 @@ class Landing extends React.Component<MyProps, MyState> {
                 </IonItem>
               </div>
               <IonButton shape = 'round' onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
+              <span>What up though homie</span>
+              <Errors errors={this.state.error_messages}></Errors>
             </div>
         }
 

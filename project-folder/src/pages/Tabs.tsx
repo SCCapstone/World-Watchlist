@@ -9,9 +9,9 @@ import {
 } from '@ionic/react'
 import { Redirect, Route } from 'react-router-dom';
 import { newspaperOutline, peopleOutline, settingsOutline} from 'ionicons/icons';
-import Feed from './Feed'
-import Social from './Social'
-import Settings from './Settings'
+import Feed from '../pages/Feed'
+import Social from '../pages/Social'
+import Settings from '../pages/Settings'
 import './Tabs.css'
 
 const Tabs: React.FC = () => {
