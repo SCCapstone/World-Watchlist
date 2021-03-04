@@ -40,7 +40,6 @@ const App: React.FC = () => {
     // check from cache if logged in
     const ret:any = await Storage.get({ key:'isLoggedIn'});
     var isUser = await JSON.parse(ret.value);
-    console.log(isUser)
     return JSON.parse(isUser);
   }
   useEffect(() => {

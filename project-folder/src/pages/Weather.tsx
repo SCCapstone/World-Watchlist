@@ -23,10 +23,7 @@ import {
 } from '@ionic/react'
 import './Weather.css'
 import firebase, {db, auth} from '../firebase'
-import { Redirect, Route } from 'react-router-dom';
-import { arrowBack, closeCircleOutline } from 'ionicons/icons';
-import Tabs from './Tabs'
-import ParentComponent from '../components/SubscriptionParent';
+import { arrowBack, closeCircleOutline, search } from 'ionicons/icons';
 import { WeatherProps, WeatherState } from '../components/WeatherTypes';
 import WeatherSubChildren from '../components/WeatherSubChildren';
 
@@ -44,7 +41,8 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       subscription: [],
       isUnsubscribing: false,
       CurrentUser:null,
-      isweatherOpen:false
+      isweatherOpen:false,
+      isSearching:false
   };
 
 
@@ -202,8 +200,26 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
             </IonButtons>
+            <IonButtons slot="end">
+              <IonButton id="feedButton" onClick={ ()=> this.setState({isSearching:true})}  fill='clear'>
+                  <IonIcon icon={search} />
+              </IonButton>
+              </IonButtons>
           </IonToolbar>
         </IonHeader>
+          <IonModal isOpen={this.state.isSearching}>
+          <IonHeader>
+      <IonToolbar className="weatherToolbar">
+      <IonButtons slot='start'>
+                <IonButton onClick={() => this.setState({isSearching: false})} fill='clear'>
+                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                </IonButton>
+        </IonButtons>
+      <IonTitle >
+          Search Weather
+        </IonTitle>
+      </IonToolbar>
+      </IonHeader>
         <IonContent>
         <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
         <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)
@@ -212,16 +228,14 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
         </IonButton>
         <IonLoading
         isOpen={this.state.showLoading}
-        onDidDismiss={() =>  this.subscribe(this.state.lat, this.state.long)}
+        onDidDismiss={() =>  this.subscribe(this.state.lat, this.state.long) && this.setState({isSearching:false})}
         message={'Getting data from API'}
         duration={1000}
         />
-
-      {/* <ParentComponent>
-       {weatherDisplay}
-      </ParentComponent> */}
-      <WeatherSubChildren subs={this.state.subscription} func={this.handleUnsub.bind(this)}></WeatherSubChildren>
-
+          </IonContent>
+          </IonModal>
+          <IonContent>
+            <WeatherSubChildren subs={this.state.subscription} func={this.handleUnsub.bind(this)}></WeatherSubChildren>
           </IonContent>
         </IonModal>
       )

@@ -12,7 +12,7 @@ export type WeatherState = {
     isUnsubscribing: boolean,
     CurrentUser:any,
     isweatherOpen:boolean;
-  
+    isSearching:boolean
   }
   
 export type WeatherProps = {

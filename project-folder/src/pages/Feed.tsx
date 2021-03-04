@@ -64,7 +64,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     isSearchingModal:false,
     showSearchAlert:false,
     showSubscribeAlert:false,
-    isChanging:false
+    isChanging:false,
   };
 
   constructor(props: FeedProps) {
@@ -72,7 +72,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
-        
         db.collection("profiles").doc(auth.currentUser?.uid)
           .onSnapshot(async (doc) => {
             if (doc.exists)
@@ -125,7 +124,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
             //await new Promise(r => setTimeout(r, 1000));
             var domain = (articleItem.source)
             if(!this.state.blockedSources.includes(domain)) {
-              console.log("blocked")
               aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
@@ -183,7 +181,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       this.setState({articles: [...this.state.articles, ...aList]})
     }, 500);
   }
-  
+
   getId() {
     // return user_id if current user else null
     return auth.currentUser?.uid;
@@ -463,12 +461,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         duration={7000}
       />
 
-
-      {/* <IonItem> */}
-         {/* check if person wants to search location */}
-  {/* <IonLabel>Location based search</IonLabel> */}
-  {/* <IonCheckbox onIonChange={e=> this.setState({locationBased:e.detail.checked}) }></IonCheckbox> */}
-  {/* </IonItem> */}
       <IonModal isOpen={this.state.isSearchingModal} >
       <IonHeader>
       <IonToolbar id="newsToolbar">
@@ -525,7 +517,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           </IonCard>
         </IonContent>
     </IonModal> */}
-    <FeedList headerName="Recent News" articleList={this.state.articles}></FeedList>
+    <FeedList headerName={"Recent News"} articleList={this.state.articles}></FeedList>
     {/* <IonList>
         <IonListHeader>
           Recent News
@@ -533,7 +525,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
       <ArticleList theArticleList={this.state.articles}></ArticleList>
     </IonList> */}
       </IonContent>
-
     </IonPage>
     )
   }
