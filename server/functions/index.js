@@ -179,7 +179,7 @@ async function deleteAll(){
   // url = "https://news.google.com/rss/search?q="+
   console.log(collectionArr)
   collectionArr.forEach(async collectionID => {
-    await deleteCollection(db,collectionID,500)
+    await deleteCollection(db,collectionID,100)
     
   })
   return null
@@ -203,7 +203,7 @@ async function deleteQueryBatch(db, query, resolve) {
   const snapshot = await query.get();
 
   const batchSize = snapshot.size;
-  if (batchSize === 0) {
+  if (batchSize === 5) {
     // When there are no documents left, we are done
     resolve();
     return;
@@ -274,7 +274,7 @@ app.get('/:topic', async function(req,res)
     res.send(article_info)
 })
 
-exports.scheduledDelete = functions.pubsub.schedule('59 7 * * *').onRun(async (context) => {
+exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
   console.log("deleting current collections and updating.")
   await deleteAll()
     

@@ -17,6 +17,7 @@ import './Landing.css'
 import firebase, {auth, db} from '../firebase.js'
 import { isValidEmail, isValidPassword } from '../components/TempFunctions';
 import Errors from '../components/Errors';
+import { Plugins } from '@capacitor/core';
 
 type MyState = {
   loginEmail: string;
@@ -34,7 +35,7 @@ type MyProps = {
   history: any;
   location: any;
 }
-
+const { Storage } = Plugins;
 
 
 class Landing extends React.Component<MyProps, MyState> {
@@ -55,6 +56,14 @@ class Landing extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props)
+    auth.onAuthStateChanged(() => {
+      if(auth.currentUser) {
+          // save logged in state.
+          Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
+        } else {
+          Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
+      }
+    })
 
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);

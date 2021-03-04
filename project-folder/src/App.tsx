@@ -1,5 +1,5 @@
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import React,{useEffect,useState} from 'react';
+import { Redirect, Route,useHistory } from 'react-router-dom';
 import {
   IonApp,
   IonRouterOutlet,
@@ -32,57 +32,50 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { auth } from './firebase';
-// import { auth } from 'firebase-admin';
+const { Storage } = Plugins;
 
-async function isLoggedIn () {
-  let loggedIn: (boolean|undefined) = false;
-  let status = auth.onAuthStateChanged((user) => {
-    if (user) {
-      console.log("Logged in");
-      loggedIn = true;
-    } else {
-      console.log("Not logged in");
-      loggedIn = false;
-    }
-  })
-  console.log(loggedIn);
-  return loggedIn;
-}
-async function backToLogin() {
-  let logged = await isLoggedIn();
-  if (logged === false)
-    return <Redirect exact to="/landing"/>;
-}
-async function skipLogin() {
-  let logged = await isLoggedIn();
-  if ( logged === true)
-    return <Redirect exact to="/main/settings"/>;
-}
-const App: React.FC = () => (
+const App: React.FC = () => {
+  const [isLoggedin,setLoginState] = useState(false)
+  async function isLoggedIn() {
+    // check from cache if logged in
+    const ret:any = await Storage.get({ key:'isLoggedIn'});
+    var isUser = await JSON.parse(ret.value);
+    console.log(isUser)
+    return JSON.parse(isUser);
+  }
+  useEffect(() => {
+    // see if logged in.
+    isLoggedIn().then(res=> {setLoginState(res)})
+    // rereun effect if the state changes.
+  },[isLoggedIn]);
+  
+  return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
-        <Route path="/main" component={Tabs} render={backToLogin}/>
-          <Route path="/Weather" component={Weather} render={backToLogin}/>
-          <Route path="/feed" component={Feed} render={backToLogin}/>
-          <Route path="/main" component={Tabs} render={backToLogin}/>
-          <Route path="/landing" component={Landing} exact={true} render={skipLogin}/>
-          <Route exact path="/" render={() => <Redirect to="/landing" />} />
+          <Route path="/main" component={Tabs}/>
+          <Route path="/Weather" component={Weather}/>
+          <Route path="/feed" component={Feed}/>
+          <Route path="/landing" component={Landing} exact={true} />
+          {/* if isLoggedIn go to main, else go to landing page */}
+          <Route exact path="/" render={ () => <Redirect to={ isLoggedin ? '/main' : '/landing'}/>} />
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>
-)
+  )
+}
 const { PushNotifications } = Plugins;
 const INITIAL_STATE = {
   notifications: [{ id: 'id', title: "Test Push", body: "This is my first push notification" }],
 };
 
 export class Home extends React.Component {
+
   state: any = {};
   props: any = {};
   constructor(props: any) {
     super(props);
+    
     this.state = { ...INITIAL_STATE };
   }
 
