@@ -35,16 +35,18 @@ import './theme/variables.css';
 const { Storage } = Plugins;
 
 const App: React.FC = () => {
-  const [isLoggedin,setLoginState] = useState(false)
+  const [isLoggedin,setLoginState] = useState(Boolean)
   async function isLoggedIn() {
     // check from cache if logged in
     const ret:any = await Storage.get({ key:'isLoggedIn'});
     var isUser = await JSON.parse(ret.value);
+    console.log("isUser", isUser)
     return JSON.parse(isUser);
   }
   useEffect(() => {
     // see if logged in.
     isLoggedIn().then(res=> {setLoginState(res)})
+    console.log(isLoggedin)
     // rereun effect if the state changes.
   },[isLoggedIn]);
   
