@@ -14,10 +14,11 @@ import {
 } from '@ionic/react'
 
 import './Landing.css'
-import firebase, {auth, db} from '../firebase.js'
+import firebase, {auth, db, signInWithGoogle} from '../firebase.js'
 import { isValidEmail, isValidPassword } from '../components/TempFunctions';
 import Errors from '../components/Errors';
 import { Plugins } from '@capacitor/core';
+import "@codetrix-studio/capacitor-google-auth";
 
 type MyState = {
   loginEmail: string;
@@ -58,6 +59,7 @@ class Landing extends React.Component<MyProps, MyState> {
     super(props)
     auth.onAuthStateChanged(() => {
       if(auth.currentUser) {
+       // this.props.history.push('/main');
           // save logged in state.
           Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
         } else {
@@ -96,6 +98,13 @@ class Landing extends React.Component<MyProps, MyState> {
         })
       })
     }
+  }
+
+  async googleLogin(){
+   const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+   await auth.signInWithPopup(provider);
+   this.props.history.push('/main');
   }
 
   register() {
@@ -222,6 +231,7 @@ class Landing extends React.Component<MyProps, MyState> {
         }
 
           <IonButton shape = 'round' className = 'landingSwitch' onClick={() => {if(this.state.btnText=='Create an Account') this.state.btnText='Log In'; else this.state.btnText='Create an Account';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
+          <IonButton shape = 'round' className = 'landingSwitch' onClick= {()=> {this.googleLogin()}}>GOOGLE</IonButton>
         </IonContent>
       </IonPage>
       )
