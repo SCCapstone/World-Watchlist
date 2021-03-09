@@ -4,7 +4,7 @@ import React from 'react';
 
 import './FeedToolbar.css'
 
-function FeedToolbar (props: { openWeather: any, showSubs: any, showModal: any}) {
+function FeedToolbar (props: { openWeather: any, showModal: any}) {
     
     // let openWeather = () => props.openWeather();
     // let showSubs = () => props.showSubs();
@@ -17,11 +17,6 @@ function FeedToolbar (props: { openWeather: any, showSubs: any, showModal: any})
 <IonButtons slot="start">
     <IonButton id="feedButton" onClick={props.openWeather}  fill='clear'>
         <IonIcon icon={cloud} />
-    </IonButton>
-    </IonButtons>
-    <IonButtons slot="end">
-    <IonButton id="feedButton" onClick={props.showSubs}  fill='clear'>
-        <IonIcon icon={bookmarks} />
     </IonButton>
     </IonButtons>
     <IonButtons slot="end">

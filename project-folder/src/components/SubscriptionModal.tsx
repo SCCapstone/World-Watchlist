@@ -1,12 +1,14 @@
-import { IonModal, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle, IonContent, IonCard } from "@ionic/react"
-import { closeCircleOutline } from "ionicons/icons"
-import React from "react"
+import { IonModal, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle, IonContent, IonCard, IonItem } from "@ionic/react"
+import { closeCircleOutline, removeCircleOutline } from "ionicons/icons"
+import React, { useState } from "react"
 import { article } from "./ArticleTypes"
 import ChildrenComponent from "./SubscriptionChildren"
+import FeedList from '../components/FeedList';
 
-function SubscriptionModal(props: {showModal: boolean, closeButton: any, unsubButton: any, subscriptions: string[]}) {
-    return (<IonModal isOpen={props.showModal} onDidDismiss={props.closeButton}>
-<IonHeader>
+
+function SubscriptionModal(props: {unsubButton: any, subscriptions: string[], articles:any[]}) {
+      
+{/* <IonHeader>
   <IonToolbar class='feedToolbar2'>
     <IonButtons slot='start'>
       <IonButton onClick={props.closeButton} fill='clear'>
@@ -16,16 +18,32 @@ function SubscriptionModal(props: {showModal: boolean, closeButton: any, unsubBu
 
   <IonTitle class='feedTitle2'>Subscriptions</IonTitle>
   </IonToolbar>
-</IonHeader>
-<IonContent>
-  <IonCard>
-{/* <ParentComponent>
-{subs}
-</ParentComponent> */}
-    <ChildrenComponent subs={props.subscriptions} func={props.unsubButton}></ChildrenComponent>
-  </IonCard>
-</IonContent>
-</IonModal>
+</IonHeader> */}
+return ( <IonCard>
+          {<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles}></ChildrenComponent>}
+          {/* <IonModal isOpen={showModal}>
+            <IonHeader>
+              <IonToolbar class='feedToolbar2'>
+                <IonButtons slot='start'>
+                  <IonButton onClick={props.closeButton} fill='clear'>
+                    <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                  </IonButton>
+                </IonButtons>
+                <IonButtons slot='end'>
+                  <IonButton onClick={props.unsubButton} fill='clear'>
+                    <IonIcon id='addFriendModalCloseIcon' icon={removeCircleOutline}/>
+                  </IonButton>
+                </IonButtons>
+                <IonTitle class='feedTitle2'>
+                  Subscription News
+                </IonTitle>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              <FeedList headerName={"Recent News"} articleList={props.articles}></FeedList>
+            </IonContent>
+          </IonModal> */}
+        </IonCard>
 );
 
 }

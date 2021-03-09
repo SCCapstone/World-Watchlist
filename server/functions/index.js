@@ -178,7 +178,7 @@ async function deleteAll(){
   // url = "https://news.google.com/rss/search?q="+
   console.log(collectionArr)
   collectionArr.forEach(async collectionID => {
-    await deleteCollection(db,collectionID,100)
+    await deleteCollection(db,collectionID,35)
     
   })
   return null

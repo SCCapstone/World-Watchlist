@@ -11,7 +11,7 @@ export type FeedState = {
     showLoading:boolean;
     showModal:boolean,
     showSubscription:boolean,
-    allArticles:any[],
+    subArticles:any[],
     locationBased:boolean,
     isWeatherModalOpen:boolean,
     isSearchingModal:boolean,

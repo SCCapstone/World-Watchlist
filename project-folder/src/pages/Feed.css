@@ -36,11 +36,12 @@
 }
 
 #newsToolbar {
-    --background: #418b7c;
+    --background: #3171e0;
 
 }
 
 #newsTitle {
+    --background: #3171e0;
     --color: #ededed;
     text-align: center;
 }

@@ -44,7 +44,6 @@ function Article(props: {theArticle: article}) {
       });
     }
     return <IonCard>
-      <meta httpEquiv="Cache-control" content="no-cache"></meta>
           <IonCardHeader>
             <IonCardTitle>{props.theArticle.title}</IonCardTitle>
             <IonCardSubtitle>

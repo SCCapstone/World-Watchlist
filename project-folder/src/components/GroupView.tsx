@@ -79,7 +79,8 @@ type MyState = {
   photoDictionary: any,
   currentMessage: string,
   nameDictionary: any,
-  blockedList: string[]
+  blockedList: string[],
+  subArticles:any[]
 }
 
 type MyProps = {
@@ -119,6 +120,7 @@ type Member = {
 class GroupView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
+    subArticles:[],
     articles: [],
     blockedSources:[],
     subscriptions: [],
@@ -180,7 +182,8 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   componentDidUpdate(prevProps: MyProps) {
-    console.log(this.props.groupDetails.id);
+    
+    // console.log(this.props.groupDetails.id);
     if(prevProps.groupDetails.members.length !== this.props.groupDetails.members.length) {
       if(auth.currentUser) {
         db.collection('blockedUsers').doc(auth.currentUser?.uid).get().then((document) => {
@@ -383,7 +386,6 @@ class GroupView extends React.Component<MyProps, MyState> {
           db.collection("topicSubscription").doc(this.props.groupDetails.id).set({subList: []});
         }
         let newArticles = await tempGetSubscribedArticles(this.state.blockedSources, this.state.subscriptions, this.state.articles);
-        console.log(newArticles);
         this.setState({articles: newArticles})
       })
       this.setState({subscriptionListener: listener});
@@ -556,10 +558,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       </IonContent>
       </IonModal>
 
-      <SubscriptionModal showModal={this.state.showSubscriptionModal}
-      closeButton={this.subscribeCloseButton.bind(this)}
-      unsubButton={this.unsubscribeButton.bind(this)}
-      subscriptions={this.state.subscriptions}></SubscriptionModal>
+      
 
       <SearchModal showModal={this.state.showSearchModal}
       closeModal={this.searchCloseButton.bind(this)}
@@ -666,10 +665,12 @@ class GroupView extends React.Component<MyProps, MyState> {
             </div>
             <div className='bottomSpaceFiller' />
           </IonContent>
-
           :
           <IonContent>
-            <FeedList headerName="Group News" articleList={this.state.articles}></FeedList>
+            <SubscriptionModal 
+      unsubButton={this.unsubscribeButton.bind(this)}
+      subscriptions={this.state.subscriptions}
+      articles={this.state.articles}></SubscriptionModal>
           </IonContent>
   }
         </IonModal>
