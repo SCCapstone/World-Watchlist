@@ -1,3 +1,8 @@
-IonList {
+/* IonList {
     color: red;
+} */
+:root .ErrorMessages {
+    background-color: inherit;
+    color: red;
+    text-align: center;
 }

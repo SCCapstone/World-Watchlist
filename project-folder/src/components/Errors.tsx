@@ -4,7 +4,7 @@ import './Errors.css';
 
 function Errors(props: {errors: string[]}) {
     let messages = props.errors.map((msg: string,
-         index: number) => {return <IonItem key={index}>{msg}</IonItem>})
+         index: number) => {return <IonItem key={index} class="ErrorMessages">{msg}</IonItem>})
     return (<IonList>
         {messages}
     </IonList>);
