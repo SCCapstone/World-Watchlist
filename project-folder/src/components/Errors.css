@@ -1,8 +1,8 @@
-/* IonList {
-    color: red;
+/* IonItem {
+    --color: red;
 } */
 :root .ErrorMessages {
-    background-color: inherit;
-    color: red;
-    text-align: center;
+    --background: inherit;
+    --color: red;
+    --text-align: center;
 }
