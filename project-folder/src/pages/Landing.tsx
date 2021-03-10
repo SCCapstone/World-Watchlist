@@ -103,8 +103,6 @@ class Landing extends React.Component<MyProps, MyState> {
     let emailReturn = isValidEmail(this.state.registerEmail);
     let passReturn = isValidPassword(this.state.registerPassword);
     let messages = emailReturn.concat(passReturn);
-    console.log(messages);
-    console.log(messages === this.state.error_messages);
     if ( messages !== this.state.error_messages)
       this.setState({error_messages: messages})
     if (messages.length !== 0)
@@ -207,7 +205,6 @@ class Landing extends React.Component<MyProps, MyState> {
                 </IonItem>
               </div>
               <IonButton shape = 'round' onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
-              <span>What up though homie</span>
               <Errors errors={this.state.error_messages}></Errors>
             </div>
         }
