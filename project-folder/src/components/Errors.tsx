@@ -6,8 +6,8 @@ import '../pages/Landing.css'
 function Errors(props: {errors: string[]}) {
     let messages = props.errors.map((msg: string,
          index: number) => {return <span key={index} className="ErrorMessages">{msg}</span>})
-    return (<IonList>
+    return (<div className="ErrorMessageContainer">
         {messages}
-    </IonList>);
+    </div>);
 }
 export default Errors;

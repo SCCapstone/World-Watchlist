@@ -1,6 +1,10 @@
 /* IonItem {
     --color: red;
 } */
+.ErrorMessageContainer {
+    margin-top: .5em;
+    margin-bottom: 0.5em;
+}
 .ErrorMessages {
     /* --ion-item-background: "light"; */
     color: red;
