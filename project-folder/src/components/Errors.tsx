@@ -1,5 +1,6 @@
 import { IonList, IonItem } from "@ionic/react";
 import React from "react";
+import './Errors.css';
 
 function Errors(props: {errors: string[]}) {
     let messages = props.errors.map((msg: string,
