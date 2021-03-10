@@ -29,7 +29,8 @@ type MyState = {
   shouldLoginShow: boolean;
   username: string;
   btnText: string;
-  error_messages: string[];
+  login_error_messages: string[];
+  registration_error_messages: string[];
 }
 
 type MyProps = {
@@ -50,7 +51,8 @@ class Landing extends React.Component<MyProps, MyState> {
     shouldLoginShow: true,
     username: '',
     btnText: '',
-    error_messages: []
+    login_error_messages: [],
+    registration_error_messages: []
   };
 
 
@@ -94,7 +96,10 @@ class Landing extends React.Component<MyProps, MyState> {
         }).catch((error) => {
           //error handling
           console.log(error.message)
-
+          let messages = error.message;
+          if (messages !== this.state.login_error_messages[0]) {
+            this.setState({login_error_messages: [messages]})
+          }
         })
       })
     }
@@ -121,8 +126,8 @@ class Landing extends React.Component<MyProps, MyState> {
     let emailReturn = isValidEmail(this.state.registerEmail);
     let passReturn = isValidPassword(this.state.registerPassword);
     let messages = emailReturn.concat(passReturn);
-    if ( messages !== this.state.error_messages)
-      this.setState({error_messages: messages})
+    if ( messages !== this.state.registration_error_messages)
+      this.setState({registration_error_messages: messages})
     if (messages.length !== 0)
       guard = false;
     //attempts to register a user
@@ -140,7 +145,10 @@ class Landing extends React.Component<MyProps, MyState> {
 
         }).catch((error) => {
           //error handling
-          console.log(error.message)
+          console.log(error.message);
+          let messages = error.message;
+          if ( messages !== this.state.registration_error_messages[0])
+            this.setState({registration_error_messages: [messages]})
         })
       })
     }
@@ -197,6 +205,7 @@ class Landing extends React.Component<MyProps, MyState> {
                 </IonItem>
               </div>
               <IonButton shape = 'round' onClick={() => {this.login()}} className='loginButton'>Submit</IonButton>
+              <Errors errors={this.state.login_error_messages}></Errors>
             </div>
           :
             <div className='registerContainer'>
@@ -223,7 +232,7 @@ class Landing extends React.Component<MyProps, MyState> {
                 </IonItem>
               </div>
               <IonButton shape = 'round' onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
-              <Errors errors={this.state.error_messages}></Errors>
+              <Errors errors={this.state.registration_error_messages}></Errors>
             </div>
         }
 

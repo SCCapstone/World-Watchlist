@@ -42,7 +42,7 @@ import { article, articleList } from '../components/ArticleTypes';
 import { hasTopics, tempapiSearch, tempGetSubscribedArticles, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 import SearchModal from '../components/SearchModal';
-import { NewsDB } from '../config/config';
+// import { NewsDB } from '../config/config';
 import FeedList from '../components/FeedList';
 
 // type SubState = {
@@ -594,10 +594,6 @@ class GroupView extends React.Component<MyProps, MyState> {
               </IonItem>
               { (auth.currentUser?.uid === this.props.groupDetails.owner) ?
               <div>
-              <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, showSubscriptionModal: true})}}>
-                <IonLabel>Subscriptions</IonLabel>
-                <IonIcon className='groupViewPopoverIcon' slot='end' /*icon={}*//>
-              </IonItem>
               <IonItem button={true}  onClick={() => {this.setState({isGroupViewPopoverOpen: false, showSearchModal: true})}}>
                 <IonLabel>Search for Subscriptions</IonLabel>
                 <IonIcon className='groupViewPopoverIcon' slot='end' /*icon={settingsOutline}*//>
