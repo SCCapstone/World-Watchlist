@@ -58,13 +58,13 @@ class Feed extends React.Component<FeedProps, FeedState> {
     showLoading:false,
     showModal:false,
     showSubscription:false,
-    allArticles:[],
+    subArticles:[],
     locationBased:false,
     isWeatherModalOpen:false,
     isSearchingModal:false,
     showSearchAlert:false,
     showSubscribeAlert:false,
-    isChanging:false
+    isChanging:false,
   };
 
   constructor(props: FeedProps) {
@@ -72,7 +72,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
-        
         db.collection("profiles").doc(auth.currentUser?.uid)
           .onSnapshot(async (doc) => {
             if (doc.exists)
@@ -86,7 +85,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           .onSnapshot(async (sub_list) => {
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
-              console.log("subs",this.state.subs)
+              // console.log("subs",this.state.subs)
               // get articles
               await this.getSubscribedArticles()
               console.log("articles",this.state.articles)
@@ -100,9 +99,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
   }
 
   async getSubscribedArticles(){
-    this.setState({articles:[]})
+    // this.setState({articles:[]})
+    this.setState({subArticles:[]})
     // get blocked sources on firestore
-    let aList : any[] = [];
+    let aList : any[];
     
     console.log(this.state.blockedSources)
     for (var i = 0; i < this.state.subs.length; i++) {
@@ -125,7 +125,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
             //await new Promise(r => setTimeout(r, 1000));
             var domain = (articleItem.source)
             if(!this.state.blockedSources.includes(domain)) {
-              console.log("blocked")
               aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
@@ -135,10 +134,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
         var source = snapshot.metadata.fromCache ? "local cache" : "server";
         console.log("Sub Articles came from " + source);
         await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
-        this.setState({articles: [...this.state.articles, ...aList]})
+        this.state.subArticles.push(aList)
+
       })
       } else {
-        this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
+        this.state.subArticles.push(JSON.parse(articlesLocal.value))
         console.log("taking from capacitor cache")
       }
       this.setState({isChanging:false})
@@ -147,7 +147,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   // refresh articles on feed
   async doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    this.setState({articles:[]})
+    // this.setState({articles:[]})
+    this.setState({subArticles:[]})
     // get blocked sources on firestore
     let aList : any[] = [];
     for (var i = 0; i < this.state.subs.length; i++) {
@@ -180,10 +181,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
     setTimeout(() => {
       console.log('refreshing ended');
       event.detail.complete();
-      this.setState({articles: [...this.state.articles, ...aList]})
+      this.state.subArticles.push(aList)
     }, 500);
   }
-  
+
   getId() {
     // return user_id if current user else null
     return auth.currentUser?.uid;
@@ -269,7 +270,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         if (snapshot.empty) {
           // searching through api and sending to firestore instead of searching in main collection
           this.setState({articlesSearched :await tempapiSearch(topic, 'search', auth.currentUser?.uid)})
-          console.log(this.state.articlesSearched)
         } else {
         console.log("collection exist, will pull data from that collection")
 
@@ -361,37 +361,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
     });
   }
 
-
-
-  // async componentDidMount() {
-  //     setInterval(() => {    
-  //       this.clear()
-  //     },180000000)
-  // }
-
-  // async scheduleLocalNotifications() {
-  //   try {
-  //     // Request/ check permissions
-  //     if ((await LocalNotifications.requestPermission()).granted) {
-  //       await LocalNotifications.schedule({
-  //         notifications: [{
-  //           title: 'New articles in your feed!',
-  //           body: "new news on " + this.state.subs.pop(),
-  //           id: 1,
-  //           schedule: {
-  //             at:new Date(new Date().getTime() + 1000)
-  //           }
-  //         }]
-  //       });
-  //     }
-  //     // Clear old notifications in prep for refresh (OPTIONAL)
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-
-
-
   render() {
     
     return (
@@ -420,7 +389,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         </IonToolbar> */}
         <FeedToolbar 
          openWeather={() => this.setState({isWeatherModalOpen: true})} 
-         showSubs={() => {this.setState({showSubscription: true})}}
          showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
       </IonHeader>
       <IonContent>
@@ -463,12 +431,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         duration={7000}
       />
 
-
-      {/* <IonItem> */}
-         {/* check if person wants to search location */}
-  {/* <IonLabel>Location based search</IonLabel> */}
-  {/* <IonCheckbox onIonChange={e=> this.setState({locationBased:e.detail.checked}) }></IonCheckbox> */}
-  {/* </IonItem> */}
       <IonModal isOpen={this.state.isSearchingModal} >
       <IonHeader>
       <IonToolbar id="newsToolbar">
@@ -499,10 +461,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonModal>
         </IonContent>
     </IonModal>
-    <SubscriptionModal showModal={this.state.showSubscription}
-    closeButton={() => {this.setState({showSubscription: false})}}
+    <SubscriptionModal 
     unsubButton={this.unsubscribe.bind(this)}
     subscriptions={this.state.subs}
+    articles={(this.state.subArticles)}
     ></SubscriptionModal>
     {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
@@ -525,7 +487,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           </IonCard>
         </IonContent>
     </IonModal> */}
-    <FeedList headerName="Recent News" articleList={this.state.articles}></FeedList>
+    {/* <FeedList headerName={"Recent News"} articleList={this.state.articles}></FeedList> */}
     {/* <IonList>
         <IonListHeader>
           Recent News
@@ -533,7 +495,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
       <ArticleList theArticleList={this.state.articles}></ArticleList>
     </IonList> */}
       </IonContent>
-
     </IonPage>
     )
   }

@@ -1,18 +1,45 @@
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
-import React from 'react';
+import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonModal, IonTitle, IonToolbar } from '@ionic/react';
+import { closeCircleOutline, removeCircleOutline } from 'ionicons/icons';
+import React, { useState } from 'react';
+import FeedList from './FeedList';
 
 
-function ChildComponent (props: {subscription:any, index:any, func: any }) {
-    function unsubClick(e: any) {
+function ChildComponent (props: {subscription:any, index:any, func: any, articles:any[] }) {
+    const [showModal, setShowModal] = useState(false);
+    function unsubClick() {
         props.func(props.subscription, props.index);
     }
-    return (<IonCard>
+    return (
+        <IonItem button onClick={() => { setShowModal(!showModal)} }>
+    <IonCard>
       <IonCardHeader >
         <IonCardTitle>{props.subscription}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
-        <IonButton id="unsubButton" expand="block" fill="outline" type="submit" shape="round" onClick={unsubClick}>Unsubscribe</IonButton>
+            <IonModal isOpen={showModal}>
+            <IonHeader>
+              <IonToolbar class='feedToolbar2'>
+                <IonButtons slot='start'>
+                  <IonButton onClick={()=>{setShowModal(false)}} fill='clear'>
+                    <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                  </IonButton>
+                </IonButtons>
+                <IonButtons slot='end'>
+                  <IonButton onClick={unsubClick} fill='clear'>
+                    <IonIcon id='addFriendModalCloseIcon' icon={removeCircleOutline}/>
+                  </IonButton>
+                </IonButtons>
+                <IonTitle class='feedTitle2'>
+                  Subscription News
+                </IonTitle>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              <FeedList headerName={"Recent News"} articleList={props.articles}></FeedList>
+            </IonContent>
+          </IonModal>
         </IonCardContent>
-    </IonCard>);}
+    </IonCard>
+    </IonItem>);}
 
 export default ChildComponent;

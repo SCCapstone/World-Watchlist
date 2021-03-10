@@ -1,3 +1,9 @@
+export interface weatherData {
+  date: string;
+  forecast:any;
+  temp:any;
+  dt:any
+}
 
 export type WeatherState = {
     lat: any,
@@ -12,8 +18,12 @@ export type WeatherState = {
     isUnsubscribing: boolean,
     CurrentUser:any,
     isweatherOpen:boolean;
-  
+    isSearching:boolean,
+    isSubscribing:boolean,
+    weeklyData:weatherData[] 
   }
+
+
   
 export type WeatherProps = {
     isOpen:boolean;

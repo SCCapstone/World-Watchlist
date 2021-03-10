@@ -152,8 +152,8 @@ export const tempGetSubscribedArticles = async (blockedSources: string[], subscr
     // this.setState({articles:[]})
     // get blocked sources on firestore
     let aList : any[] = [];
-    let newArticles: article[] = [];
-    console.log(blockedSources)
+    let newArticles: any[] = [];
+    // console.log(blockedSources)
     for (var i = 0; i < subscriptions.length; i++) {
       /* Observe any changes in firestore and send a notification*/
       let isChanging = await tempcheckCollection(subscriptions[i])
@@ -174,7 +174,6 @@ export const tempGetSubscribedArticles = async (blockedSources: string[], subscr
             //await new Promise(r => setTimeout(r, 1000));
             var domain = (articleItem.source)
             if(!blockedSources.includes(domain)) {
-              console.log("blocked")
               aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
@@ -186,14 +185,14 @@ export const tempGetSubscribedArticles = async (blockedSources: string[], subscr
         await Storage.set({ key: subscriptions[i], value: JSON.stringify(aList)});
         console.log("List to be pushed");
         console.log(aList);
-        newArticles = newArticles.concat(aList);
+        newArticles.push(aList);
         // this.setState({articles: [...this.state.articles, ...aList]});
       })
       } else {
-        let parsed = JSON.parse(articlesLocal.value);
+        let parsed = await JSON.parse(articlesLocal.value);
         // console.log("parsed data");
         // console.log(parsed);
-        newArticles = newArticles.concat(parsed);
+        newArticles.push(parsed);
         // console.log("Concatenated list");
         // console.log(newArticles);
         // this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})

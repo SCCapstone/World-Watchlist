@@ -29,7 +29,7 @@ import './Settings.css'
  const { PushNotifications } = Plugins;
  const { Toast } = Plugins;
  const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
- const { FCMPlugin } = Plugins;
+ const { FCMPlugin, Storage } = Plugins;
 
 
 
@@ -249,9 +249,10 @@ changeEmail(newEmail: string) {
 }
 }
 
-signOutUser() {
+  async signOutUser() {
   if (auth.currentUser) {
     auth.signOut()
+    await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
   }
   const alert = document.createElement('IonAlert');

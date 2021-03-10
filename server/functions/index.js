@@ -110,36 +110,35 @@ async function getRSS(url, collection_name) {
   }
 }
 
-/* deletes old news and add new news to firebase */
 
-async function health_feed() {
-  url = "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml";
-  getRSS(url, "health");
-}
+// async function health_feed() {
+//   url = "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml";
+//   getRSS(url, "health");
+// }
 
-async function world_feed() {
-  url = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml";
-  getRSS(url, "world");
-}
-async function technology_feed() {
-  url = "http://feeds.bbci.co.uk/news/technology/rss.xml";
-  getRSS(url, "technology");
-}
-async function gaming_feed() {
-  url = "http://feeds.feedburner.com/ign/all";
-  getRSS(url, "gaming");
-}
+// async function world_feed() {
+//   url = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml";
+//   getRSS(url, "world");
+// }
+// async function technology_feed() {
+//   url = "http://feeds.bbci.co.uk/news/technology/rss.xml";
+//   getRSS(url, "technology");
+// }
+// async function gaming_feed() {
+//   url = "http://feeds.feedburner.com/ign/all";
+//   getRSS(url, "gaming");
+// }
 
-async function sports_feed() {
-  url = "https://www.espn.com/espn/rss/news";
-  await getRSS(url, "sports");
-}
+// async function sports_feed() {
+//   url = "https://www.espn.com/espn/rss/news";
+//   await getRSS(url, "sports");
+// }
 
-async function politics_feed() {
-  url = "https://www.politico.com/rss/politicopicks.xml";
-  await getRSS(url, "politics");
-  return null
-}
+// async function politics_feed() {
+//   url = "https://www.politico.com/rss/politicopicks.xml";
+//   await getRSS(url, "politics");
+//   return null
+// }
 
 /* gets the name of each collection and updates its */
 async function updateALL() {
@@ -179,7 +178,7 @@ async function deleteAll(){
   // url = "https://news.google.com/rss/search?q="+
   console.log(collectionArr)
   collectionArr.forEach(async collectionID => {
-    await deleteCollection(db,collectionID,500)
+    await deleteCollection(db,collectionID,35)
     
   })
   return null
@@ -203,7 +202,7 @@ async function deleteQueryBatch(db, query, resolve) {
   const snapshot = await query.get();
 
   const batchSize = snapshot.size;
-  if (batchSize === 0) {
+  if (batchSize === 5) {
     // When there are no documents left, we are done
     resolve();
     return;
@@ -235,10 +234,6 @@ async function deleteQueryBatch(db, query, resolve) {
 //   politics_feed();
 //   console.log("Sending to firestore.")
 // }
-
-// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
-
-// delete every 7 hours and 59 minute
 
 
 // rsstojson api! get rss feed and return it INTO JSON! YES NOW WE DON'T have to USE AN API AND WORRY ABOUT LIMIT
@@ -274,7 +269,11 @@ app.get('/:topic', async function(req,res)
     res.send(article_info)
 })
 
-exports.scheduledDelete = functions.pubsub.schedule('59 7 * * *').onRun(async (context) => {
+// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
+
+// delete every 7 hours and 59 minute
+
+exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
   console.log("deleting current collections and updating.")
   await deleteAll()
     
