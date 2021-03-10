@@ -17,7 +17,9 @@ export type FeedState = {
     isSearchingModal:boolean,
     showSearchAlert:boolean,
     showSubscribeAlert:boolean,
-    isChanging:boolean
+    isChanging:boolean,
+    showErrorSubscribe:boolean,
+    showErrorAlert:boolean
 }
 export type GroupFeedState = {
   articles: articleList;

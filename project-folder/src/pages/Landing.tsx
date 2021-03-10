@@ -59,16 +59,6 @@ class Landing extends React.Component<MyProps, MyState> {
 
   constructor(props: MyProps) {
     super(props)
-    auth.onAuthStateChanged(() => {
-      if(auth.currentUser) {
-       // this.props.history.push('/main');
-          // save logged in state.
-          Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
-        } else {
-          Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
-      }
-    })
-
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.state.btnText = 'Create an Account';
@@ -91,6 +81,7 @@ class Landing extends React.Component<MyProps, MyState> {
           //reroute here
           console.log(auth.currentUser)
           if(auth.currentUser) {
+            Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
             this.props.history.push("/main")
           }
         }).catch((error) => {
@@ -108,7 +99,9 @@ class Landing extends React.Component<MyProps, MyState> {
   async googleLogin(){
    const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+  
    await auth.signInWithPopup(provider);
+   Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
    this.props.history.push('/main');
   }
 

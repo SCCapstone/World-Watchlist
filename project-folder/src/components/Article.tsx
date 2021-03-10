@@ -4,15 +4,13 @@ import { Plugins } from '@capacitor/core';
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonButton, IonItem } from '@ionic/react';
 import firebase, {db,auth} from '../firebase'
 import './Article.css'
-
 const { Browser } = Plugins;
-
 async function openURL(url:any){
   await Browser.open({ url: url });
 }
 
-async function get(){
-  
+async function cache(url:any){
+          // object
 }
 
 //  function yeet(a:article) { //yeets an article
@@ -60,7 +58,7 @@ function Article(props: {theArticle: article}) {
             <IonButton onClick={blockSource} slot = 'end'>Block this Source</IonButton>
             </IonItem>
             <br></br>
-              <a onClick={()=>openURL(props.theArticle.link)}>link</a>
+              <a  onClick={()=>cache(props.theArticle.link) && openURL(props.theArticle.link)}>link</a>
               </IonCardContent>
         </IonCard>
 }

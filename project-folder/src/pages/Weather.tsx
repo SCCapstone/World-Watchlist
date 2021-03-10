@@ -137,6 +137,8 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       }
       console.log(this.state.subscription)
     this.setState({showLoading: false})
+    this.setState({isSubscribing:false, isSearching:false})
+    return 0
   }
 
   async search(lat: any, long: any) {
@@ -251,7 +253,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
-                <IonButton onClick={() => this.subscribe()} fill='clear'>
+                <IonButton onClick={async () => await this.subscribe()} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={addCircle}/>
                 </IonButton>
         </IonButtons>

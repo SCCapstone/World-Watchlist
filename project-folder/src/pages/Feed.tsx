@@ -65,6 +65,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
     showSearchAlert:false,
     showSubscribeAlert:false,
     isChanging:false,
+    showErrorAlert:false,
+    showErrorSubscribe:false
   };
 
   constructor(props: FeedProps) {
@@ -175,13 +177,13 @@ class Feed extends React.Component<FeedProps, FeedState> {
             console.log("Cannot find anything in database.")
           }
         })
+        this.state.subArticles.push(aList)
       })
       this.setState({isChanging:false})
     }
     setTimeout(() => {
       console.log('refreshing ended');
       event.detail.complete();
-      this.state.subArticles.push(aList)
     }, 500);
   }
 
@@ -202,7 +204,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
         // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
           // clear cache so new articles can be added to cache
-          this.clear()
+          for (var i = 0; i < this.state.subs.length; i++) {
+            Storage.remove({key:this.state.subs[i]})
+          }
           this.setState({isChanging:true})
           if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
@@ -295,16 +299,21 @@ class Feed extends React.Component<FeedProps, FeedState> {
   async subscribe(topic:any) {
     if (topic === null || topic === undefined || topic === '') {
       console.log("Enter a valid topic");
-    } else {
+      this.setState({showErrorAlert:true})
+    } else if (this.state.subs.includes(topic)) {
+      console.log("already subscribed")
+      this.setState({showErrorSubscribe:true})
+    }
+     else {
       /* cache data on subscribe */
       await NewsDB.collection(topic.toLowerCase()).get()
         .then(async (snapshot) => {
        /* Creating a new collection if topic collection doesn't exist and subscribing to it */
       if (snapshot.empty) {
         await this.apiSearch(topic, 'subscribe')
-       
       }
       else {
+        this.setState({showSubscribeAlert:true})
         console.log("News about "+ topic +" has been found and will be subscribed.")
         await this.addSubscription(topic.toLowerCase());
       }
@@ -440,7 +449,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
-        <IonButton onClick={()=> tempsubscribe(this.state.topicSearched, auth.currentUser?.uid) && this.setState({showSubscribeAlert:true})} fill='clear'>
+        <IonButton onClick={()=> this.subscribe(this.state.topicSearched)} fill='clear'>
         <IonIcon id="addTopic" icon={addCircle}/>
         </IonButton>
       </IonButtons>
@@ -450,13 +459,23 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonToolbar>
       </IonHeader>
       <IonContent>
-
       <ArticleList theArticleList={this.state.articlesSearched}></ArticleList>
       <IonAlert
           isOpen={this.state.showSubscribeAlert}
           onDidDismiss={() => this.setState({showSubscribeAlert:false,isSearchingModal:false})}
           message={"Subscribed to " + this.state.topicSearched}
        />
+       <IonAlert
+          isOpen={this.state.showErrorSubscribe}
+          onDidDismiss={() => this.setState({showErrorSubscribe:false})}
+          message={"You are already subscribed to " + this.state.topicSearched}
+       />
+        {/* <IonAlert
+          isOpen={this.state.showErrorAlert}
+          onDidDismiss={() => this.setState({showErrorAlert:false})}
+          message={"Error, enter valid information"}
+       /> */}
+       
       </IonContent>
       </IonModal>
         </IonContent>

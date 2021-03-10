@@ -214,7 +214,7 @@ export const tempcheckCollection = async (collection:string) => {
         // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
           // clear cache so new articles can be added to cache
-          tempclear();
+            Storage.remove({key:collection})
           isChanging = true;
           if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
