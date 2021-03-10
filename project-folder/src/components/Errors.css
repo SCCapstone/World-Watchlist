@@ -1,8 +1,9 @@
 /* IonItem {
     --color: red;
 } */
-:root .ErrorMessages {
-    --background: inherit;
-    --color: red;
-    --text-align: center;
+.ErrorMessages {
+    /* --ion-item-background: "light"; */
+    color: red;
+    display: block;
+    text-align: center;
 }
