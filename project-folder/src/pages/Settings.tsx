@@ -23,7 +23,10 @@ import {
   IonAlert
 
 } from '@ionic/react'
-import firebase, {db, auth} from '../firebase'
+
+import firebase, {db, auth, signInWithGoogle} from '../firebase'
+import "@codetrix-studio/capacitor-google-auth";
+
 import {addCircleOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
  const { PushNotifications } = Plugins;
@@ -251,7 +254,12 @@ changeEmail(newEmail: string) {
 
   async signOutUser() {
   if (auth.currentUser) {
+    
     auth.signOut()
+    
+    if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
+      await Plugins.GoogleAuth.signOut()
+
     await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
   }
