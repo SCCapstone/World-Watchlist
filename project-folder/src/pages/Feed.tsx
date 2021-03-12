@@ -74,16 +74,17 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
-        db.collection("profiles").doc(auth.currentUser?.uid)
+        this.setState({CurrentUser:auth.currentUser?.uid})
+        db.collection("profiles").doc(this.state.CurrentUser)
           .onSnapshot(async (doc) => {
             if (doc.exists)
               this.setState({blockedSources:  await doc.data()!.blockedSources});
             else {
-              db.collection("profiles").doc(auth.currentUser?.uid).set({blockedSources: []});
+              db.collection("profiles").doc(this.state.CurrentUser).set({blockedSources: []});
             }
       })
           // everytime there is a new subscription, update news onto main feed
-          db.collection("topicSubscription").doc(auth.currentUser?.uid)
+          db.collection("topicSubscription").doc(this.state.CurrentUser)
           .onSnapshot(async (sub_list) => {
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
@@ -105,8 +106,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
     this.setState({subArticles:[]})
     // get blocked sources on firestore
     let aList : any[];
-    
-    console.log(this.state.blockedSources)
     for (var i = 0; i < this.state.subs.length; i++) {
       /* Observe any changes in firestore and send a notification*/
       await this.checkCollection(this.state.subs[i])
@@ -120,14 +119,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
         snapshot.forEach(async doc => {
           if (doc.exists) {
             let articleItem = doc.data();
-            var html = articleItem.Description;
-            var a = document.createElement("a");
-            a.innerHTML = html;
-            var text = a.textContent || a.innerText || "";
-            //await new Promise(r => setTimeout(r, 1000));
-            var domain = (articleItem.source)
-            if(!this.state.blockedSources.includes(domain)) {
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
+            if(!this.state.blockedSources.includes(articleItem.source)) {
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:articleItem.source, pubDate: articleItem.pubDate})
             }
           } else {
             console.log("Cannot find anything in database.")
@@ -137,7 +130,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         console.log("Sub Articles came from " + source);
         await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
         this.state.subArticles.push(aList)
-
       })
       } else {
         this.state.subArticles.push(JSON.parse(articlesLocal.value))
@@ -164,14 +156,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
         snapshot.forEach(async doc => {
           if (doc.exists) {
             let articleItem = doc.data();
-            var html = articleItem.Description;
-            var a = document.createElement("a");
-            a.innerHTML = html;
-            var text = a.textContent || a.innerText || "";
-            //await new Promise(r => setTimeout(r, 1000));
             var domain = (articleItem.source)
             if(!this.state.blockedSources.includes(domain)) {
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
             console.log("Cannot find anything in database.")
@@ -189,7 +176,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   getId() {
     // return user_id if current user else null
-    return auth.currentUser?.uid;
+    return this.state.CurrentUser;
   }
   
   toggleWeatherModal() {
@@ -204,9 +191,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
         // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
           // clear cache so new articles can be added to cache
-          for (var i = 0; i < this.state.subs.length; i++) {
-            Storage.remove({key:this.state.subs[i]})
-          }
+          Storage.remove({key:collection})
           this.setState({isChanging:true})
           if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
@@ -233,23 +218,18 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   
 
-  /*clear capacitor local storage */
-  async clear() {
-    await Storage.clear();
-  }
-
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   async addSubscription(sub: string) {
     // tempaddSubscription(sub, this.getId());
     if (sub!== "") {
-      await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
+      await db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayUnion(sub)})
     }
   }
 
   async removeSubscription(index:any) {
     // tempremoveSubscription(index, this.getId(), this.state.subs);
     if (this.state.subs[index] !== "") {
-      await db.collection("topicSubscription").doc(this.getId()).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
+      await db.collection("topicSubscription").doc(this.state.CurrentUser).update({subList: firebase.firestore.FieldValue.arrayRemove(this.state.subs[index])})
     }
   }
 
@@ -273,10 +253,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
         .then(async (snapshot) => {
         if (snapshot.empty) {
           // searching through api and sending to firestore instead of searching in main collection
-          this.setState({articlesSearched :await tempapiSearch(topic, 'search', auth.currentUser?.uid)})
+          this.setState({articlesSearched :await tempapiSearch(topic, this.state.CurrentUser)})
         } else {
         console.log("collection exist, will pull data from that collection")
-
         aList = [];
         snapshot.docChanges().forEach((change) => {
           if (change.doc.exists) {
@@ -304,70 +283,15 @@ class Feed extends React.Component<FeedProps, FeedState> {
       console.log("already subscribed")
       this.setState({showErrorSubscribe:true})
     }
-     else {
-      /* cache data on subscribe */
-      await NewsDB.collection(topic.toLowerCase()).get()
-        .then(async (snapshot) => {
-       /* Creating a new collection if topic collection doesn't exist and subscribing to it */
-      if (snapshot.empty) {
-        await this.apiSearch(topic, 'subscribe')
-      }
-      else {
-        this.setState({showSubscribeAlert:true})
-        console.log("News about "+ topic +" has been found and will be subscribed.")
-        await this.addSubscription(topic.toLowerCase());
-      }
-      var source = snapshot.metadata.fromCache ? "local cache" : "server";
-          console.log("Data came from " + source);
-    })
-  }
+    else {
+      this.setState({showSubscribeAlert:true})
+      await this.addSubscription(topic.toLowerCase());
+    }
   }
 
   async unsubscribe(topic:any,index:any) {
     console.log("News about "+ topic +" has been found and will be unsubscribed.")
     await this.removeSubscription(index);
-  }
-
-  async apiSearch(topic: any, type:string) {
-    let aList : articleList = [];
-    await axios({
-      method: 'GET',
-      /* using server api to turn rss feeds into json to avoid cors policy errors */
-      url:'https://world-watchlist-server-8f86e.web.app/'+topic
-    })
-    .then(async (response) => {
-      console.log(response)
-      await response.data.forEach((articleItem: any) => {
-        /* remove <a> html tag from description */
-        var html = articleItem.description;
-        var a = document.createElement("a");
-        a.innerHTML = html;
-        var text = a.textContent || a.innerText || "";
-        var pathArray = articleItem.link.split( '/' );
-        var protocol = pathArray[0];
-        var host = pathArray[2];
-        var baseUrl = protocol + '//' + host;
-        aList.push({title: articleItem.title, link: articleItem.link, description: text, source: baseUrl, pubDate:articleItem.pubDate})
-      })
-      if (type==='search') {
-        this.setState({articlesSearched: aList})
-      } else {
-        aList.forEach(async newsItem => {
-          var html = newsItem.description;
-          var a = document.createElement("a");
-          a.innerHTML = html;
-          var text = a.textContent || a.innerText || "";
-          var pathArray = newsItem.link.split( '/' );
-          var protocol = pathArray[0];
-          var host = pathArray[2];
-          var baseUrl = protocol + '//' + host;
-          await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title: newsItem.title, Link: newsItem.link, Description: text, source: baseUrl, pubDate:newsItem.pubDate});
-        })
-        await this.addSubscription(topic.toLowerCase());
-      }
-    }).catch((error) => {
-      console.log(error)
-    });
   }
 
   render() {
@@ -436,8 +360,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
        />
       <IonLoading
         isOpen={this.state.showLoading}
+        onDidDismiss={()=>{this.setState({showLoading:false})}}
         message={'Loading...'}
-        duration={7000}
+        duration={20000}
       />
 
       <IonModal isOpen={this.state.isSearchingModal} >
@@ -468,7 +393,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
        <IonAlert
           isOpen={this.state.showErrorSubscribe}
           onDidDismiss={() => this.setState({showErrorSubscribe:false})}
-          message={"You are already subscribed to " + this.state.topicSearched}
+          message={"Could not retrieve articles or you are already subscribed to " + this.state.topicSearched}
        />
         {/* <IonAlert
           isOpen={this.state.showErrorAlert}
