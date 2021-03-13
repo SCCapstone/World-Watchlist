@@ -3,9 +3,8 @@ const axios = require('axios');
 var convert = require('xml-js');
 const express = require('express')
 var f = require("./scraper.js");
-const metascraper = require('metascraper')([
-  require('metascraper-description')(),
-])
+const cheerio = require("cheerio")
+const request = require("request");
 const got = require('got')
 const cors = require('cors')({origin: true});
 
@@ -174,11 +173,13 @@ async function deleteQueryBatch(db, query, resolve) {
 
 // function get description using metadata module
 async function getDesc(link) {
-  const { body: html, url } = await got(link)
-  const metadata = await metascraper({ html, url })
-  return metadata.description
+  var desc = ""
+  await axios.get(link).then((response) => {
+    const $ = cheerio.load(response.data);
+    desc = $('meta[name="description"]').attr('content')
+  })
+  return desc
 }
-
 
 // rsstojson api! get rss feed and return it INTO JSON! YES NOW WE DON'T have to USE AN API AND WORRY ABOUT LIMIT
 app.get('/:topic', async function(req,res)
