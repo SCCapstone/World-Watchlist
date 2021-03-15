@@ -3,9 +3,9 @@ const axios = require('axios');
 var convert = require('xml-js');
 const express = require('express')
 var f = require("./scraper.js");
+const fs = require("fs")
 const cheerio = require("cheerio")
 const request = require("request");
-const got = require('got')
 const cors = require('cors')({origin: true});
 
 const app = express();
@@ -79,7 +79,7 @@ async function getRSS(url, collection_name) {
         let title = link = description = image = date = null;
         title = await f.getTitle(item);
         link = await f.getLink(item);
-        description = await f.getDesc(item);
+        description = await getDesc(item);
         var pathArray = link.split( '/' );
         var protocol = pathArray[0];
         var host = pathArray[2];
@@ -176,17 +176,34 @@ async function getDesc(link) {
   var desc = ""
   await axios.get(link).then((response) => {
     const $ = cheerio.load(response.data);
-    desc = $('meta[name="description"]').attr('content')
+    data = $('meta[name="description"]').attr('content')
+    if (data || data !== null) {
+      desc = data 
+    } else {
+      var urlElems = $('p')
+      var urlSpan = $(urlElems[i])[0]
+      if (urlSpan || urlSpan !== null) {
+        urlText = $(urlSpan).text()
+        desc = (urlText)
+      } else {
+        var urlElems2 = $('h2')
+        var urlSpan2 = $(urlElems2[i])[0]
+        if (urlSpan2 || urlSpan !== null) {
+          urlText2 = $(urlSpan2).text()
+          desc = (urlText2)
+        }
+      }
+    }
   })
   return desc
 }
 
 // rsstojson api! get rss feed and return it INTO JSON! YES NOW WE DON'T have to USE AN API AND WORRY ABOUT LIMIT
-app.get('/:topic', async function(req,res)
+app.get('/p', async function(req,res)
 {
   var result2 = null
   var info2 = null
-  var topic = req.params.topic
+  var topic = req.query.topic
   var googleRSS = "https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
   var article_info = [];
   var title = link = description = image = date = null;
@@ -197,9 +214,12 @@ app.get('/:topic', async function(req,res)
       // get 12 initially
       for ( i = 0 ; i < 12 ; ++i ) {
         item = info2.rss.channel.item[i];
-        title = await f.getTitle(item);
+        title = await f.getTitle(item).replace(/\//g, "-");
         link = await f.getLink(item);
         description = await getDesc(link);
+        if (!description) {
+          description = "View the full coverage below."
+        } 
         var pathArray = link.split( '/' );
         var protocol = pathArray[0];
         var host = pathArray[2];
@@ -214,6 +234,26 @@ app.get('/:topic', async function(req,res)
     res.send(article_info)
 })
 
+
+// get content of articles from
+app.get('/url', async function(req,res)
+{
+  var url = req.query.url
+  res.send(url)
+  request(url, function(error, response, body) {
+  if(error) {
+    console.log("Error: " + error);
+  }
+  console.log("Status code: " + response.statusCode);
+  var $ = cheerio.load(body); 
+  var article = $('article')
+  var p = article.find('p').children().remove().end()
+  var img =  $("body").find('img')
+  var logo = $(img[0]).attr('src')
+  res.send({content:p.text().trim(),logo:logo})
+  });
+})
+
 // function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
 
 // delete every 7 hours and 57 minute
@@ -226,6 +266,5 @@ exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (co
   console.log("deleting current collections and updating.")
   await updateALL()
 })
-
 
 exports.app = functions.https.onRequest(app)

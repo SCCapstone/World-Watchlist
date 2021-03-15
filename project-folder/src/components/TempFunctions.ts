@@ -51,7 +51,7 @@ export const tempapiSearch = async (topic: any, userId: string|undefined) => {
     await axios({
       method: 'GET',
       /* using server api to turn rss feeds into json to avoid cors policy errors */
-      url:'https://world-watchlist-server-8f86e.web.app/'+topic
+      url:'https://world-watchlist-server-8f86e.web.app/p/?topic='+topic
     })
   .then(async (response) => {
     await response.data.forEach(async (articleItem: any) => {
