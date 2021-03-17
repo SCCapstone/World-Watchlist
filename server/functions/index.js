@@ -239,7 +239,6 @@ app.get('/p', async function(req,res)
 app.get('/url', async function(req,res)
 {
   var url = req.query.url
-  res.send(url)
   request(url, function(error, response, body) {
   if(error) {
     console.log("Error: " + error);

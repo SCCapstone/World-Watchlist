@@ -28,6 +28,7 @@ async function bookmark(url:any,title:any,description:any,pubDate:any){
   })
 .then(async (response) => {
   content = await response.data
+  console.log(content)
 }).catch((error) => {
   console.log(error)
 });
