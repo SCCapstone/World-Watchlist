@@ -39,7 +39,7 @@ function SearchModal(props: {showModal: boolean, closeModal: any, topicSearched:
   <IonLoading
     isOpen={props.showLoading}
     message={'Loading...'}
-    duration={7000}
+    duration={20000}
   />
 
    {/* <IonItem> */}

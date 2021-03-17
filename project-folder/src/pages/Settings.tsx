@@ -23,15 +23,16 @@ import {
   IonAlert
 
 } from '@ionic/react'
-import firebase, {db, auth} from '../firebase'
+
+import firebase, {db, auth, signInWithGoogle} from '../firebase'
+import "@codetrix-studio/capacitor-google-auth";
+
 import {addCircleOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
  const { PushNotifications } = Plugins;
  const { Toast } = Plugins;
  const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
  const { FCMPlugin, Storage } = Plugins;
-
-
 
 type MyState = {
   isBlockSourceModalOpen:boolean;
@@ -78,10 +79,7 @@ class Settings extends React.Component<MyProps, MyState> {
     newPassword:'',
     newUsername:'',
     notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }]
-
-
   };
-
 
   constructor(props: MyProps) {
     super(props);
@@ -89,7 +87,8 @@ class Settings extends React.Component<MyProps, MyState> {
     this.handleChange = this.handleChange.bind(this);
      //this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
-
+    // call if authentication change to reset data.
+      firebase.auth().onAuthStateChanged(() => {
         if(auth.currentUser) { // gets the name of the current user
           db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
@@ -111,7 +110,7 @@ class Settings extends React.Component<MyProps, MyState> {
         }
         else
           this.props.history.push("/landing")
-
+      })
        this.pullImage();
       
   }
@@ -251,7 +250,12 @@ changeEmail(newEmail: string) {
 
   async signOutUser() {
   if (auth.currentUser) {
+    
     auth.signOut()
+    
+    if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
+      await Plugins.GoogleAuth.signOut()
+
     await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
   }
@@ -421,7 +425,6 @@ isValidSite(siteName:string) {
             </IonButtons>
             <IonTitle class='settingsTitle2'>
               Block a Source
-
             </IonTitle>
           </IonToolbar>
         </IonHeader>

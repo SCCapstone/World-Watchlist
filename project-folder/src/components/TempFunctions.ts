@@ -41,59 +41,29 @@ export const tempsubscribe = async (topic:any, userId: string|undefined) => {
     if (topic === null || topic === undefined || topic === '') {
         console.log("Enter a valid topic");
     } else {
-      /* cache data on subscribe */
-      await NewsDB.collection(topic.toLowerCase()).get()
-        .then(async (snapshot) => {
-       /* Creating a new collection if topic collection doesn't exist and subscribing to it */
-        if (snapshot.empty) {
-            await tempapiSearch(topic, 'subscribe', userId);
-        } else {
-        console.log("News about "+ topic +" has been found and will be subscribed.");
         await tempaddSubscription(topic.toLowerCase(), userId);
       }
-            var source = snapshot.metadata.fromCache ? "local cache" : "server";
-            console.log("Data came from " + source);
-        })
-    }
 }
 
-export const tempapiSearch = async (topic: any, type:string, userId: string|undefined) => {
+export const tempapiSearch = async (topic: any, userId: string|undefined) => {
   let aList : articleList = [];
   /* needed for the api.rss2json to work */
     await axios({
       method: 'GET',
       /* using server api to turn rss feeds into json to avoid cors policy errors */
-      url:'https://world-watchlist-server-8f86e.web.app/'+topic
+      url:'https://world-watchlist-server-8f86e.web.app/p/?topic='+topic
     })
   .then(async (response) => {
-    await response.data.forEach((articleItem: any) => {
-      /* remove <a> html tag from description */
-      var html = articleItem.description;
-      var a = document.createElement("a");
-      a.innerHTML = html;
-      var text = a.textContent || a.innerText || "";
+    await response.data.forEach(async (articleItem: any) => {
       var pathArray = articleItem.link.split( '/' );
       var protocol = pathArray[0];
       var host = pathArray[2];
       var baseUrl = protocol + '//' + host;
-      aList.push({title: articleItem.title, link: articleItem.link, description: text, source: baseUrl, pubDate:articleItem.pubDate})
+      aList.push({title: articleItem.title, link: articleItem.link, description: articleItem.description, source: baseUrl, pubDate:articleItem.pubDate})
+      await NewsDB.collection(topic.toLowerCase()).doc(articleItem.title).set({Title: articleItem.title, Link: articleItem.link, Description: articleItem.description, source: baseUrl, pubDate:articleItem.pubDate});
     })
-    if (type==='search') {
+      Storage.set({ key: topic, value: JSON.stringify(aList)});
       return aList;
-    } else {
-      aList.forEach(async newsItem => {
-        var html = newsItem.description;
-        var a = document.createElement("a");
-        a.innerHTML = html;
-        var text = a.textContent || a.innerText || "";
-        var pathArray = newsItem.link.split( '/' );
-        var protocol = pathArray[0];
-        var host = pathArray[2];
-        var baseUrl = protocol + '//' + host;
-        await NewsDB.collection(topic.toLowerCase()).doc(newsItem.title).set({Title: newsItem.title, Link: newsItem.link, Description: text, source: baseUrl, pubDate:newsItem.pubDate});
-      })
-      await tempaddSubscription(topic.toLowerCase(), userId);
-    }
   }).catch((error) => {
     console.log(error)
   });
@@ -121,11 +91,7 @@ export const getArticles = async (userId: string|undefined) => {
                     snapshot.forEach(async doc => {
                         if (doc.exists) {
                             let articleItem = doc.data();
-                            var html = articleItem.Description;
-                            var a = document.createElement("a");
-                            a.innerHTML = html;
-                            var text = a.textContent || a.innerText || "";
-                            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate: articleItem.pubDate});
+                            aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:articleItem.source, pubDate: articleItem.pubDate});
                         } else {
                             console.log("Cannot find anything in database.");
                         }
@@ -167,14 +133,10 @@ export const tempGetSubscribedArticles = async (blockedSources: string[], subscr
         snapshot.forEach(async doc => {
           if (doc.exists) {
             let articleItem = doc.data();
-            var html = articleItem.Description;
-            var a = document.createElement("a");
-            a.innerHTML = html;
-            var text = a.textContent || a.innerText || "";
             //await new Promise(r => setTimeout(r, 1000));
             var domain = (articleItem.source)
             if(!blockedSources.includes(domain)) {
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:domain, pubDate: articleItem.pubDate})
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:domain, pubDate: articleItem.pubDate})
             }
           } else {
             console.log("Cannot find anything in database.")
@@ -209,12 +171,11 @@ export const tempcheckCollection = async (collection:string) => {
     let isChanging = false;
     var observer = NewsDB.collection(collection).where('Title', '!=', '')
     .onSnapshot(async querySnapshot => {
-        // if there are changes to the metadata, clear cache and add new docs to the 
       const LocalNotificationPendingList = await LocalNotifications.getPending()
         // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
           // clear cache so new articles can be added to cache
-            Storage.remove({key:collection})
+          Storage.remove({key:collection})
           isChanging = true;
           if (!(await LocalNotifications.requestPermission()).granted) return;
           // send notification for every changes in collection
@@ -250,19 +211,14 @@ export const tempsearchTopic = async (topic:any, userId: string|undefined) => {
         if (snapshot.empty) {
           // searching through api and sending to firestore instead of searching in main collection
           console.log("Search temp api");
-          aList = await tempapiSearch(topic, 'search', userId);
+          aList = await tempapiSearch(topic, userId);
         } else {
         console.log("collection exist, will pull data from that collection")
-
         aList = [];
         snapshot.docChanges().forEach((change) => {
           if (change.doc.exists) {
             let articleItem = change.doc.data();
-            var html = articleItem.Description;
-            var a = document.createElement("a");
-            a.innerHTML = html;
-            var text = a.textContent || a.innerText || "";
-            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
+            aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source: articleItem.source, pubDate: articleItem.pubDate})
           }
         //   this.setState({articlesSearched: aList})
         })
