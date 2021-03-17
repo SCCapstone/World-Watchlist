@@ -259,16 +259,16 @@ changeEmail(newEmail: string) {
 
 }
 
-changePassword(password:string) {
+  changePassword(password:string) {
   if(auth.currentUser) {
-    auth.currentUser.updatePassword(password).then(function() {
+    auth.currentUser.updatePassword(password).then( () => {
+        alert("Password change successful");
+        this.setState({isChangePasswordModalOpen: false});
+    }).catch(function(error){
+      alert(error.message);
 
-
-  }).catch(function(error){
-
-
-  })
-}
+    })
+  }
 }
 
 notify() {
@@ -301,7 +301,7 @@ notify() {
   }*/
 
   changeUsername(newName:string) {
-    if(this.state.currentUserName!=undefined&& newName.length > 3) { //makes sure the source is a valid site and isn't blank
+    if(this.state.currentUserName !== undefined && this.state.currentUserName !== newName && newName.length > 3) { //makes sure the source is a valid site and isn't blank & isn't the same name
       db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => { //works for one specific user currently
       if(document.exists) {
         db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
@@ -310,7 +310,8 @@ notify() {
 
         })
         this.setState({currentUserName : newName});
-
+        alert("Changed name to "+newName);
+        this.setState({isChangeUsernameModalOpen: false});
       }
     })
   }
