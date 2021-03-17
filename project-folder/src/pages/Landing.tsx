@@ -119,6 +119,8 @@ class Landing extends React.Component<MyProps, MyState> {
     let emailReturn = isValidEmail(this.state.registerEmail);
     let passReturn = isValidPassword(this.state.registerPassword);
     let messages = emailReturn.concat(passReturn);
+    if ( this.state.registerConfirmPassword !== this.state.registerPassword)
+      messages.push("Passwords do not match");
     if ( messages !== this.state.registration_error_messages)
       this.setState({registration_error_messages: messages})
     if (messages.length !== 0)
