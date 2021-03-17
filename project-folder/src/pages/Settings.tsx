@@ -34,8 +34,6 @@ import './Settings.css'
  const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
  const { FCMPlugin, Storage } = Plugins;
 
-
-
 type MyState = {
   isBlockSourceModalOpen:boolean;
   isAccountSettingsModalOpen:boolean;
@@ -81,10 +79,7 @@ class Settings extends React.Component<MyProps, MyState> {
     newPassword:'',
     newUsername:'',
     notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }]
-
-
   };
-
 
   constructor(props: MyProps) {
     super(props);
@@ -92,7 +87,8 @@ class Settings extends React.Component<MyProps, MyState> {
     this.handleChange = this.handleChange.bind(this);
      //this.handleSubmit = this.handleSubmit.bind(this);
     this.blockSource = this.blockSource.bind(this);
-
+    // call if authentication change to reset data.
+      firebase.auth().onAuthStateChanged(() => {
         if(auth.currentUser) { // gets the name of the current user
           db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
@@ -114,7 +110,7 @@ class Settings extends React.Component<MyProps, MyState> {
         }
         else
           this.props.history.push("/landing")
-
+      })
        this.pullImage();
       
   }
@@ -429,7 +425,6 @@ isValidSite(siteName:string) {
             </IonButtons>
             <IonTitle class='settingsTitle2'>
               Block a Source
-
             </IonTitle>
           </IonToolbar>
         </IonHeader>
