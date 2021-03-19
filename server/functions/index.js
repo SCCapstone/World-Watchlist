@@ -79,7 +79,7 @@ async function getRSS(url, collection_name) {
         let title = link = description = image = date = null;
         title = await f.getTitle(item);
         link = await f.getLink(item);
-        description = await getDesc(item);
+        description = await getDesc(link);
         var pathArray = link.split( '/' );
         var protocol = pathArray[0];
         var host = pathArray[2];
@@ -171,10 +171,35 @@ async function deleteQueryBatch(db, query, resolve) {
 }
 
 
+async function updateWeatherCollection(){
+  let lat;
+  let long;
+  let location;
+  const snapshot = await db.collection('weather').get()
+  snapshot.docs.forEach(async doc => {
+    long = doc.data().long
+    lat = doc.data().lat
+    location = doc.data().location
+    await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+long+"&exclude={hourly,minutely}&appid=853ea8c8d782be685ad81ace7b65291a&units=imperial")
+    .then(async (response) => {
+      const dailyWeather = await response.data.daily
+      const currentWeather = response.data.current
+      var dailyData = []
+      for (var i = 1; i < dailyWeather.length; i++) {
+        dailyData.push({date:new Date(await dailyWeather[i].dt*1000).toString().substring(0,3), forecast:dailyWeather[i].weather[0].description, temp:dailyWeather[i].feels_like.day, dt:dailyWeather[i].dt})
+      }
+      db.collection('weather').doc(location).set({lat:lat, long:long, location:location ,temperature:currentWeather.temp+'F',weather_code: currentWeather.weather[0].description, weeklyForecast:dailyData})
+    }).catch((error) => {
+      console.log(error)
+    });
+  });
+}
+
+
 // function get description using metadata module
 async function getDesc(link) {
-  var desc = ""
-  await axios.get(link).then((response) => {
+  let desc = ""
+  await axios.get(link).then( (response) => {
     const $ = cheerio.load(response.data);
     data = $('meta[name="description"]').attr('content')
     if (data || data !== null) {
@@ -184,16 +209,11 @@ async function getDesc(link) {
       var urlSpan = $(urlElems[i])[0]
       if (urlSpan || urlSpan !== null) {
         urlText = $(urlSpan).text()
-        desc = (urlText)
-      } else {
-        var urlElems2 = $('h2')
-        var urlSpan2 = $(urlElems2[i])[0]
-        if (urlSpan2 || urlSpan !== null) {
-          urlText2 = $(urlSpan2).text()
-          desc = (urlText2)
-        }
+        desc = urlText
       }
     }
+  }).catch((error) => {
+    console.log(error);
   })
   return desc
 }
@@ -252,9 +272,7 @@ app.get('/url', async function(req,res)
   res.send({content:p.text().trim(),logo:logo})
   });
 })
-
 // function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
-
 // delete every 7 hours and 57 minute
 exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
   console.log("deleting current collections and updating.")
