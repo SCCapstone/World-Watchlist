@@ -40,6 +40,7 @@ import FriendView from '../components/FriendView'
 
 type MyState = {
   isAddFriendModalOpen: boolean;
+  isProfileModalOpen: boolean;
   targetUsername: string;
   friendsList: Friend[];
   blockedUsers: [];
@@ -92,6 +93,7 @@ class Social extends React.Component<MyProps, MyState> {
   realtime_db = firebase.database();
   state: MyState = {
     isAddFriendModalOpen: false,
+    isProfileModalOpen: false,
     targetUsername: '',
     friendsList: [],
     blockedUsers: [],
@@ -282,6 +284,10 @@ class Social extends React.Component<MyProps, MyState> {
     for(let i = 0; i < this.state.unsubscribeGroupArray.length; i++) {
       this.state.unsubscribeGroupArray[i]()
     }
+  }
+
+  openProfileModal(s:string) {
+
   }
 
   subscribeGroups() {
