@@ -8,7 +8,9 @@ const cheerio = require("cheerio")
 const request = require("request");
 const cors = require('cors')({origin: true});
 let currentDate = new Date();
-const waitTime = 30000;
+const waitTime = 3600000;
+const day = 10
+const oldTime = day * 24 * 60 * 60 * 1000;  
 const app = express();
 
 app.use(cors);
@@ -67,8 +69,9 @@ async function writeDoc(articles, collection_name) {
 
 /* go through rss feed and get article information*/
 async function getRSS(url, collection_name) {
+  console.log("TEST",url, collection_name)
   try {
-  await axios.get(url).then(
+  await axios.get(url, {setTimeout: 2}).then(
     async (response) => {
       let article_info = [];
       let result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
@@ -86,11 +89,15 @@ async function getRSS(url, collection_name) {
         var host = pathArray[2];
         var baseUrl = protocol + '//' + host;
         pubDate = await f.getDate(item)
-        temp = new f.article(title, description, link, baseUrl, pubDate);
         let pubDateObj = new Date(pubDate);
+        console.log("PubDate", pubDate)
+        console.log("pubDateObj", pubDateObj)
+        console.log("currentDate - pubDateObj < waitTime:", currentDate - pubDateObj < waitTime)
+        temp = new f.article(title, description, link, baseUrl, pubDate);
         if (currentDate - pubDateObj < waitTime)
-          article_info.push(temp);
-      }
+          article_info.push(await temp);
+        }
+      console.log("TEST",article_info)
       await writeDoc(article_info, collection_name);
     }).catch((error) => {
       console.log(error);
@@ -114,9 +121,10 @@ async function updateALL() {
     await Promise.all(collectionArr);
   })
   .catch(error=>console.log(error));
+  collectionArr = await collectionArr.filter(item => item !== 'weather')
   // url = "https://news.google.com/rss/search?q="+
   console.log(collectionArr)
-  collectionArr.forEach(async collectionID => {
+  await collectionArr.forEach(async collectionID => {
     url = "https://news.google.com/rss/search?q="+collectionID
     await getRSS(url, collectionID)
   })
@@ -125,8 +133,8 @@ async function updateALL() {
     console.log(Object.keys(error), error.message); 
   }
 }
-
-async function deleteAll(){
+// delete news that are over 10 days
+async function deleteOldNews(){
   collectionArr = []
   try {
   await db.listCollections()
@@ -135,10 +143,27 @@ async function deleteAll(){
         await collectionArr.push(snaps["_queryOptions"].collectionId);  // GET LIST OF ALL COLLECTIONS
       })
   }) .catch(error=>console.log(error));
+  collectionArr = await collectionArr.filter(item => item !== 'weather')
   // url = "https://news.google.com/rss/search?q="+
   collectionArr.forEach(async collectionID => {
-    // 10 docs are deleted from each collection
-    await deleteCollection(db,collectionID,10)
+    const col = db.collection(collectionID)
+    // console.log(oldTime)
+    var date = new Date(Date.now() - oldTime) 
+    let date2 = new Date(date);
+    console.log(date2)
+    // delete news article if older than 10 days.
+    await col.get().then(doc=>{
+      doc.forEach(async doc2 => {
+        let pubDate = await doc2.data().pubDate
+        let pubDate2 = new Date(pubDate);
+        if (pubDate2-date2<=0) {
+          await db.collection(collectionID).doc(doc2.id).delete();
+        }
+        console.log(pubDate2 - date2);
+      });
+    });
+    
+    // await deleteCollection(db,collectionID,10)
   })
   }catch (error) {
     console.log(Object.keys(error), error.message); 
@@ -146,32 +171,47 @@ async function deleteAll(){
 }
 
 
-// deleting old news.
-async function deleteCollection(db, collectionPath, batchSize) {
-  const collectionRef = db.collection(collectionPath);
-  const query = collectionRef.orderBy('__name__').limit(batchSize);
-  console.log(collectionPath)
-  return new Promise((resolve, reject) => {
-    deleteQueryBatch(db, query, resolve).catch(reject);
-  });
-}
+// deleting a collection
+// async function deleteCollection(db, collectionPath, batchSize) {
+//   const collectionRef = db.collection(collectionPath);
+//   const query = collectionRef.orderBy('__name__').limit(batchSize);
+//   console.log(collectionPath)
+//   return new Promise((resolve, reject) => {
+//     deleteQueryBatch(db, query, resolve).catch(reject);
+//   });
+// }
 
-async function deleteQueryBatch(db, query, resolve) {
-  const snapshot = await query.get();
+// async function deleteQueryBatch(db, query, resolve) {
+//   const snapshot = await query.get();
 
-  const batchSize = await snapshot.size;
-  console.log(batchSize)
-  if (batchSize === 2) {
-    // When there are 2 documents left, we are done
-    resolve();
-    return;
-  }
-  // Delete documents in a batch
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
+//   const batchSize = await snapshot.size;
+//   console.log(batchSize)
+//   if (batchSize === 2) {
+//     // When there are 2 documents left, we are done
+//     resolve();
+//     return;
+//   }
+//   // Delete documents in a batch
+//   const batch = db.batch();
+//   snapshot.docs.forEach((doc) => {
+//     batch.delete(doc.ref);
+//   });
+//   await batch.commit();
+// }
+
+async function getWeatherInfo(long,lat,location){
+  let dailyData = []
+  await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+long+"&exclude={hourly,minutely}&appid=853ea8c8d782be685ad81ace7b65291a&units=imperial",{setTimeout: 2})
+  .then(async (response) => {
+    const dailyWeather = await response.data.daily
+    const currentWeather = await response.data.current
+    for (var i = 1; i < dailyWeather.length; i++) {
+      dailyData.push({date:new Date(await dailyWeather[i].dt*1000).toString().substring(0,3), forecast:await dailyWeather[i].weather[0].description, temp:await dailyWeather[i].feels_like.day, dt:await dailyWeather[i].dt})
+    }
+    await db.collection('weather').doc(location).update({lat:lat, long:long, location:location ,temperature:currentWeather.temp+'F',weather_code: currentWeather.weather[0].description, weeklyForecast:dailyData})
+  }).catch((error) => {
+    console.log(error)
   });
-  await batch.commit();
 }
 
 
@@ -181,21 +221,10 @@ async function updateWeatherCollection(){
   let location;
   const snapshot = await db.collection('weather').get()
   snapshot.docs.forEach(async doc => {
-    long = doc.data().long
-    lat = doc.data().lat
-    location = doc.data().location
-    await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+long+"&exclude={hourly,minutely}&appid=853ea8c8d782be685ad81ace7b65291a&units=imperial")
-    .then(async (response) => {
-      const dailyWeather = await response.data.daily
-      const currentWeather = response.data.current
-      var dailyData = []
-      for (var i = 1; i < dailyWeather.length; i++) {
-        dailyData.push({date:new Date(await dailyWeather[i].dt*1000).toString().substring(0,3), forecast:dailyWeather[i].weather[0].description, temp:dailyWeather[i].feels_like.day, dt:dailyWeather[i].dt})
-      }
-      db.collection('weather').doc(location).set({lat:lat, long:long, location:location ,temperature:currentWeather.temp+'F',weather_code: currentWeather.weather[0].description, weeklyForecast:dailyData})
-    }).catch((error) => {
-      console.log(error)
-    });
+    long = await doc.data().long
+    lat = await doc.data().lat
+    location = doc.id
+    getWeatherInfo(long,lat,location)
   });
 }
 
@@ -203,7 +232,7 @@ async function updateWeatherCollection(){
 // function get description using metadata module
 async function getDesc(link) {
   let desc = ""
-  await axios.get(link).then( (response) => {
+  await axios.get(link,{setTimeout: 2}).then( (response) => {
     const $ = cheerio.load(response.data);
     data = $('meta[name="description"]').attr('content')
     if (data || data !== null) {
@@ -277,20 +306,21 @@ app.get('/url', async function(req,res)
   });
 })
 // function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
-
-exports.scheduledUpdate = functions.pubsub.schedule('* * * * *').onRun(async (context) => {
+// check and update every 10 minute to see if an article has been posted in the last 60 minute
+exports.scheduledUpdate = functions.pubsub.schedule('10 * * * *').onRun(async (context) => {
   console.log("updating current collections.")
   await updateALL()
 })
-// // delete every 7 hours and 57 minute
-// exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
-//   console.log("deleting current collections and updating.")
-//   await deleteAll()
-// })
-// // update right after every 8 hours
-// exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
-//   console.log("deleting current collections and updating.")
-//   await updateALL()
-// })
+// delete old news every day
+exports.scheduledDelete = functions.pubsub.schedule('* 23 * * *').onRun(async (context) => {
+  console.log("checking if there are old news.")
+  await deleteOldNews()
+})
+// update weather information every day
+exports.scheduledWeatherUpdate = functions.pubsub.schedule('* 23 * * *').onRun(async (context) => {
+  console.log("update weather collection.")
+  await updateWeatherCollection()
+})
+
 
 exports.app = functions.https.onRequest(app)

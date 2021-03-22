@@ -15,6 +15,7 @@ export type WeatherState = {
     showLoading: boolean,
     location: any,
     subscription: any[],
+    subscriptionData:any[],
     isUnsubscribing: boolean,
     CurrentUser:any,
     isweatherOpen:boolean;
