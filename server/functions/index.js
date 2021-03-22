@@ -7,7 +7,8 @@ const fs = require("fs")
 const cheerio = require("cheerio")
 const request = require("request");
 const cors = require('cors')({origin: true});
-
+let currentDate = new Date();
+const waitTime = 30000;
 const app = express();
 
 app.use(cors);
@@ -86,7 +87,9 @@ async function getRSS(url, collection_name) {
         var baseUrl = protocol + '//' + host;
         pubDate = await f.getDate(item)
         temp = new f.article(title, description, link, baseUrl, pubDate);
-        article_info.push(temp);
+        let pubDateObj = new Date(pubDate);
+        if (currentDate - pubDateObj < waitTime)
+          article_info.push(temp);
       }
       await writeDoc(article_info, collection_name);
     }).catch((error) => {
@@ -100,7 +103,8 @@ async function getRSS(url, collection_name) {
 
 /* gets the name of each collection and updates its */
 async function updateALL() {
-  collectionArr = []
+  collectionArr = [];
+  currentDate = new Date(Date.now());
   try {
   await db.listCollections()
   .then(async snapshot=> {
@@ -273,15 +277,20 @@ app.get('/url', async function(req,res)
   });
 })
 // function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
-// delete every 7 hours and 57 minute
-exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
-  console.log("deleting current collections and updating.")
-  await deleteAll()
-})
-// update right after every 8 hours
-exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
-  console.log("deleting current collections and updating.")
+
+exports.scheduledUpdate = functions.pubsub.schedule('* * * * *').onRun(async (context) => {
+  console.log("updating current collections.")
   await updateALL()
 })
+// // delete every 7 hours and 57 minute
+// exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
+//   console.log("deleting current collections and updating.")
+//   await deleteAll()
+// })
+// // update right after every 8 hours
+// exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
+//   console.log("deleting current collections and updating.")
+//   await updateALL()
+// })
 
 exports.app = functions.https.onRequest(app)
