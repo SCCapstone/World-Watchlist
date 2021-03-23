@@ -120,7 +120,7 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   sendMessage() {
     let timestamp = Date.now()
-    this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set({message: this.state.currentMessage, sender: auth.currentUser?.uid})
+    this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set({message: this.state.currentMessage, sender: auth.currentUser?.uid, read: [{readBy: auth.currentUser?.email, readAt: Date.now.toString()}]})
     this.setState({
       currentMessage: ''
     })
@@ -171,7 +171,7 @@ class FriendView extends React.Component<MyProps, MyState> {
           <IonContent className='friendViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
+              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
             })}
             <div className='friendViewAnchor'  />
             <div className='friendViewAnchor2' ref={this.anchorRef} />
