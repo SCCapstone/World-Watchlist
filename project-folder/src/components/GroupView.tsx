@@ -93,6 +93,7 @@ type MyProps = {
   deleteGroup: () => void,
   friendList: Friend[],
   addFriendToGroup: (friend : string, group: string) => void,
+  ourUsername: string
 }
 
 type GroupType = {
@@ -242,8 +243,12 @@ class GroupView extends React.Component<MyProps, MyState> {
         console.log({...snapshot.val(), key: snapshot.key})
 
         this.setState({messages: messages})
-        if ( this.state.groupSegment === "messages")
-          this.anchorRef.current!.scrollIntoView();
+        if ( this.state.groupSegment === "messages") {
+          if(this.anchorRef.current !== null) {
+            this.anchorRef.current!.scrollIntoView();
+          }
+        }
+
       this.addGroupSubscriptionListener();
       })
     }
@@ -338,7 +343,21 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   sendMessage() {
     let timestamp = Date.now()
-    this.realtime_db.ref(this.props.groupDetails.id).child(timestamp.toString()).set({content: this.state.currentMessage, sender: auth.currentUser?.uid, read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp.toString()})
+
+    this.realtime_db.ref(this.props.groupDetails.id).child(timestamp.toString()).set(
+      {
+        content: this.state.currentMessage,
+        sender: auth.currentUser?.uid,
+        read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}],
+        time: timestamp.toString()
+      }
+    )
+    db.collection('groups').doc(this.props.groupDetails.id).update({
+      lastMessage: this.state.currentMessage,
+      lastMessageSender: this.props.ourUsername,
+      time: timestamp.toString()
+    })
+
     this.setState({
       currentMessage: ''
     })
