@@ -295,26 +295,31 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
 
-  addFriend(email: string) { //sends a friend request to a user
-    if(email !== "" && email !== auth.currentUser?.email) {
-      db.collection('emails').doc(email).get().then(document => {
-        if(document.exists) {
-          db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
-            incomingFriendRequests: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid)
+  async addFriend(email: string) : Promise<string> { //sends a friend request to a user
+    const addFriendPromise : Promise<string> = new Promise((resolve, reject) => {
+        if(email !== "" && email !== auth.currentUser?.email) {
+          db.collection('emails').doc(email).get().then(document => {
+            if(document.exists) {
+              db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
+                incomingFriendRequests: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid)
+              })
+              db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
+                outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(document.data()!.userid)
+              })
+              resolve("Success")
+            } else {
+              reject("User email not found");
+            }
           })
-          db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
-            outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(document.data()!.userid)
-          })
-          this.setState({isAddFriendModalOpen: false});
         } else {
-          alert("User email not found");
+          if ( email === "") {
+            reject("String was empty");
+        } else {
+            reject("You cannot enter your own email");
         }
-      })
-    } else if ( email === "") {
-      alert("String was empty");
-    } else {
-      alert("You cannot enter your own email");
-    }
+      }
+    })
+    return addFriendPromise
   }
 
   cancelOutgingRequest(targetUserId: string) {
