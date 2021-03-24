@@ -1,4 +1,5 @@
 import React from 'react';
+//import Placeholder from '../images/placeholder.png';
 import {
   IonModal,
   IonContent,
@@ -32,6 +33,9 @@ import Message from '../components/Message'
 
 
 type MyState = {
+  subs: string[];
+  senderToView: any;
+  senderImage: string;
   friendViewPopoverEvent: any,
   isFriendViewPopoverOpen: boolean,
   isSettingsModalOpen: boolean,
@@ -40,14 +44,18 @@ type MyState = {
   messages: any[],
   photoDictionary: any,
   currentMessage: string,
-  nameDictionary: any
+  nameDictionary: any,
+  isProfileModalOpen:boolean;
 }
 
 type MyProps = {
+  
   history: any;
   location: any;
   friendDetails: Friend;
   isFriendModalOpen: boolean;
+  isProfileModalOpen:boolean;
+  toggleProfileModal:boolean;
   toggleFriendModal: any;
   removeFriend: (targetUserId: string) => void,
   ourUsername: string
@@ -68,9 +76,13 @@ type Friend = {
 class FriendView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
+    subs:[],
+    senderToView: undefined,
+    senderImage:'',
     friendViewPopoverEvent: undefined,
     isFriendViewPopoverOpen: false,
     isSettingsModalOpen: false,
+    isProfileModalOpen:false,
     isMembersModalOpen: false,
     isFriendsListModalOpen: false,
     messages: [],
@@ -87,6 +99,25 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   componentDidMount() {
 
+
+  }
+
+  setSenderToView(s:string) {
+    console.log(s)
+    console.log(firebase.auth().currentUser!.uid)
+    if(firebase.auth().currentUser!.uid == s) // It's you
+      
+    this.setState({senderToView:this.state.nameDictionary[s]})
+     this.setState({senderImage: this.state.photoDictionary[s]})
+    db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
+      this.setState({subs:snapshot.data()!.subList})
+    })
+    db.collection('profiles').doc(s).get().then(doc=>{
+     
+     // lastMessageSender: this.props.ourUsername
+    })
+    console.log(this.state.subs)
+    
   }
 
   componentDidUpdate(prevProps: MyProps) {
@@ -150,6 +181,14 @@ class FriendView extends React.Component<MyProps, MyState> {
     })
   }
 
+ /*setModalValues(uid:string){
+    db.collection('profiles').doc(uid).get().then(doc=>{
+      this.setState({profileImage:})
+      lastMessageSender: this.props.ourUsername
+    })
+
+  }*/
+
   render() {
     return (
       <div>
@@ -195,20 +234,53 @@ class FriendView extends React.Component<MyProps, MyState> {
           <IonContent className='friendViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
+              console.log(message.sender)
+              return <div onClick={() => {this.setSenderToView(message.sender);this.setState({ isProfileModalOpen:true})}}> <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} /></div>
+              //console.log(db.collection('profiles').doc(message.sender))
             })}
-            <div className='friendViewAnchor'  />
-            <div className='friendViewAnchor2' ref={this.anchorRef} />
+            <div onClick={() => {console.log("here")}} className='friendViewAnchor'  />
+            <div className='friendViewAnchor2' onClick={() => {console.log("here")}} ref={this.anchorRef} />
           </div>
             <div className='friendViewMessageBox'>
               <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='friendViewMessageInput' />
               <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='friendViewMessageButton'>
-                <IonIcon slot="icon-only" className='friendViewMessageSend' icon={sendOutline} />
+                <IonIcon  slot="icon-only" className='friendViewMessageSend' icon={sendOutline} />
               </IonButton>
             </div>
             <div className='bottomSpaceFiller' />
           </IonContent>
         </IonModal>
+
+        <IonModal isOpen={this.state.isProfileModalOpen} onDidDismiss={() => {this.setState({isProfileModalOpen: false})}}>
+        <IonHeader>
+          <IonToolbar class='settingsToolbar2'>
+            <IonButtons>
+              <IonButton onClick={() => {this.setState({isProfileModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonIcon id='closeBlockIcon' icon={closeCircleOutline}/>
+              </IonButton>
+            </IonButtons>
+
+            <IonTitle class='settingsTitle2'>
+            <IonAvatar>
+          <img src = {this.state.senderImage !== '' ? this.state.senderImage : Placeholder}/>
+        </IonAvatar>
+        {this.state.senderToView}
+            </IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        <IonContent>
+         
+        <ul id = "blockedList"></ul>
+          {
+            this.state.subs.map(Blocked =>
+              <IonItem key = {Blocked.toString()}>
+              <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
+              </IonItem>
+            )}
+       
+        </IonContent>
+      </IonModal>
+
       </div>
     )
   }
