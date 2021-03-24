@@ -51,6 +51,7 @@ type MyState = {
   newUsername:string;
   notifications: [{}];
   isSubbed:boolean;
+  profileImage: string;
 
 
 }
@@ -63,6 +64,7 @@ type MyProps = {
 class Settings extends React.Component<MyProps, MyState> {
 
   state: MyState = {
+    profileImage:'',
     isBlockSourceModalOpen: false,
     isAccountSettingsModalOpen:false,
     isChangePasswordModalOpen: false,
@@ -98,7 +100,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
               var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
-                 //this.setState({blockedSources: snapshot.data()!.blockedSources})
+                 this.setState({blockedSources: snapshot.data()!.blockedSources})
                //  this.setState({topics: snapshot.data()!.subList})
                 // this.setState({currentUserName: snapshot.data()!.displayName})
                 }
@@ -204,9 +206,9 @@ class Settings extends React.Component<MyProps, MyState> {
       this.addToList(sourceName);
       this.state.blockedSources.push(sourceName);
       console.log(this.state.blockedSources);
-      db.collection('usernames').doc(this.state.currentUserName).get().then(document => {
+      db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => {
       if(document.exists && this.isValidSite(sourceName)) {
-        db.collection('usernames').doc(this.state.currentUserName).update({
+        db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
         blockedSources : firebase.firestore.FieldValue.arrayUnion(sourceName)
         })
       }
@@ -216,9 +218,9 @@ class Settings extends React.Component<MyProps, MyState> {
 
 unBlockSource(sourceName:string) {
   if(sourceName!="" ) { //makes sure the source is a valid site and isn't blank
-    db.collection('usernames').doc(this.state.currentUserName).get().then(document => {
+    db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => {
     if(document.exists) {
-      db.collection('usernames').doc(this.state.currentUserName).update({
+      db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
         blockedSources: firebase.firestore.FieldValue.arrayRemove(sourceName)
       })
     }
@@ -336,6 +338,7 @@ notify() {
          var img = document.getElementById('myimg');
          if(img!=null)
           img.setAttribute('src', url);
+        console.log("pulling")
 
       })
       .catch((error) => {
@@ -374,7 +377,7 @@ notify() {
     var y = React.createRef();
       var storage = firebase.storage();
       var storageRef = firebase.storage().ref();
-      var newPicRef = storageRef.child('images/new.jpg');
+      var newPicRef = storageRef.child('profileImages/' + firebase.auth().currentUser!.uid + '.jpg');
       var file = document.getElementById('image');
       if(file!=null) {
       file.addEventListener('change', function(evt) {
