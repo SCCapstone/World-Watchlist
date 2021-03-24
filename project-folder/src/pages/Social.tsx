@@ -66,7 +66,8 @@ type MyState = {
   unsubscribeIndiviudalFriends: any[];
   activeMessages: any[];
   isFriendModalOpen: boolean;
-  friendDetails: Friend
+  friendDetails: Friend,
+  ourUsername: string
 }
 
 type MyProps = {
@@ -80,6 +81,8 @@ type Group = {
   id: string;
   profilePicture: string;
   owner: string;
+  lastMessage: string;
+  lastMessageSender: string;
 }
 
 type Friend = {
@@ -87,6 +90,8 @@ type Friend = {
   uid: string;
   displayName: string;
   photo: string;
+  lastMessage: string;
+  lastMessageSender: string;
 }
 
 class Social extends React.Component<MyProps, MyState> {
@@ -115,12 +120,16 @@ class Social extends React.Component<MyProps, MyState> {
       id: '',
       profilePicture: '',
       owner: '',
+      lastMessage: '',
+      lastMessageSender: ''
     },
     friendDetails: {
       uuid: '',
       uid: '',
       displayName: '',
-      photo: ''
+      photo: '',
+      lastMessage: '',
+      lastMessageSender: ''
     },
     isGroupModalOpen: false,
     unsubscribeFriendsList: () => {},
@@ -130,7 +139,8 @@ class Social extends React.Component<MyProps, MyState> {
     unsubscribeIndiviudalFriends: [],
     segmentSelected: 'groups',
     activeMessages: [],
-    isFriendModalOpen: false
+    isFriendModalOpen: false,
+    ourUsername: ''
   };
 
 
@@ -169,6 +179,7 @@ class Social extends React.Component<MyProps, MyState> {
         //gets the username of our user
         db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
           if(doc.data()) {
+            this.setState({ourUsername: doc.data()!.displayName})
             //creates a subscription to our user's friends list
 
             let unsubscribeFriendsList = db.collection('friends').doc(auth.currentUser?.uid).onSnapshot((friendsListSnapshot) => {
@@ -182,7 +193,9 @@ class Social extends React.Component<MyProps, MyState> {
                     photo: profileSnapshot.data()?.photo,
                     displayName: profileSnapshot.data()!.displayName,
                     uuid: uuidDoc.data()!.uuid,
-                    uid: friend
+                    uid: friend,
+                    lastMessage: uuidDoc.data()!.lastMessage,
+                    lastMessageSender: uuidDoc.data()!.lastMessageSender
                   }
                   let sentinel = true
                   stateFriendsList.map((stateFriend, index) => {
@@ -244,7 +257,9 @@ class Social extends React.Component<MyProps, MyState> {
                         members: snapshot.data()!.members,
                         id: snapshot.data()!.id,
                         profilePicture: snapshot.data()!.profilePicture,
-                        owner: snapshot.data()!.owner
+                        owner: snapshot.data()!.owner,
+                        lastMessage: snapshot.data()!.lastMessage,
+                        lastMessageSender: snapshot.data()!.lastMessageSender
                       }
                       groupArray[i] = group
                       this.setState({groupArray: groupArray})
@@ -295,26 +310,31 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
 
-  addFriend(email: string) { //sends a friend request to a user
-    if(email !== "" && email !== auth.currentUser?.email) {
-      db.collection('emails').doc(email).get().then(document => {
-        if(document.exists) {
-          db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
-            incomingFriendRequests: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid)
+  async addFriend(email: string) : Promise<string> { //sends a friend request to a user
+    const addFriendPromise : Promise<string> = new Promise((resolve, reject) => {
+        if(email !== "" && email !== auth.currentUser?.email) {
+          db.collection('emails').doc(email).get().then(document => {
+            if(document.exists) {
+              db.collection('incomingFriendRequests').doc(document.data()!.userid).update({
+                incomingFriendRequests: firebase.firestore.FieldValue.arrayUnion(auth.currentUser?.uid)
+              })
+              db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
+                outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(document.data()!.userid)
+              })
+              resolve("Success")
+            } else {
+              reject("User email not found");
+            }
           })
-          db.collection('outgoingFriendRequests').doc(auth.currentUser?.uid).update({
-            outgoingFriendRequests: firebase.firestore.FieldValue.arrayUnion(document.data()!.userid)
-          })
-          this.setState({isAddFriendModalOpen: false});
         } else {
-          alert("User email not found");
+          if ( email === "") {
+            reject("String was empty");
+        } else {
+            reject("You cannot enter your own email");
         }
-      })
-    } else if ( email === "") {
-      alert("String was empty");
-    } else {
-      alert("You cannot enter your own email");
-    }
+      }
+    })
+    return addFriendPromise
   }
 
   cancelOutgingRequest(targetUserId: string) {
@@ -405,14 +425,18 @@ class Social extends React.Component<MyProps, MyState> {
         //set unique friend uuid pair for messaging
         db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(targetUserId).set({
           uuid: uniqueFriendId,
-          friend: targetUserId
+          friend: targetUserId,
+          lastMessage: 'Join the conversation! Send a message here to get started.',
+          lastMessageSender: 'World-Watchlist'
         })
         db.collection('friends').doc(targetUserId).collection('uuids').doc(auth.currentUser?.uid).set({
           uuid: uniqueFriendId,
-          friend: auth.currentUser?.uid
+          friend: auth.currentUser?.uid,
+          lastMessage: 'Join the conversation! Send a message here to get started.',
+          lastMessageSender: 'World-Watchlist'
         })
         let timestamp = Date.now()
-        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
+        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp})
       })
     }
   }
@@ -476,13 +500,15 @@ class Social extends React.Component<MyProps, MyState> {
         members: [auth.currentUser?.uid],
         nickname: this.state.groupNickname,
         id: code,
-        profilePicture: ''
+        profilePicture: '',
+        lastMessage: 'Join the conversation! Send a message here to get started.',
+        lastMessageSender: 'World-Watchlist'
       })
       db.collection('profiles').doc(auth.currentUser?.uid).update({
         groups: firebase.firestore.FieldValue. arrayUnion(code),
       })
       let timestamp = Date.now()
-      this.realtime_db.ref(code).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist'})
+      this.realtime_db.ref(code).child(timestamp.toString()).set({content: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp})
     })
 
   }
@@ -606,6 +632,7 @@ class Social extends React.Component<MyProps, MyState> {
           deleteGroup={this.deleteGroup}
           friendList={this.state.friendsList}
           addFriendToGroup={this.addFriendToGroup}
+          ourUsername={this.state.ourUsername}
         />
 
         <FriendView
@@ -614,6 +641,7 @@ class Social extends React.Component<MyProps, MyState> {
           isFriendModalOpen = {this.state.isFriendModalOpen}
           toggleFriendModal = {this.toggleFriendModal}
           removeFriend = {this.removeFriend}
+          ourUsername={this.state.ourUsername}
         />
 
         <IonPopover
@@ -684,10 +712,12 @@ class Social extends React.Component<MyProps, MyState> {
                   <IonAvatar slot='start' className='socialGroupAvatar'>
                     <img src = {displayGroup.profilePicture ? displayGroup.profilePicture : Placeholder}/>
                   </IonAvatar>
-                  <IonLabel className='socialGroupLabel'>
-                    {displayGroup.nickname}
-                  </IonLabel>
-
+                  <div className='messagePreview'>
+                    <IonLabel className='socialGroupLabel'>
+                      {displayGroup.nickname}
+                    </IonLabel>
+                    <IonLabel className='socialGroupMessagePreview'><span className='blueColor'>{displayGroup.lastMessageSender}</span>:  {displayGroup.lastMessage}</IonLabel>
+                  </div>
                 </IonItem>
               )
             })
@@ -700,9 +730,12 @@ class Social extends React.Component<MyProps, MyState> {
               <IonAvatar slot='start' className='socialGroupAvatar'>
                 <img src = {friend.photo ? friend.photo : Placeholder}/>
               </IonAvatar>
-              <IonLabel className='socialGroupLabel'>
-                {friend.displayName}
-              </IonLabel>
+              <div className='messagePreview'>
+                <IonLabel className='socialGroupLabel'>
+                  {friend.displayName}
+                </IonLabel>
+                <IonLabel className='socialGroupMessagePreview'><span className='blueColor'>{friend.lastMessageSender}</span>:  {friend.lastMessage}</IonLabel>
+              </div>
 
             </IonItem>
             )

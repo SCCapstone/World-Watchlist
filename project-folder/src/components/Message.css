@@ -7,3 +7,17 @@
   --background: #fff;
   color: #000;
 }
+
+.messageContent {
+  white-space: wrap;
+}
+
+.readReceipt {
+  display: flex;
+  flex-direction: column;
+  background-color: #eeeeee;
+}
+
+.readLabel {
+  width: 100%;
+}

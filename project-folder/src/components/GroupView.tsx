@@ -75,7 +75,7 @@ type MyState = {
   tempNickname: string,
   members: Member[],
   owner: Member | undefined,
-  messages: any[],
+  messages: MessageProps[],
   photoDictionary: any,
   currentMessage: string,
   nameDictionary: any,
@@ -93,6 +93,7 @@ type MyProps = {
   deleteGroup: () => void,
   friendList: Friend[],
   addFriendToGroup: (friend : string, group: string) => void,
+  ourUsername: string
 }
 
 type GroupType = {
@@ -116,6 +117,18 @@ type Member = {
   photo: string;
 }
 
+interface readReceipt {
+  readBy: string;
+  readAt: string;
+}
+interface MessageProps {
+  photo: string;
+  content: string;
+  sender: string;
+  read: readReceipt[];
+  key: any;
+  time: string;
+}
 
 class GroupView extends React.Component<MyProps, MyState> {
 
@@ -182,7 +195,9 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   componentDidUpdate(prevProps: MyProps) {
-    
+    if(this.state.messages != []) {
+      this.crawlMessageReadReceipts(this.state.messages.length - 1)
+    }
     // console.log(this.props.groupDetails.id);
     if(prevProps.groupDetails.members.length !== this.props.groupDetails.members.length) {
       if(auth.currentUser) {
@@ -228,10 +243,37 @@ class GroupView extends React.Component<MyProps, MyState> {
         console.log({...snapshot.val(), key: snapshot.key})
 
         this.setState({messages: messages})
-        if ( this.state.groupSegment === "messages")
-          this.anchorRef.current!.scrollIntoView();
+        if ( this.state.groupSegment === "messages") {
+          if(this.anchorRef.current !== null) {
+            this.anchorRef.current!.scrollIntoView();
+          }
+        }
+
       this.addGroupSubscriptionListener();
       })
+    }
+  }
+
+  crawlMessageReadReceipts(index: number) {
+
+    if(index >= 0) {
+      let timestamp = Date.now()
+      let flag = true
+      let tempMessages = this.state.messages
+      tempMessages[index].read.forEach((readObj: readReceipt) => {
+        if(readObj.readBy === auth.currentUser!.email) {
+          flag = false
+        }
+      })
+      if(flag) {
+        this.crawlMessageReadReceipts(index - 1)
+        if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
+          tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
+          this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
+            read: tempMessages[index].read
+          })
+        }
+      }
     }
   }
 
@@ -301,7 +343,21 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   sendMessage() {
     let timestamp = Date.now()
-    this.realtime_db.ref(this.props.groupDetails.id).child(timestamp.toString()).set({message: this.state.currentMessage, sender: auth.currentUser?.uid})
+
+    this.realtime_db.ref(this.props.groupDetails.id).child(timestamp.toString()).set(
+      {
+        content: this.state.currentMessage,
+        sender: auth.currentUser?.uid,
+        read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}],
+        time: timestamp.toString()
+      }
+    )
+    db.collection('groups').doc(this.props.groupDetails.id).update({
+      lastMessage: this.state.currentMessage,
+      lastMessageSender: this.props.ourUsername,
+      time: timestamp.toString()
+    })
+
     this.setState({
       currentMessage: ''
     })
@@ -323,7 +379,7 @@ class GroupView extends React.Component<MyProps, MyState> {
   subscribeCloseButton() {
     this.setState({showSubscriptionModal: false});
   }
-  
+
   unsubscribeButton(sub: string, index: number) {
     console.log("Index to remove: "+index);
     console.log("Subscriptions: ");
@@ -409,7 +465,7 @@ class GroupView extends React.Component<MyProps, MyState> {
   //       if (snapshot.empty) {
   //         // searching through api and sending to firestore instead of searching in main collection
   //         await tempapiSearch(topic, 'search', this.props.groupDetails.id)
-       
+
   //       } else {
   //       console.log("collection exist, will pull data from that collection")
 
@@ -558,7 +614,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       </IonContent>
       </IonModal>
 
-      
+
 
       <SearchModal showModal={this.state.showSearchModal}
       closeModal={this.searchCloseButton.bind(this)}
@@ -647,8 +703,8 @@ class GroupView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
               return !this.state.blockedList.includes(message.sender) ?
-               <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message}  photo={this.state.photoDictionary[message.sender]} /> :
-               <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} />
+               <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> :
+               <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />
@@ -663,7 +719,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           </IonContent>
           :
           <IonContent>
-            <SubscriptionModal 
+            <SubscriptionModal
       unsubButton={this.unsubscribeButton.bind(this)}
       subscriptions={this.state.subscriptions}
       articles={this.state.articles}></SubscriptionModal>

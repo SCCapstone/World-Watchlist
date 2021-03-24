@@ -50,6 +50,7 @@ type MyProps = {
   isFriendModalOpen: boolean;
   toggleFriendModal: any;
   removeFriend: (targetUserId: string) => void,
+  ourUsername: string
 }
 
 
@@ -58,6 +59,8 @@ type Friend = {
   uid: string;
   displayName: string;
   photo: string;
+  lastMessage: string;
+  lastMessageSender: string;
 }
 
 
@@ -108,7 +111,10 @@ class FriendView extends React.Component<MyProps, MyState> {
           messages.push({...snapshot.val(), key: snapshot.key})
           console.log({...snapshot.val(), key: snapshot.key})
           this.setState({messages: messages})
-          this.anchorRef.current!.scrollIntoView();
+          if(this.anchorRef.current !== null) {
+            this.anchorRef.current!.scrollIntoView();
+          }
+
         })
       }
       this.setState({
@@ -120,7 +126,25 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   sendMessage() {
     let timestamp = Date.now()
-    this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set({message: this.state.currentMessage, sender: auth.currentUser?.uid})
+    this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set(
+      {
+        message: this.state.currentMessage,
+        sender: auth.currentUser?.uid,
+        read: [{readBy: auth.currentUser?.email, readAt: Date.now.toString()}],
+        time: timestamp.toString()
+      }
+    )
+    console.log('my id ' + auth.currentUser!.uid)
+    console.log('their  id ' + this.props.friendDetails.uid)
+    db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(this.props.friendDetails.uid).update({
+      lastMessage: this.state.currentMessage,
+      lastMessageSender: this.props.ourUsername
+    })
+    db.collection('friends').doc(this.props.friendDetails.uid).collection('uuids').doc(auth.currentUser?.uid).update({
+      lastMessage: this.state.currentMessage,
+      lastMessageSender: this.props.ourUsername
+    })
+
     this.setState({
       currentMessage: ''
     })
@@ -171,7 +195,7 @@ class FriendView extends React.Component<MyProps, MyState> {
           <IonContent className='friendViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
+              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
             })}
             <div className='friendViewAnchor'  />
             <div className='friendViewAnchor2' ref={this.anchorRef} />

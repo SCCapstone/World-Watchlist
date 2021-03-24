@@ -23,18 +23,20 @@ import firebase, {db, auth} from '../firebase'
 import Placeholder from '../images/placeholder.png'
 import {
   closeCircleOutline,
-  addCircleOutline
+  addCircleOutline,
+  checkmarkOutline
 } from 'ionicons/icons'
 
 type MyState = {
   targetUserId: string;
+  friendRequestSent: boolean;
 }
 
 type MyProps = {
   history: any;
   location: any;
   isAddFriendModalOpen: boolean;
-  addFriend: (targetUserId: string) => void;
+  addFriend: (targetUserId: string) => Promise<string>;
   toggleAddFriendModal: () => void;
 }
 
@@ -42,7 +44,8 @@ type MyProps = {
 class AddFriends extends React.Component<MyProps, MyState> {
 
   state: MyState = {
-    targetUserId: ''
+    targetUserId: '',
+    friendRequestSent: false
   };
 
   constructor(props: MyProps) {
@@ -56,6 +59,19 @@ class AddFriends extends React.Component<MyProps, MyState> {
 
   componentWillUnmount() {
 
+  }
+
+  addFriendLogic() {
+    this.props.addFriend(this.state.targetUserId).then((result) => {
+      if(result) {
+        this.setState({friendRequestSent: true})
+      }
+    }).catch((error: string) => {
+      if(error) {
+        this.setState({friendRequestSent: false})
+        alert(error)
+      }
+    });
   }
 
   render() {
@@ -78,11 +94,14 @@ class AddFriends extends React.Component<MyProps, MyState> {
         Please input the email of the user you wish to add.
         </IonLabel>
           <IonItem lines='none' id='searchFriendItem'>
-            <IonInput id='addFriendSearch' onIonChange={(e) => {this.setState({targetUserId: (e.target as HTMLInputElement).value})}} />
-            <IonButton onClick={() => {this.props.addFriend(this.state.targetUserId)}} slot='end' id='addFriendButton' fill='clear'>
-              <IonIcon id='addFriendButtonIcon' icon={addCircleOutline} />
+            <IonInput id='addFriendSearch' onIonChange={(e) => {this.setState({targetUserId: (e.target as HTMLInputElement).value, friendRequestSent: false})}} />
+            <IonButton onClick={() => {this.addFriendLogic()}} slot='end' id='addFriendButton' fill='clear'>
+              <IonIcon id='addFriendButtonIcon' icon={this.state.friendRequestSent ? checkmarkOutline : addCircleOutline} />
             </IonButton>
           </IonItem>
+
+          <div className='addFriendWhiteSpace'/>
+          {this.state.friendRequestSent ? <IonLabel className='friendRequestSent'>Friend Request sent to {this.state.targetUserId}</IonLabel> : undefined}
 
         </IonContent>
       </IonModal>
