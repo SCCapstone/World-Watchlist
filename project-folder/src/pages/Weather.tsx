@@ -217,7 +217,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
-      <IonTitle >
+      <IonTitle className="weatherTitle">
           Search Weather
         </IonTitle>
       </IonToolbar>
@@ -248,7 +248,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={addCircle}/>
                 </IonButton>
         </IonButtons>
-      <IonTitle >
+      <IonTitle className="weatherTitle2">
           Subscribe Weather
         </IonTitle>
       </IonToolbar>
