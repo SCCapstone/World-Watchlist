@@ -22,6 +22,10 @@ class Bookmark extends React.Component<MyProps, MyState> {
     
     constructor(props: MyProps) {
         super(props);
+        
+    }
+
+    componentDidMount(){
         auth.onAuthStateChanged(async ()=>{
             db.collection("bookmarks").doc(auth.currentUser?.uid).onSnapshot(async (doc) => {
                 if (doc.exists)

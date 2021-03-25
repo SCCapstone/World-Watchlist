@@ -28,14 +28,14 @@ async function bookmark(url:any,title:any,description:any,pubDate:any){
   })
 .then(async (response) => {
   content = await response.data
-  console.log(content)
+  if (!content || content.content=="") {
+    content.logo = "https://i.stack.imgur.com/6M513.png"
+    content.content = "Check out the full coverage from the source."
+  }
 }).catch((error) => {
   console.log(error)
 });
-  if (!content) {
-    content.logo = "https://i.stack.imgur.com/6M513.png"
-    content.content = "Could not scrape article content."
-  }
+  
 await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayUnion({title:title, description:description, pubDate:pubDate, content:content.content,logo:content.logo || "https://i.stack.imgur.com/6M513.png", url:url})})
 }
 

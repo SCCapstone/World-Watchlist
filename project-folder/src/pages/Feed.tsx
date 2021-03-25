@@ -33,7 +33,7 @@ import ArticleList from '../components/ArticleList';
 import { article, articleList } from '../components/ArticleTypes';
 import Weather from './Weather'
 import { add, addCircle, archive, bookmarks, closeCircleOutline, cloud, notificationsCircleOutline, search } from 'ionicons/icons';
-import { LocalNotifications, Plugins } from '@capacitor/core';
+import { PushNotification, Plugins, LocalNotifications } from '@capacitor/core';
 import axios from 'axios';
 import ParentComponent from '../components/SubscriptionParent';
 import ChildrenComponent from '../components/SubscriptionChildren';
@@ -42,7 +42,8 @@ import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
 import { tempaddSubscription, tempremoveSubscription, tempapiSearch, tempsubscribe,  } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
-const { Storage } = Plugins;
+const { Storage, PushNotifications, FCMPlugin } = Plugins;
+
 
 
 
@@ -185,34 +186,43 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   // check server collection for changes
   async checkCollection(collection:string){
-    var observer = NewsDB.collection(collection).where('Title', '!=', '')
+    
+    //
+    // Subscribe to a specific topic
+    // you can use `FCMPlugin` or just `fcm`
+    
+    NewsDB.collection(collection).where('Title', '!=', '')
     .onSnapshot(async querySnapshot => {
-        const LocalNotificationPendingList = await LocalNotifications.getPending()
+        // const LocalNotificationPendingList = await LocalNotifications.getPending()
         // if there are changes to the metadata, clear cache and add new docs to the 
         if (querySnapshot.metadata.fromCache === false) {
+          FCMPlugin
+            .subscribeTo({ topic: 'test' })
+            .then((r: any) => alert(`subscribed to topic`))
+            .catch((err: any) => console.log(err));
           // clear cache so new articles can be added to cache
-          Storage.remove({key:collection})
-          this.setState({isChanging:true})
-          if (!(await LocalNotifications.requestPermission()).granted) return;
-          // send notification for every changes in collection
-            await LocalNotifications.schedule({
-              notifications: [{
-                title: 'Changes in your feed!',
-                body: "Check them out!",
-                id: 1,
-                schedule: {
-                  // notification 1 minutes after change in collections
-                  at:new Date(new Date().getTime() + 60000),
-                  repeats:false
-                },
-              }]
-            });
+          // Storage.remove({key:collection})
+          // this.setState({isChanging:true})
+          // if (!(await LocalNotifications.requestPermission()).granted) return;
+          // // send notification for every changes in collection
+          //   await LocalNotifications.schedule({
+          //     notifications: [{
+          //       title: 'Changes in your feed!',
+          //       body: "Check them out!",
+          //       id: 1,
+          //       schedule: {
+          //         // notification 1 minutes after change in collections
+          //         at:new Date(new Date().getTime() + 60000),
+          //         repeats:false
+          //       },
+          //     }]
+          //   });
       }
       // makes sure they can't be more than 1 notifications on single changes
-      if (LocalNotificationPendingList.notifications.length>0) {
-        LocalNotifications.cancel(LocalNotificationPendingList)
-      }
-      console.log(LocalNotificationPendingList)
+      // if (LocalNotificationPendingList.notifications.length>0) {
+      //   LocalNotifications.cancel(LocalNotificationPendingList)
+      // }
+      // console.log(LocalNotificationPendingList)
     });
   }
 
@@ -325,6 +335,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
          showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
       </IonHeader>
       <IonContent>
+      <IonTitle id="subTitle">
+          Subscriptions
+
+        </IonTitle>
       <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={event=>this.doRefresh(event)}>
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>

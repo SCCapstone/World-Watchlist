@@ -40,6 +40,7 @@ import FriendView from '../components/FriendView'
 
 type MyState = {
   isAddFriendModalOpen: boolean;
+  toggleProfileModal:boolean;
   isProfileModalOpen: boolean;
   targetUsername: string;
   friendsList: Friend[];
@@ -140,7 +141,8 @@ class Social extends React.Component<MyProps, MyState> {
     segmentSelected: 'groups',
     activeMessages: [],
     isFriendModalOpen: false,
-    ourUsername: ''
+    ourUsername: '',
+    toggleProfileModal:false
   };
 
 
@@ -166,6 +168,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.deleteGroup = this.deleteGroup.bind(this);
     this.leaveGroup = this.leaveGroup.bind(this);
     this.toggleGroupModal = this.toggleGroupModal.bind(this);
+    this.toggleProfileModal = this.toggleProfileModal.bind(this);
     this.toggleAddFriendModal = this.toggleAddFriendModal.bind(this);
     this.togglePendingRequestsModal = this.togglePendingRequestsModal.bind(this);
     this.addFriendToGroup = this.addFriendToGroup.bind(this);
@@ -584,6 +587,9 @@ class Social extends React.Component<MyProps, MyState> {
   toggleGroupModal() {
     this.setState({isGroupModalOpen: /*!this.state.isGroupModalOpen*/false})
   }
+  toggleProfileModal(){
+    this.setState({isProfileModalOpen:false})
+  }
   toggleAddFriendModal() {
     this.setState({isAddFriendModalOpen: /*!this.state.isAddFriendModalOpen*/false})
   }
@@ -642,6 +648,8 @@ class Social extends React.Component<MyProps, MyState> {
           toggleFriendModal = {this.toggleFriendModal}
           removeFriend = {this.removeFriend}
           ourUsername={this.state.ourUsername}
+          isProfileModalOpen={this.state.isProfileModalOpen}
+          toggleProfileModal={this.state.toggleProfileModal}
         />
 
         <IonPopover
