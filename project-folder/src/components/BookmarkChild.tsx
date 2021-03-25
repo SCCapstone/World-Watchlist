@@ -5,8 +5,8 @@ import firebase, {db,auth} from '../firebase'
 import { Browser } from '@capacitor/core';
 function BookmarkChild (props: {bookmark:any, index:any}) {
     const [showModal, setShowModal] = useState(false);
-    async function removeBookmark(index:any){
-        await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayRemove(props.bookmark[index])})
+    async function removeBookmark(){
+        await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayRemove(props.bookmark)})
     }
 
     async function openURL(url:any){
@@ -33,6 +33,12 @@ function BookmarkChild (props: {bookmark:any, index:any}) {
           <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
         </IonButton>
       </IonButtons>
+      <IonButtons slot="end">
+        <IonButton onClick={() => { removeBookmark(); } }>
+              <IonIcon id='addFriendModalCloseIcon' icon={trashOutline}>
+              </IonIcon>
+        </IonButton>
+      </IonButtons>
                   <IonTitle class='feedTitle2'>
                       Article content
                   </IonTitle>
@@ -52,12 +58,7 @@ function BookmarkChild (props: {bookmark:any, index:any}) {
           </IonItem>
           </IonContent>
       </IonModal>
-      <IonButtons slot="end">
-        <IonButton onClick={() => { removeBookmark(props.index); } }>
-              <IonIcon icon={trashOutline}>
-              </IonIcon>
-        </IonButton>
-      </IonButtons>
+      
       </IonCardContent>
   </IonCard>  
     </IonItem>);

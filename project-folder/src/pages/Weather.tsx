@@ -24,8 +24,10 @@ import {
   IonLabel,
   IonThumbnail,
   IonListHeader,
-
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react'
+import { RefresherEventDetail } from '@ionic/core';
 import './Weather.css'
 import firebase, {db, auth} from '../firebase'
 import { addCircle, arrowBack, closeCircleOutline, search } from 'ionicons/icons';
@@ -69,7 +71,6 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
               var subscriptionField = doc.data()
               if (subscriptionField) {
             this.setState({subscription:subscriptionField.subscription})
-
                 // listen for changes
           subscriptionField.subscription.forEach(async (location: any)=>{
           const query = NewsDB.collection('weather').where("location","==",location)
@@ -103,6 +104,48 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
     }
     this.setState({subscriptionData:temp})
     })
+  }
+  
+
+  async doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    let temp: any[] = []
+    const dbSubscription = db.collection('weatherSubscription').doc(auth.currentUser?.uid)
+          // Check weather subscription array exist for user
+          dbSubscription.onSnapshot(async (doc) => {
+            temp = []
+            if (doc.exists) {
+              var subscriptionField = doc.data()
+              if (subscriptionField) {
+            this.setState({subscription:subscriptionField.subscription})
+
+                // listen for changes
+          subscriptionField.subscription.forEach(async (location: any)=>{
+          const query = NewsDB.collection('weather').where("location","==",location)
+          const snapshot = await query.get();
+          snapshot.forEach(doc => {
+            temp.push(doc.data());
+          });
+          this.setState({subscriptionData:temp})
+          query.onSnapshot(async (querySnapshot ) => {
+            querySnapshot.docChanges().forEach(change => {
+               if (change.type === 'modified') {
+                let modifiedLocation = change.doc.data().location
+                temp = temp.filter(e => e.location !== modifiedLocation)
+                console.log(temp)
+                temp.push(change.doc.data());
+                this.setState({subscriptionData:temp})
+              }
+            })
+          })
+        })
+        }
+            }
+        })
+    setTimeout(() => {
+      console.log('refreshing ended');
+      this.setState({subscriptionData:temp})
+      event.detail.complete();
+    }, 500);
   }
 
 
@@ -280,6 +323,9 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
           <WeatherSubChildren subs={this.state.subscriptionData} func={this.handleUnsub.bind(this)}></WeatherSubChildren>
           </IonItem>
         </IonList>
+        <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={event=>this.doRefresh(event)}>
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
           </IonContent>
         </IonModal>
       )
