@@ -335,6 +335,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
          showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
       </IonHeader>
       <IonContent>
+      <IonTitle id="subTitle">
+          Subscriptions
+
+        </IonTitle>
       <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={event=>this.doRefresh(event)}>
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
