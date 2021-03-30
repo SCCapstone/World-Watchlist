@@ -12,7 +12,15 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
     return (
       <>
         <IonItem button onClick={() => { setShowModal(!showModal)} }>
-        <IonModal isOpen={showModal} onDidDismiss={() => { setShowModal(false)}} >
+      <IonCard>
+          <IonCardHeader>
+            <IonCardSubtitle>{props.location}</IonCardSubtitle>
+            <IonCardTitle>{props.temp}</IonCardTitle>
+            {props.weather_code}
+          </IonCardHeader>
+          </IonCard>
+        </IonItem>
+        <IonModal isOpen={showModal} onDidDismiss={() => {setShowModal(false)}} >
         <IonHeader>
       <IonToolbar className="weatherToolbar">
       <IonButtons slot='start'>
@@ -56,14 +64,6 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
           </IonCard>
         </IonContent>
       </IonModal>
-      <IonCard>
-          <IonCardHeader>
-            <IonCardSubtitle>{props.location}</IonCardSubtitle>
-            <IonCardTitle>{props.temp}</IonCardTitle>
-            {props.weather_code}
-          </IonCardHeader>
-          </IonCard>
-        </IonItem>
         </>
       );}
 

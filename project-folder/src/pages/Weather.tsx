@@ -34,6 +34,9 @@ import { addCircle, arrowBack, closeCircleOutline, search } from 'ionicons/icons
 import { WeatherProps, WeatherState, weatherData } from '../components/WeatherTypes';
 import WeatherSubChildren from '../components/WeatherSubChildren';
 import { NewsDB } from '../config/config';
+import { Plugins, LocalNotification } from '@capacitor/core';
+const {LocalNotifications, App} = Plugins;
+
 
 class Weather extends React.Component<WeatherProps,WeatherState> {
   state: WeatherState = {
@@ -79,17 +82,50 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
             temp.push(doc.data());
           });
           this.setState({subscriptionData:temp})
+          // run check for new data in background
+          App.addListener('appStateChange', async (state) => {
+            if (!state.isActive) {
+              query.onSnapshot(async (querySnapshot ) => {
+                querySnapshot.docChanges().forEach(async change => {
+                   if (change.type === 'modified') {
+                    let weatherData = change.doc.data()
+                    let modifiedLocation = await change.doc.data().location
+                    temp = temp.filter(e => e.location !== modifiedLocation)
+                    console.log(temp)
+                    temp.push(change.doc.data());
+                    this.setState({subscriptionData:temp})
+                    await LocalNotifications.schedule({
+                      notifications: [{
+                        title: modifiedLocation,
+                        body: "Today is looking to be " + weatherData.temperature + " with " + weatherData.weather_code,
+                        id: 1,
+                      }]
+                    });
+                  }
+                })
+              })
+            }
+          })
           query.onSnapshot(async (querySnapshot ) => {
-            querySnapshot.docChanges().forEach(change => {
+            querySnapshot.docChanges().forEach(async change => {
                if (change.type === 'modified') {
-                let modifiedLocation = change.doc.data().location
+                let weatherData = change.doc.data()
+                let modifiedLocation = await change.doc.data().location
                 temp = temp.filter(e => e.location !== modifiedLocation)
                 console.log(temp)
                 temp.push(change.doc.data());
                 this.setState({subscriptionData:temp})
+                await LocalNotifications.schedule({
+                  notifications: [{
+                    title: modifiedLocation,
+                    body: weatherData.temperature + " with " + weatherData.weather_code,
+                    id: 1,
+                  }]
+                });
               }
             })
           })
+
         })
         }
             }
@@ -104,6 +140,13 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
     }
     this.setState({subscriptionData:temp})
     })
+  }
+
+  async componentDidMount(){
+    await LocalNotifications.requestPermission()
+    // await LocalNotifications.requestPermission().then(res=>{
+    //   console.log("local notification granted: "+ res.granted)
+    // })
   }
   
 
