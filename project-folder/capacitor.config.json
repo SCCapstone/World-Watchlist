@@ -5,6 +5,7 @@
   "npmClient": "npm",
   "webDir": "build",
   "plugins": {
+    "LocalNotifications": {    },
     "GoogleAuth": {
 "scopes": ["profile","email"],
 "serverClientId": "160012889513-qkxxxxxxxxxxxxxxxxxxxxxxxxkgubrp5ve.apps.googleusercontent.com"

@@ -8,9 +8,8 @@ import FeedList from '../components/FeedList';
 
 function SubscriptionModal(props: {unsubButton: any, subscriptions: string[], articles:any[]}) {
       
-return ( <IonCard>
-          {<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles}></ChildrenComponent>}
-        </IonCard>
+return ( <>{<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles}></ChildrenComponent>}</>
+        
 );
 
 }
