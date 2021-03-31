@@ -27,11 +27,15 @@ interface readReceipt {
   readBy: string;
   readAt: string;
 }
+
+
 interface MessageProps {
   photo: string;
   content: string;
   sender: string;
-  read: readReceipt[]
+  read: readReceipt[];
+  openProfile: (sender: string) => void;
+  closeProfile: () => void;
 }
 
  function Message(props: MessageProps) {

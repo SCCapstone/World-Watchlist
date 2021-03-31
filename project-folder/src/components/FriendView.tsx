@@ -49,7 +49,7 @@ type MyState = {
 }
 
 type MyProps = {
-  
+
   history: any;
   location: any;
   friendDetails: Friend;
@@ -95,6 +95,9 @@ class FriendView extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props)
     this.anchorRef = React.createRef()
+
+    this.openProfile = this.openProfile.bind(this);
+    this.closeProfile = this.closeProfile.bind(this);
   }
 
   componentDidMount() {
@@ -106,18 +109,18 @@ class FriendView extends React.Component<MyProps, MyState> {
     console.log(s)
     console.log(firebase.auth().currentUser!.uid)
     if(firebase.auth().currentUser!.uid == s) // It's you
-      
+
     this.setState({senderToView:this.state.nameDictionary[s]})
      this.setState({senderImage: this.state.photoDictionary[s]})
     db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
       this.setState({subs:snapshot.data()!.subList})
     })
     db.collection('profiles').doc(s).get().then(doc=>{
-     
+
      // lastMessageSender: this.props.ourUsername
     })
     console.log(this.state.subs)
-    
+
   }
 
   componentDidUpdate(prevProps: MyProps) {
@@ -133,7 +136,6 @@ class FriendView extends React.Component<MyProps, MyState> {
           photoDictionary[auth.currentUser!.uid] = document.data()!.photo
           photoDictionary[this.props.friendDetails.uid] = this.props.friendDetails.photo
           nameDictionary[this.props.friendDetails.uid] = this.props.friendDetails.displayName
-          console.log(this.props.friendDetails.photo)
         })
       }
       let messages : any[] = []
@@ -189,6 +191,15 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   }*/
 
+  openProfile(sender: string) {
+    this.setSenderToView(sender);
+    this.setState({isProfileModalOpen:true})
+  }
+
+  closeProfile() {
+    this.setState({isProfileModalOpen:false})
+  }
+
   render() {
     return (
       <div>
@@ -234,8 +245,7 @@ class FriendView extends React.Component<MyProps, MyState> {
           <IonContent className='friendViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              console.log(message.sender)
-              return <div onClick={() => {this.setSenderToView(message.sender);this.setState({ isProfileModalOpen:true})}}> <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} /></div>
+              return <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
               //console.log(db.collection('profiles').doc(message.sender))
             })}
             <div onClick={() => {console.log("here")}} className='friendViewAnchor'  />
@@ -269,7 +279,7 @@ class FriendView extends React.Component<MyProps, MyState> {
             </IonToolbar>
           </IonHeader>
         <IonContent>
-         
+
         <ul id = "blockedList"></ul>
           {
             this.state.subs.map(Blocked =>
@@ -277,7 +287,7 @@ class FriendView extends React.Component<MyProps, MyState> {
               <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
               </IonItem>
             )}
-       
+
         </IonContent>
       </IonModal>
 
