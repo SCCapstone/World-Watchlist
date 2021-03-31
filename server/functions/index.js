@@ -9,7 +9,8 @@ const request = require("request");
 const cors = require('cors')({origin: true});
 
 const app = express();
-
+let currentDate = new Date(); // placeholder for current date/time
+const timeFrame = 119400; // 1.99 minutes
 app.use(cors);
 
 app.get('/favicon.ico', function(req, res) { 
@@ -86,7 +87,16 @@ async function getRSS(url, collection_name) {
         var baseUrl = protocol + '//' + host;
         pubDate = await f.getDate(item)
         temp = new f.article(title, description, link, baseUrl, pubDate);
-        article_info.push(temp);
+        let tempPubDate = new Date(Date.parse(pubDate))
+        console.log("comparing dates");
+        console.log("Published date: "+pubDate+"; Published date object: "+tempPubDate);
+        console.log(currentDate - tempPubDate);
+        console.log("End of comparison");
+        if(currentDate - tempPubDate < timeFrame) {
+          console.log("Less than a minute, adding article...");
+          article_info.push(temp);
+        }
+        // article_info.push(temp);
       }
       await writeDoc(article_info, collection_name);
     }).catch((error) => {
@@ -101,6 +111,7 @@ async function getRSS(url, collection_name) {
 /* gets the name of each collection and updates its */
 async function updateALL() {
   collectionArr = []
+  currentDate = new Date(Date.now());
   try {
   await db.listCollections()
   .then(async snapshot=> {
@@ -272,16 +283,20 @@ app.get('/url', async function(req,res)
   res.send({content:p.text().trim(),logo:logo})
   });
 })
-// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
-// delete every 7 hours and 57 minute
-exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
-  console.log("deleting current collections and updating.")
-  await deleteAll()
-})
-// update right after every 8 hours
-exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
-  console.log("deleting current collections and updating.")
+exports.scheduledUpdate = functions.pubsub.schedule('* * * * *').onRun(async (context) => {
+  console.log("Adding newest articles to collections and updating.")
   await updateALL()
 })
+// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
+// delete every 7 hours and 57 minute
+// exports.scheduledDelete = functions.pubsub.schedule('57 7 * * *').onRun(async (context) => {
+//   console.log("deleting current collections and updating.")
+//   await deleteAll()
+// })
+// // update right after every 8 hours
+// exports.scheduledUpdate = functions.pubsub.schedule('* 8 * * *').onRun(async (context) => {
+//   console.log("deleting current collections and updating.")
+//   await updateALL()
+// })
 
 exports.app = functions.https.onRequest(app)
