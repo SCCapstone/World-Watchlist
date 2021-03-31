@@ -11,11 +11,9 @@ function CollectionModal(props: {showModal: any, closeModal: any, articles:any, 
     props.func(props.subscription, props.index);
   }
 
-  
-
+  // call before rendering to check if it has already been muted
   useEffect(() => {
     checkIfMuted().then(res=>setIsMuted(res))
-    console.log(isMuted)
   },[]);
   
   async function checkIfMuted(){
@@ -24,12 +22,16 @@ function CollectionModal(props: {showModal: any, closeModal: any, articles:any, 
     if (!(await doc).exists) {
       console.log('No such document!');
     } else {
-      let mutedNotification = (await doc).data()?.muteNotification
-      if (!mutedNotification.includes(props.subscription)) {
-        return (false)
+      if ((await doc).data()?.muteNotification===undefined) {
+        await profile.update({muteNotification:[]});
       } else {
-        return (true)
+        if (!(await doc).data()?.muteNotification.includes(props.subscription)) {
+          return (false)
+        } else {
+          return (true)
+        }
       }
+      
     }
     return false
   }

@@ -23,11 +23,11 @@ import "@codetrix-studio/capacitor-google-auth";
 type MyState = {
   loginEmail: string;
   loginPassword: string;
-  registerEmail: string;
+  registerEmail: any;
   registerPassword: string;
   registerConfirmPassword: string;
   shouldLoginShow: boolean;
-  username: string;
+  username: any;
   btnText: string;
   login_error_messages: string[];
   registration_error_messages: string[];
@@ -99,10 +99,13 @@ class Landing extends React.Component<MyProps, MyState> {
   async googleLogin(){
    const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-  
-   await auth.signInWithPopup(provider);
+   const googleSignIn = await auth.signInWithPopup(provider);
    Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
-   this.props.history.push('/main');
+   this.setState({registerEmail:googleSignIn.user?.email})
+   this.setState({username:googleSignIn.user?.displayName})
+   await this.uploadDataToFirebase().then(() => {
+    this.props.history.push("/main")
+  })
   }
 
   register() {

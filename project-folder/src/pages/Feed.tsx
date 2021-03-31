@@ -75,12 +75,16 @@ class Feed extends React.Component<FeedProps, FeedState> {
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         this.setState({CurrentUser:auth.currentUser?.uid})
-        db.collection("profiles").doc(this.state.CurrentUser)
+        db.collection("profiles").doc(auth.currentUser?.uid)
           .onSnapshot(async (doc) => {
-            if (doc.exists)
-              this.setState({blockedSources:  await doc.data()!.blockedSources});
-            else {
-              db.collection("profiles").doc(this.state.CurrentUser).set({blockedSources: []});
+            if (doc.exists) {
+              if (await doc.data()!.blockedSources===undefined || await doc.data()!.muteNotification===undefined){
+                await db.collection("profiles").doc(this.state.CurrentUser).update({blockedSources: []});
+                await db.collection("profiles").doc(this.state.CurrentUser).update({muteNotification:[]});
+                this.setState({blockedSources:  await doc.data()!.blockedSources});
+              } else {
+                this.setState({blockedSources:  await doc.data()!.blockedSources});
+              }
             }
       })
           // everytime there is a new subscription, update news onto main feed
@@ -217,34 +221,36 @@ class Feed extends React.Component<FeedProps, FeedState> {
           // clear cache so new articles can be added to cache
           Storage.remove({key:collection})
           this.setState({isChanging:true})
+          // if localnotification is not granted or notification is muted, don't send notifications.
           if (!(await LocalNotifications.requestPermission()).granted || mutedNotification.includes(collection)) return;
+          else {
           // send notification for every changes in collection
-          App.addListener('appStateChange', async (state) => {
-                if (!state.isActive) {
-                  await LocalNotifications.schedule({
-                    notifications: [{
-                      title: newArticle,
-                      body: 'New article from the topic \'' +collection +'\' .',
-                      id: 1,
-                      schedule:{repeats:false, at: new Date(Date.now())}
-                    }]
-                  });
-                }
-            })
-            await LocalNotifications.schedule({
-              notifications: [{
-                title: newArticle,
-                body: 'New article from the topic \'' +collection +'\' .',
-                id: 1,
-                schedule:{repeats:false, at: new Date(Date.now())}
-              }]
-            });
-      }
+            App.addListener('appStateChange', async (state) => {
+                  if (!state.isActive) {
+                    await LocalNotifications.schedule({
+                      notifications: [{
+                        title: newArticle,
+                        body: 'New article from the topic \'' +collection +'\' .',
+                        id: 1,
+                        schedule:{repeats:false, at: new Date(Date.now())}
+                      }]
+                    });
+                  }
+              })
+              await LocalNotifications.schedule({
+                notifications: [{
+                  title: newArticle,
+                  body: 'New article from the topic \'' +collection +'\' .',
+                  id: 1,
+                  schedule:{repeats:false, at: new Date(Date.now())}
+                }]
+              });
+          }
+    }
       // makes sure they can't be more than 1 notifications on single changes
       if (LocalNotificationPendingList.notifications.length>0) {
-        LocalNotifications.cancel(LocalNotificationPendingList)
+        await LocalNotifications.cancel(LocalNotificationPendingList)
       }
-      console.log(LocalNotificationPendingList)
     // })
     });
     

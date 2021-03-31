@@ -21,7 +21,6 @@ class ChildComponent extends React.Component<MyProp, MyState> {
     constructor(props:MyProp) {
         super(props)
         this.collectionCloseButton = this.collectionCloseButton.bind(this);
-        console.log(this.props.subscription)
     }
 
     
@@ -33,7 +32,6 @@ class ChildComponent extends React.Component<MyProp, MyState> {
 
     collectionCloseButton() {
         this.setState({isCollectionModalOpen: false});
-        console.log(this.state.isCollectionModalOpen)
     }
 
     render(){
