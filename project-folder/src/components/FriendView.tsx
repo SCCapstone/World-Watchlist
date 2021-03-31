@@ -1,4 +1,5 @@
 import React from 'react';
+//import Placeholder from '../images/placeholder.png';
 import {
   IonModal,
   IonContent,
@@ -32,6 +33,9 @@ import Message from '../components/Message'
 
 
 type MyState = {
+  subs: string[];
+  senderToView: any;
+  senderImage: string;
   friendViewPopoverEvent: any,
   isFriendViewPopoverOpen: boolean,
   isSettingsModalOpen: boolean,
@@ -40,16 +44,21 @@ type MyState = {
   messages: any[],
   photoDictionary: any,
   currentMessage: string,
-  nameDictionary: any
+  nameDictionary: any,
+  isProfileModalOpen:boolean;
 }
 
 type MyProps = {
+
   history: any;
   location: any;
   friendDetails: Friend;
   isFriendModalOpen: boolean;
+  isProfileModalOpen:boolean;
+  toggleProfileModal:boolean;
   toggleFriendModal: any;
   removeFriend: (targetUserId: string) => void,
+  ourUsername: string
 }
 
 
@@ -58,6 +67,8 @@ type Friend = {
   uid: string;
   displayName: string;
   photo: string;
+  lastMessage: string;
+  lastMessageSender: string;
 }
 
 
@@ -65,9 +76,13 @@ type Friend = {
 class FriendView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
+    subs:[],
+    senderToView: undefined,
+    senderImage:'',
     friendViewPopoverEvent: undefined,
     isFriendViewPopoverOpen: false,
     isSettingsModalOpen: false,
+    isProfileModalOpen:false,
     isMembersModalOpen: false,
     isFriendsListModalOpen: false,
     messages: [],
@@ -80,9 +95,31 @@ class FriendView extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props)
     this.anchorRef = React.createRef()
+
+    this.openProfile = this.openProfile.bind(this);
+    this.closeProfile = this.closeProfile.bind(this);
   }
 
   componentDidMount() {
+
+
+  }
+
+  setSenderToView(s:string) {
+    console.log(s)
+    console.log(firebase.auth().currentUser!.uid)
+    if(firebase.auth().currentUser!.uid == s) // It's you
+
+    this.setState({senderToView:this.state.nameDictionary[s]})
+     this.setState({senderImage: this.state.photoDictionary[s]})
+    db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
+      this.setState({subs:snapshot.data()!.subList})
+    })
+    db.collection('profiles').doc(s).get().then(doc=>{
+
+     // lastMessageSender: this.props.ourUsername
+    })
+    console.log(this.state.subs)
 
   }
 
@@ -99,7 +136,6 @@ class FriendView extends React.Component<MyProps, MyState> {
           photoDictionary[auth.currentUser!.uid] = document.data()!.photo
           photoDictionary[this.props.friendDetails.uid] = this.props.friendDetails.photo
           nameDictionary[this.props.friendDetails.uid] = this.props.friendDetails.displayName
-          console.log(this.props.friendDetails.photo)
         })
       }
       let messages : any[] = []
@@ -108,7 +144,10 @@ class FriendView extends React.Component<MyProps, MyState> {
           messages.push({...snapshot.val(), key: snapshot.key})
           console.log({...snapshot.val(), key: snapshot.key})
           this.setState({messages: messages})
-          this.anchorRef.current!.scrollIntoView();
+          if(this.anchorRef.current !== null) {
+            this.anchorRef.current!.scrollIntoView();
+          }
+
         })
       }
       this.setState({
@@ -120,10 +159,45 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   sendMessage() {
     let timestamp = Date.now()
-    this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set({message: this.state.currentMessage, sender: auth.currentUser?.uid})
+    this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set(
+      {
+        message: this.state.currentMessage,
+        sender: auth.currentUser?.uid,
+        read: [{readBy: auth.currentUser?.email, readAt: Date.now.toString()}],
+        time: timestamp.toString()
+      }
+    )
+    console.log('my id ' + auth.currentUser!.uid)
+    console.log('their  id ' + this.props.friendDetails.uid)
+    db.collection('friends').doc(auth.currentUser?.uid).collection('uuids').doc(this.props.friendDetails.uid).update({
+      lastMessage: this.state.currentMessage,
+      lastMessageSender: this.props.ourUsername
+    })
+    db.collection('friends').doc(this.props.friendDetails.uid).collection('uuids').doc(auth.currentUser?.uid).update({
+      lastMessage: this.state.currentMessage,
+      lastMessageSender: this.props.ourUsername
+    })
+
     this.setState({
       currentMessage: ''
     })
+  }
+
+ /*setModalValues(uid:string){
+    db.collection('profiles').doc(uid).get().then(doc=>{
+      this.setState({profileImage:})
+      lastMessageSender: this.props.ourUsername
+    })
+
+  }*/
+
+  openProfile(sender: string) {
+    this.setSenderToView(sender);
+    this.setState({isProfileModalOpen:true})
+  }
+
+  closeProfile() {
+    this.setState({isProfileModalOpen:false})
   }
 
   render() {
@@ -171,20 +245,52 @@ class FriendView extends React.Component<MyProps, MyState> {
           <IonContent className='friendViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return <Message key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} />
+              return <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
+              //console.log(db.collection('profiles').doc(message.sender))
             })}
-            <div className='friendViewAnchor'  />
-            <div className='friendViewAnchor2' ref={this.anchorRef} />
+            <div onClick={() => {console.log("here")}} className='friendViewAnchor'  />
+            <div className='friendViewAnchor2' onClick={() => {console.log("here")}} ref={this.anchorRef} />
           </div>
             <div className='friendViewMessageBox'>
               <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='friendViewMessageInput' />
               <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='friendViewMessageButton'>
-                <IonIcon slot="icon-only" className='friendViewMessageSend' icon={sendOutline} />
+                <IonIcon  slot="icon-only" className='friendViewMessageSend' icon={sendOutline} />
               </IonButton>
             </div>
             <div className='bottomSpaceFiller' />
           </IonContent>
         </IonModal>
+
+        <IonModal isOpen={this.state.isProfileModalOpen} onDidDismiss={() => {this.setState({isProfileModalOpen: false})}}>
+        <IonHeader>
+          <IonToolbar class='settingsToolbar2'>
+            <IonButtons>
+              <IonButton onClick={() => {this.setState({isProfileModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonIcon id='closeBlockIcon' icon={closeCircleOutline}/>
+              </IonButton>
+            </IonButtons>
+
+            <IonTitle class='settingsTitle2'>
+            <IonAvatar>
+          <img src = {this.state.senderImage !== '' ? this.state.senderImage : Placeholder}/>
+        </IonAvatar>
+        {this.state.senderToView}
+            </IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        <IonContent>
+
+        <ul id = "blockedList"></ul>
+          {
+            this.state.subs.map(Blocked =>
+              <IonItem key = {Blocked.toString()}>
+              <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
+              </IonItem>
+            )}
+
+        </IonContent>
+      </IonModal>
+
       </div>
     )
   }

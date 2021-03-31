@@ -24,13 +24,18 @@ import {
   IonLabel,
   IonThumbnail,
   IonListHeader,
-
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react'
+import { RefresherEventDetail } from '@ionic/core';
 import './Weather.css'
 import firebase, {db, auth} from '../firebase'
 import { addCircle, arrowBack, closeCircleOutline, search } from 'ionicons/icons';
 import { WeatherProps, WeatherState, weatherData } from '../components/WeatherTypes';
 import WeatherSubChildren from '../components/WeatherSubChildren';
+import { NewsDB } from '../config/config';
+import { Plugins, LocalNotification } from '@capacitor/core';
+const {LocalNotifications, App} = Plugins;
 
 
 class Weather extends React.Component<WeatherProps,WeatherState> {
@@ -44,6 +49,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       showLoading: false,
       location: null,
       subscription: [],
+      subscriptionData:[],
       isUnsubscribing: false,
       CurrentUser:null,
       isweatherOpen:false,
@@ -55,59 +61,135 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
 
   constructor(props: WeatherProps) {
     super(props)
+    let temp:any[] = []
     auth.onAuthStateChanged(async () => {
-      console.log(this.state.subscription)
       if(auth.currentUser) {
         //gets the username of our user
-        db.collection("users").doc(auth.currentUser.uid).get().then(doc => {
-          if(doc.data()) {
-            this.setState({CurrentUser:doc.data()!.username})
-          }
           // go into weatherSubscription collection
           const dbSubscription = db.collection('weatherSubscription').doc(auth.currentUser?.uid)
           // Check weather subscription array exist for user
-          dbSubscription.get().then((doc) => {
-            // use existing array
+          dbSubscription.onSnapshot(async (doc) => {
+            temp = []
             if (doc.exists) {
               var subscriptionField = doc.data()
               if (subscriptionField) {
-                this.setState({subscription:subscriptionField.subscription})
-              }
+            this.setState({subscription:subscriptionField.subscription})
+                // listen for changes
+          subscriptionField.subscription.forEach(async (location: any)=>{
+          const query = NewsDB.collection('weather').where("location","==",location)
+          const snapshot = await query.get();
+          snapshot.forEach(doc => {
+            temp.push(doc.data());
+          });
+          this.setState({subscriptionData:temp})
+          // run check for new data in background
+          App.addListener('appStateChange', async (state) => {
+            if (!state.isActive) {
+              query.onSnapshot(async (querySnapshot ) => {
+                querySnapshot.docChanges().forEach(async change => {
+                   if (change.type === 'modified') {
+                    let weatherData = change.doc.data()
+                    let modifiedLocation = await change.doc.data().location
+                    temp = temp.filter(e => e.location !== modifiedLocation)
+                    console.log(temp)
+                    temp.push(change.doc.data());
+                    this.setState({subscriptionData:temp})
+                    await LocalNotifications.schedule({
+                      notifications: [{
+                        title: modifiedLocation,
+                        body: "Today is looking to be " + weatherData.temperature + " with " + weatherData.weather_code,
+                        id: 1,
+                      }]
+                    });
+                  }
+                })
+              })
             }
-            // create an array for the user.
+          })
+          query.onSnapshot(async (querySnapshot ) => {
+            querySnapshot.docChanges().forEach(async change => {
+               if (change.type === 'modified') {
+                let weatherData = change.doc.data()
+                let modifiedLocation = await change.doc.data().location
+                temp = temp.filter(e => e.location !== modifiedLocation)
+                console.log(temp)
+                temp.push(change.doc.data());
+                this.setState({subscriptionData:temp})
+                await LocalNotifications.schedule({
+                  notifications: [{
+                    title: modifiedLocation,
+                    body: weatherData.temperature + " with " + weatherData.weather_code,
+                    id: 1,
+                  }]
+                });
+              }
+            })
+          })
+
+        })
+        }
+            }
+            // create an array for the user if empty
               else {
                 db.collection("weatherSubscription").doc(auth.currentUser?.uid).set({
                   subscription:[]
             })
-            }
-        }).catch(function(error) {
-            console.log("Error getting document:", error);
-        });
-
+          }
         })
-      }
-  })
-
+        console.log(this.state.subscription)
+    }
+    this.setState({subscriptionData:temp})
+    })
   }
-  // ParentComponent = (props:any) => (
-  //   <div className="card calculator">
-  //     <div id="children-pane">
-  //       {props.children}
-  //     </div>
-  //   </div>
-  // );
 
-  // ChildComponent = (props: {weather_code:any, temp:any, location: any, index:any}) =>
-  // <IonCard>
-  //       <IonCardHeader >
-  //         <IonCardSubtitle>{props.location}</IonCardSubtitle>
-  //         <IonCardTitle >{props.temp}</IonCardTitle>
-  //       </IonCardHeader>
-  //       <IonCardContent>
-  //       {props.weather_code}
-  //       <IonButton id="unsubButton" expand="block" color="dark" type="submit" shape="round" onClick={()=> this.unsubscribe(props.index) && this.setState({isUnsubscribing:true})}>unsub</IonButton>
-  //       </IonCardContent>
-  //     </IonCard>
+  async componentDidMount(){
+    await LocalNotifications.requestPermission()
+    // await LocalNotifications.requestPermission().then(res=>{
+    //   console.log("local notification granted: "+ res.granted)
+    // })
+  }
+  
+
+  async doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    let temp: any[] = []
+    const dbSubscription = db.collection('weatherSubscription').doc(auth.currentUser?.uid)
+          // Check weather subscription array exist for user
+          dbSubscription.onSnapshot(async (doc) => {
+            temp = []
+            if (doc.exists) {
+              var subscriptionField = doc.data()
+              if (subscriptionField) {
+            this.setState({subscription:subscriptionField.subscription})
+
+                // listen for changes
+          subscriptionField.subscription.forEach(async (location: any)=>{
+          const query = NewsDB.collection('weather').where("location","==",location)
+          const snapshot = await query.get();
+          snapshot.forEach(doc => {
+            temp.push(doc.data());
+          });
+          this.setState({subscriptionData:temp})
+          query.onSnapshot(async (querySnapshot ) => {
+            querySnapshot.docChanges().forEach(change => {
+               if (change.type === 'modified') {
+                let modifiedLocation = change.doc.data().location
+                temp = temp.filter(e => e.location !== modifiedLocation)
+                console.log(temp)
+                temp.push(change.doc.data());
+                this.setState({subscriptionData:temp})
+              }
+            })
+          })
+        })
+        }
+            }
+        })
+    setTimeout(() => {
+      console.log('refreshing ended');
+      this.setState({subscriptionData:temp})
+      event.detail.complete();
+    }, 500);
+  }
 
 
   /* remove item from subscribed based on index */
@@ -122,22 +204,19 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
   /* add new current weather location to subscribed array */
   async subscribe() {
       const weeklyData = this.state.weeklyData
-      console.log(weeklyData)
       const new_location = this.state.name
-      const found = this.state.subscription.some(el => el.location === new_location);
+      const found = this.state.subscription.some(el => el === new_location);
       if (found === true) {
         console.log("already subscribed")
       } else {
         console.log("adding to subscription")
-        this.state.subscription.push({location:this.state.name,weeklyData:weeklyData,temp:this.state.temp, weather_code:this.state.weather_code})
         /* Add data to firebase firestore */
         db.collection('weatherSubscription').doc(auth.currentUser?.uid).update({
-          subscription:this.state.subscription
+          subscription:firebase.firestore.FieldValue.arrayUnion(this.state.name)
         })
       }
-      console.log(this.state.subscription)
-    this.setState({showLoading: false})
-    this.setState({isSubscribing:false, isSearching:false})
+    console.log(this.state.subscription)
+    this.setState({isSubscribing:false, isSearching:false,showLoading: false})
     return 0
   }
 
@@ -145,17 +224,14 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
     await axios.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+long+"&exclude={hourly,minutely}&appid=853ea8c8d782be685ad81ace7b65291a&units=imperial")
     .then(async (response) => {
       const dailyWeather = await response.data.daily
-      console.log(dailyWeather)
       var dailyData: any[] = []
       for (var i = 1; i < dailyWeather.length; i++) {
         dailyData.push({date:new Date(await dailyWeather[i].dt*1000).toString().substring(0,3), forecast:dailyWeather[i].weather[0].description, temp:dailyWeather[i].feels_like.day, dt:dailyWeather[i].dt})
       }
-      // dailyWeather.forEach(async (day: any) => {
-      //   dailyData.push({date:new Date(await day.dt*1000).toString(), forecast:day.weather[0].description, temp:day.feels_like.day, dt:day.dt})
-      // });
       this.setState({weeklyData:dailyData})
       const currentWeather = response.data.current
       this.setState({temp:currentWeather.temp+'F',weather_code: currentWeather.weather[0].description, location: this.state.name})
+      await NewsDB.collection('weather').doc(this.state.name).set({location:this.state.name, lat:this.state.lat, long: this.state.long ,temperature:currentWeather.temp+'F',weather_code: currentWeather.weather[0].description, weeklyForecast:this.state.weeklyData})
       /* Add data to firebase firestore */
     }).catch((error) => {
       console.log(error)
@@ -165,12 +241,13 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
 
   /* get latitude and longitude of location */
   async geocode(location: any) {
+    this.setState({showLoading: true })
     if (location === null) {
       console.log("Please enter a valid location")
     } else {
       await axios.get('https://us1.locationiq.com/v1/search.php?key=pk.180fdf6168d1230db0cc5c937b7eaa98&q&q='+location+'&limit=1&countrycodes=US&namedetails=1&format=json')
-    .then((response) => {
-      let data = response.data[0]
+    .then(async (response) => {
+      let data = await response.data[0]
       console.log(data)
       let lat = data.lat
       let long = data.lon
@@ -180,6 +257,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       console.error(err);
     });
     }
+    this.search(this.state.lat, this.state.long)
   }
 
   handleUnsub(index: number) {
@@ -225,22 +303,21 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
-      <IonTitle >
+      <IonTitle className="weatherTitle">
           Search Weather
         </IonTitle>
       </IonToolbar>
       </IonHeader>
         <IonContent>
         <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
-        <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)
-          && this.setState({showLoading: true })}>
+        <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)}>
           Search
         </IonButton>
         <IonLoading
         isOpen={this.state.showLoading}
-        onDidDismiss={() =>  this.search(this.state.lat, this.state.long)}
+        
         message={'Getting data from API'}
-        duration={1000}
+        duration={10000}
         />
           </IonContent>
           </IonModal>
@@ -257,7 +334,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={addCircle}/>
                 </IonButton>
         </IonButtons>
-      <IonTitle >
+      <IonTitle className="weatherTitle2">
           Subscribe Weather
         </IonTitle>
       </IonToolbar>
@@ -286,9 +363,12 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
             <IonLabel>Subscriptions</IonLabel>
           </IonListHeader>
           <IonItem>
-          <WeatherSubChildren subs={this.state.subscription} func={this.handleUnsub.bind(this)}></WeatherSubChildren>
+          <WeatherSubChildren subs={this.state.subscriptionData} func={this.handleUnsub.bind(this)}></WeatherSubChildren>
           </IonItem>
         </IonList>
+        <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={event=>this.doRefresh(event)}>
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
           </IonContent>
         </IonModal>
       )

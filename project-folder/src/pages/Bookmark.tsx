@@ -22,14 +22,16 @@ class Bookmark extends React.Component<MyProps, MyState> {
     
     constructor(props: MyProps) {
         super(props);
-        auth.onAuthStateChanged(async ()=>{
-            db.collection("bookmarks").doc(auth.currentUser?.uid).onSnapshot(async (doc) => {
-                if (doc.exists)
-                    this.setState({bookmark:await doc.data()?.bookmark});
-                else {
-                    await db.collection("bookmarks").doc(auth.currentUser?.uid).set({bookmark: []});
-                }
-            })
+        auth.onAuthStateChanged(async () => {
+            if(auth.currentUser) {
+        db.collection("bookmarks").doc(auth.currentUser?.uid).onSnapshot(async (doc) => {
+            if (doc.exists)
+                this.setState({bookmark:await doc.data()?.bookmark});
+            else {
+                await db.collection("bookmarks").doc(auth.currentUser?.uid).set({bookmark: []});
+            }
+        })
+        }
         })
     }
 

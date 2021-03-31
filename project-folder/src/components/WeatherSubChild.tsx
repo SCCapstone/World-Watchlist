@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import './WeatherSubChild.css'
 
 
-function WeatherSubChild (props: {weather_code:any, temp:any, location: any, index:any, func: any, dailyData:any[]}) {
+function WeatherSubChild (props: {weather_code:any, temp:any, location: any, index:any, func: any, weeklyForecast:any[]}) {
   const [showModal, setShowModal] = useState(false);
     function unsubClick(e: any) {
         props.func(props.index);
@@ -12,7 +12,15 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
     return (
       <>
         <IonItem button onClick={() => { setShowModal(!showModal)} }>
-        <IonModal isOpen={showModal} onDidDismiss={() => { setShowModal(false)}} >
+      <IonCard>
+          <IonCardHeader>
+            <IonCardSubtitle>{props.location}</IonCardSubtitle>
+            <IonCardTitle>{props.temp}</IonCardTitle>
+            {props.weather_code}
+          </IonCardHeader>
+          </IonCard>
+        </IonItem>
+        <IonModal isOpen={showModal} onDidDismiss={() => {setShowModal(false)}} >
         <IonHeader>
       <IonToolbar className="weatherToolbar">
       <IonButtons slot='start'>
@@ -42,7 +50,7 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
                 <IonListHeader>
                   <IonLabel>Weekly Forecast</IonLabel>
                 </IonListHeader>
-                {props.dailyData.map(day => (
+                {props.weeklyForecast.map(day => (
                   <IonItem key={day.dt}>
                     <IonLabel>
                       <h1>{day.date}</h1>
@@ -56,14 +64,6 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
           </IonCard>
         </IonContent>
       </IonModal>
-      <IonCard>
-          <IonCardHeader>
-            <IonCardSubtitle>{props.location}</IonCardSubtitle>
-            <IonCardTitle>{props.temp}</IonCardTitle>
-            {props.weather_code}
-          </IonCardHeader>
-          </IonCard>
-        </IonItem>
         </>
       );}
 

@@ -20,11 +20,12 @@ ionic serve
 ```
 #### Deploying on Android
 ```
-ionic build
-ionic cap add android
-ionic cap copy
-ionic cap sync
-ionic cap open android
+ionic build (creates build of app)
+ionic capacitor add android (adds android files, not need if you already have android file)
+npx cap sync android (sync build to android)
+ionic capacitor copy android (does both of the command above in one command)
+npx jetifier (make it buildable in android studio)
+ionic cap open android (opens android studio)
 ```
 In the Android menu, go to Build > Build Bundle(s) / APK (s) > Build APK(s).
 
