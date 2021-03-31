@@ -101,9 +101,8 @@ class Landing extends React.Component<MyProps, MyState> {
     provider.setCustomParameters({ prompt: 'select_account' });
    const googleSignIn = await auth.signInWithPopup(provider);
    Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
-   this.setState({registerEmail:googleSignIn.user?.email})
-   this.setState({username:googleSignIn.user?.displayName})
-   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(async () => {
+    this.setState({registerEmail:googleSignIn.user?.email})
+    this.setState({username:googleSignIn.user?.displayName})
     if (!(await db.collection('profiles').doc(auth.currentUser?.uid).get()).exists) {
       await this.googleLoginUploadDataToFirebase().then(() => {
         this.props.history.push("/main")
@@ -111,7 +110,6 @@ class Landing extends React.Component<MyProps, MyState> {
     } else {
       this.props.history.push("/main")
     }
-  })
   }
 
   register() {
