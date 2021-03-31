@@ -101,11 +101,15 @@ class Landing extends React.Component<MyProps, MyState> {
     provider.setCustomParameters({ prompt: 'select_account' });
    const googleSignIn = await auth.signInWithPopup(provider);
    Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
-   this.setState({registerEmail:googleSignIn.user?.email})
-   this.setState({username:googleSignIn.user?.displayName})
-   await this.uploadDataToFirebase().then(() => {
-    this.props.history.push("/main")
-  })
+    this.setState({registerEmail:googleSignIn.user?.email})
+    this.setState({username:googleSignIn.user?.displayName})
+    if (!(await db.collection('profiles').doc(auth.currentUser?.uid).get()).exists) {
+      await this.googleLoginUploadDataToFirebase().then(() => {
+        this.props.history.push("/main")
+      })
+    } else {
+      this.props.history.push("/main")
+    }
   }
 
   register() {
@@ -150,6 +154,29 @@ class Landing extends React.Component<MyProps, MyState> {
         })
       })
     }
+  }
+
+  async googleLoginUploadDataToFirebase() {
+      const createProfile : Promise<void> = db.collection('profiles').doc(auth.currentUser?.uid).set({
+            blockedSources:[],
+            groups: [],
+            displayName: this.state.username,
+            photo: '',
+            notifications: false
+          })
+          const createEmail : Promise<void> = db.collection('emails').doc(this.state.registerEmail).set({
+            userid: auth.currentUser?.uid
+          })
+          const createOutgoingFriendRequests : Promise<void> = db.collection("outgoingFriendRequests").doc(auth.currentUser?.uid).set({
+            outgoingFriendRequests: []
+          })
+          const createIncomingFriendRequests : Promise<void> = db.collection("incomingFriendRequests").doc(auth.currentUser?.uid).set({
+            incomingFriendRequests: []
+          })
+          const createFriends : Promise<void> = db.collection("friends").doc(auth.currentUser?.uid).set({
+            friendsList: []
+          })
+          return await Promise.all([createProfile, createEmail, createOutgoingFriendRequests, createIncomingFriendRequests, createFriends])
   }
 
   async uploadDataToFirebase() {

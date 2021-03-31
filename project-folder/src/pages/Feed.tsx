@@ -202,14 +202,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
   async checkCollection(collection:string,index:any){
     // Subscribe to a specific 
     const profile = db.collection('profiles').doc(auth.currentUser?.uid)
-    let doc = profile.get()
-    let mutedNotification:any
-    if (!(await doc).exists) {
-      console.log('No such document!');
+    let profileDoc = await profile.get()
+    
+    if (!( profileDoc).exists) {
+      return;
     } else {
-      mutedNotification = (await doc).data()?.muteNotification
-    }
-    console.log(collection, "muted: ", mutedNotification.includes(collection))
     NewsDB.collection(collection)
     .onSnapshot(async querySnapshot => {
       console.log(querySnapshot.docChanges()[0])
@@ -222,7 +219,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           Storage.remove({key:collection})
           this.setState({isChanging:true})
           // if localnotification is not granted or notification is muted, don't send notifications.
-          if (!(await LocalNotifications.requestPermission()).granted || mutedNotification.includes(collection)) return;
+          if (!(await LocalNotifications.requestPermission()).granted || ( profileDoc).data()?.muteNotification.includes(collection))  return;
           else {
           // send notification for every changes in collection
             App.addListener('appStateChange', async (state) => {
@@ -253,7 +250,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       }
     // })
     });
-    
+    }
   }
   
 
