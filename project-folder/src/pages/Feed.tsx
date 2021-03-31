@@ -197,6 +197,15 @@ class Feed extends React.Component<FeedProps, FeedState> {
   // check server collection for changes
   async checkCollection(collection:string,index:any){
     // Subscribe to a specific 
+    const profile = db.collection('profiles').doc(auth.currentUser?.uid)
+    let doc = profile.get()
+    let mutedNotification:any
+    if (!(await doc).exists) {
+      console.log('No such document!');
+    } else {
+      mutedNotification = (await doc).data()?.muteNotification
+    }
+    console.log(collection, "muted: ", mutedNotification.includes(collection))
     NewsDB.collection(collection)
     .onSnapshot(async querySnapshot => {
       console.log(querySnapshot.docChanges()[0])
@@ -208,7 +217,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           // clear cache so new articles can be added to cache
           Storage.remove({key:collection})
           this.setState({isChanging:true})
-          if (!(await LocalNotifications.requestPermission()).granted) return;
+          if (!(await LocalNotifications.requestPermission()).granted || mutedNotification.includes(collection)) return;
           // send notification for every changes in collection
           App.addListener('appStateChange', async (state) => {
                 if (!state.isActive) {
