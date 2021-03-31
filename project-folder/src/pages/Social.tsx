@@ -72,6 +72,8 @@ type MyProps = {
   friendsList: Friend[];
   groupArray: Group[];
   ourUsername: string;
+  incomingRequests: string[];
+  outgoingRequests: string[];
 }
 
 type Group = {
@@ -492,8 +494,8 @@ class Social extends React.Component<MyProps, MyState> {
 
         <PendingRequests
           {...this.props}
-          incomingRequests = {this.state.incomingRequests}
-          outgoingRequests = {this.state.outgoingRequests}
+          incomingRequests = {this.props.incomingRequests}
+          outgoingRequests = {this.props.outgoingRequests}
           acceptFriend = {this.acceptFriend}
           declineFriend = {this.declineFriend}
           cancelOutgingRequest = {this.cancelOutgingRequest}
