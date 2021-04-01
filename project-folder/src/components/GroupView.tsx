@@ -97,6 +97,7 @@ type MyProps = {
   deleteGroup: () => void,
   friendList: Friend[],
   addFriendToGroup: (friend : string, group: string) => void,
+  setSenderToView: (sender:string)=> void,
   ourUsername: string
 }
 
@@ -741,7 +742,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
               return !this.state.blockedList.includes(message.sender) ?
-               <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> :
+              <div onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> </div>:
                <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
             })}
             <div className='groupViewAnchor'  />

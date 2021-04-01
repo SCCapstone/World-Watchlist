@@ -567,6 +567,7 @@ class Social extends React.Component<MyProps, MyState> {
           friendList={this.props.friendsList}
           addFriendToGroup={this.addFriendToGroup}
           ourUsername={this.props.ourUsername}
+          setSenderToView={this.setSenderToView}
         />
 
         <FriendView
