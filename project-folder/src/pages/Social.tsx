@@ -40,6 +40,8 @@ import FriendView from '../components/FriendView'
 
 type MyState = {
   isAddFriendModalOpen: boolean;
+  subList: string[];
+  profileToView: toView;
   toggleProfileModal:boolean;
   isProfileModalOpen: boolean;
   targetUsername: string;
@@ -95,9 +97,23 @@ type Friend = {
   lastMessageSender: string;
 }
 
+type toView = {
+  uid: string;
+  displayName: string;
+  photo: string;
+  subs: string[];
+}
+
 class Social extends React.Component<MyProps, MyState> {
   realtime_db = firebase.database();
   state: MyState = {
+    profileToView: {
+      uid:'',
+      displayName:'',
+      photo:'',
+      subs:[],
+    },
+    subList:[""],
     isAddFriendModalOpen: false,
     isProfileModalOpen: false,
     targetUsername: '',
@@ -154,6 +170,7 @@ class Social extends React.Component<MyProps, MyState> {
     this.acceptFriend = this.acceptFriend.bind(this);
     this.declineFriend = this.declineFriend.bind(this);
     this.removeFriend = this.removeFriend.bind(this);
+    this.setSenderToView = this.setSenderToView.bind(this);
     this.blockUser = this.blockUser.bind(this);
     this.cancelOutgingRequest = this.cancelOutgingRequest.bind(this);
     this.generateUniqueFriendId = this.generateUniqueFriendId.bind(this);
@@ -184,6 +201,42 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
   subscribeGroups() {
+
+  }
+
+  async setSenderToView(uid:string) {
+    
+    console.log(firebase.auth().currentUser!.uid)
+    //if(firebase.auth().currentUser!.uid == uid) // It's you
+    var temp = [""];
+
+
+    this.setState({isProfileModalOpen:true})
+    await db.collection('topicSubscription').doc(uid).onSnapshot((snapshot) => {
+     this.setState({subList:snapshot.data()!.subList})
+     
+
+    })
+    console.log(this.state.subList)
+    var friendName = "";
+    var photoName = "";
+  
+     await db.collection("profiles").doc(uid).get().then(doc => {
+       friendName = doc.data()!.displayName;
+       photoName = doc.data()!.photo;
+
+     })
+    this.setState({profileToView: {
+        uid:uid,
+        displayName:friendName,
+        photo:photoName,
+        subs:this.state.subList
+      }})
+    db.collection('profiles').doc(uid).get().then(doc=>{
+
+     // lastMessageSender: this.props.ourUsername
+    })
+   
 
   }
 
@@ -525,7 +578,9 @@ class Social extends React.Component<MyProps, MyState> {
           ourUsername={this.props.ourUsername}
           isProfileModalOpen={this.state.isProfileModalOpen}
           toggleProfileModal={this.state.toggleProfileModal}
+          setSenderToView={this.setSenderToView}
         />
+
 
         <IonPopover
           cssClass='socialPopover'
@@ -626,6 +681,36 @@ class Social extends React.Component<MyProps, MyState> {
       }
         </div>
       }
+
+      <IonModal isOpen={this.state.isProfileModalOpen} onDidDismiss={() => {this.setState({isProfileModalOpen: false})}}>
+        <IonHeader>
+          <IonToolbar class='settingsToolbar2'>
+            <IonButtons>
+              <IonButton onClick={() => {this.setState({isProfileModalOpen: false})}} id='toBlock' fill='clear'>
+              <IonIcon id='closeBlockIcon' icon={closeCircleOutline}/>
+              </IonButton>
+            </IonButtons>
+
+            <IonTitle class='settingsTitle2'>
+            <IonAvatar>
+          <img src = {this.state.profileToView.photo !== '' ?this.state.profileToView.photo : Placeholder}/>
+        </IonAvatar>
+        {this.state.profileToView.displayName}
+            </IonTitle>
+            </IonToolbar>
+          </IonHeader>
+        <IonContent>
+
+        <ul id = "blockedList"></ul>
+          {
+            this.state.profileToView.subs.map(Blocked =>
+              <IonItem key = {Blocked.toString()}>
+              <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
+              </IonItem>
+            )}
+
+        </IonContent>
+      </IonModal>
 
 
         </IonContent>

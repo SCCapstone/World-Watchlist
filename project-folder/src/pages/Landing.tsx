@@ -81,6 +81,10 @@ class Landing extends React.Component<MyProps, MyState> {
           //reroute here
           console.log(auth.currentUser)
           if(auth.currentUser) {
+             db.collection('topicSubscription').doc(auth.currentUser?.uid).set({
+  
+            privateSubList:[]
+          }, {merge:true})
             Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
             this.props.history.push("/main")
           }
@@ -164,6 +168,12 @@ class Landing extends React.Component<MyProps, MyState> {
             photo: '',
             notifications: false
           })
+
+     const createSubs : Promise<void> =  db.collection('topicSubscription').doc(auth.currentUser?.uid).set({
+            subList:[],
+            privateSubList:[]
+          })
+
           const createEmail : Promise<void> = db.collection('emails').doc(this.state.registerEmail).set({
             userid: auth.currentUser?.uid
           })
@@ -187,6 +197,10 @@ class Landing extends React.Component<MyProps, MyState> {
       photo: '',
       notifications: false
     })
+     const createSubs: Promise<void> = db.collection('topicSubscription').doc(auth.currentUser?.uid).set({
+            subList:[],
+            privateSubList:[]
+          })
     const createEmail : Promise<void> = db.collection('emails').doc(this.state.registerEmail).set({
       userid: auth.currentUser?.uid
     })
@@ -200,7 +214,7 @@ class Landing extends React.Component<MyProps, MyState> {
       friendsList: []
     })
 
-    return await Promise.all([createProfile, createEmail, createOutgoingFriendRequests, createIncomingFriendRequests, createFriends])
+    return await Promise.all([createProfile, createSubs, createEmail, createOutgoingFriendRequests, createIncomingFriendRequests, createFriends])
   }
 
     render() {

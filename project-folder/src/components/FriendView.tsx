@@ -58,6 +58,7 @@ type MyProps = {
   toggleProfileModal:boolean;
   toggleFriendModal: any;
   removeFriend: (targetUserId: string) => void,
+  setSenderToView: (sender:string)=> void,
   ourUsername: string
 }
 
@@ -105,7 +106,7 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   }
 
-  setSenderToView(s:string) {
+  /*setSenderToView(s:string) {
     console.log(s)
     console.log(firebase.auth().currentUser!.uid)
     if(firebase.auth().currentUser!.uid == s) // It's you
@@ -121,7 +122,7 @@ class FriendView extends React.Component<MyProps, MyState> {
     })
     console.log(this.state.subs)
 
-  }
+  }*/
 
   componentDidUpdate(prevProps: MyProps) {
     if(prevProps.friendDetails.uid !== this.props.friendDetails.uid) {
@@ -192,8 +193,7 @@ class FriendView extends React.Component<MyProps, MyState> {
   }*/
 
   openProfile(sender: string) {
-    this.setSenderToView(sender);
-    this.setState({isProfileModalOpen:true})
+   // this.anchorRef.setSenderToView(sender)
   }
 
   closeProfile() {
@@ -243,12 +243,14 @@ class FriendView extends React.Component<MyProps, MyState> {
 
 
           <IonContent className='friendViewMessageContainer' scrollY={true}>
-          <div className='messageContainerDiv'>
+          <div className='messageContainerDiv'onClick={()=>{console.log("here"); this.setState({isProfileModalOpen:true})}}>
             {this.state.messages.map((message) => {
-              return <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
+              
+              return <div onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} /></div>
               //console.log(db.collection('profiles').doc(message.sender))
+              
             })}
-            <div onClick={() => {console.log("here")}} className='friendViewAnchor'  />
+            <div onClick={() => {this.setState({isProfileModalOpen:true}); console.log("here");this.openProfile(this.state.senderToView); console.log("here")}} className='friendViewAnchor'  />
             <div className='friendViewAnchor2' onClick={() => {console.log("here")}} ref={this.anchorRef} />
           </div>
             <div className='friendViewMessageBox'>
@@ -261,35 +263,6 @@ class FriendView extends React.Component<MyProps, MyState> {
           </IonContent>
         </IonModal>
 
-        <IonModal isOpen={this.state.isProfileModalOpen} onDidDismiss={() => {this.setState({isProfileModalOpen: false})}}>
-        <IonHeader>
-          <IonToolbar class='settingsToolbar2'>
-            <IonButtons>
-              <IonButton onClick={() => {this.setState({isProfileModalOpen: false})}} id='toBlock' fill='clear'>
-              <IonIcon id='closeBlockIcon' icon={closeCircleOutline}/>
-              </IonButton>
-            </IonButtons>
-
-            <IonTitle class='settingsTitle2'>
-            <IonAvatar>
-          <img src = {this.state.senderImage !== '' ? this.state.senderImage : Placeholder}/>
-        </IonAvatar>
-        {this.state.senderToView}
-            </IonTitle>
-            </IonToolbar>
-          </IonHeader>
-        <IonContent>
-
-        <ul id = "blockedList"></ul>
-          {
-            this.state.subs.map(Blocked =>
-              <IonItem key = {Blocked.toString()}>
-              <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
-              </IonItem>
-            )}
-
-        </IonContent>
-      </IonModal>
 
       </div>
     )
