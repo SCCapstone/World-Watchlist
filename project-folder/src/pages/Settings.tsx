@@ -253,11 +253,10 @@ changeEmail(newEmail: string) {
   async signOutUser() {
   if (auth.currentUser) {
     
-    auth.signOut()
-    
     if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
       await Plugins.GoogleAuth.signOut()
-
+    else 
+      auth.signOut()
     await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
   }
@@ -603,7 +602,6 @@ isValidSite(siteName:string) {
           <img id = 'myimg' />
         </IonAvatar>
         {this.state.currentUserName}
-        {console.log("testname " + this.state.currentUserName)}
         </IonItem>
         <IonItem>
             <IonLabel>Notifications</IonLabel>
