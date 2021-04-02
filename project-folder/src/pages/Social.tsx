@@ -699,10 +699,12 @@ class Social extends React.Component<MyProps, MyState> {
         
             </IonTitle><IonTitle class = "image-center">{this.state.profileToView.displayName}</IonTitle>
             </IonToolbar>
-            subs
+            
           </IonHeader>
-          subs
-          <IonLabel class = "colored">Subs</IonLabel>
+          <IonItem>
+        
+          <IonLabel class = "colored">Topic Subscriptions</IonLabel>
+          </IonItem>
         <IonContent>
 
         <ul id = "blockedList"></ul>

@@ -186,6 +186,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
         newPicRef.put(file);
         await new Promise(r => setTimeout(r, 1000));
+        if(file.size < 2097152){
         newPicRef.getDownloadURL().then((url) => {
           db.collection('profiles').doc(auth.currentUser?.uid).update({
             photo: url
@@ -193,6 +194,10 @@ class Settings extends React.Component<MyProps, MyState> {
         })
 
         this.pullImage();
+      }
+      else {
+        console.log("Image is too big")
+      }
     }
   }
 
@@ -639,7 +644,7 @@ isValidSite(siteName:string) {
 
                   <IonButton id = 'submit'>
 
-        <input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+        <input type="file" accept="image/x-png,image/gif,image/jpeg" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
 
        <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
         </IonButton>
@@ -660,7 +665,7 @@ isValidSite(siteName:string) {
               </IonButtons>
               </IonItem>
 
-              
+
 
         </IonContent>
       </IonPage>
