@@ -250,6 +250,21 @@ changeEmail(newEmail: string) {
 }
 }
 
+changeDisplayName(newName: string) {
+  if(auth.currentUser) {
+     db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => {
+      if(document.exists) {
+        db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+        displayName : newName
+        })
+      }
+    })
+  }
+
+    
+}
+
+
   async signOutUser() {
   if (auth.currentUser) {
     
@@ -644,6 +659,8 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
+
+              
 
         </IonContent>
       </IonPage>

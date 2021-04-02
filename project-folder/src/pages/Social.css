@@ -72,6 +72,7 @@
 
 .socialGroupLabel {
   width: 100%;
+  font-weight: 700;
 }
 
 .socialGroupMessagePreview {
@@ -155,4 +156,13 @@
 
 #closeCreateGroupModalIcon {
   color: white;
+}
+
+.image-center{
+margin:0 auto;
+text-align:center;
+}
+
+.colored{
+  color:white;
 }
