@@ -655,7 +655,7 @@ class Social extends React.Component<MyProps, MyState> {
                     <IonLabel className='socialGroupLabel'>
                       {displayGroup.nickname}
                     </IonLabel>
-                    <IonLabel className='socialGroupMessagePreview'><span className='blueColor'>{displayGroup.lastMessageSender}</span>:  {displayGroup.lastMessage}</IonLabel>
+                    <IonLabel className='socialGroupMessagePreview'>{displayGroup.lastMessage}</IonLabel>
                   </div>
                 </IonItem>
               )

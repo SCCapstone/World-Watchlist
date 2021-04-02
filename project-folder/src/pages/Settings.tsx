@@ -27,7 +27,7 @@ import {
 import firebase, {db, auth, signInWithGoogle} from '../firebase'
 import "@codetrix-studio/capacitor-google-auth";
 
-import {addCircleOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
+import {addCircleOutline, closeOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
  const { PushNotifications } = Plugins;
  const { Toast } = Plugins;
@@ -463,13 +463,7 @@ isValidSite(siteName:string) {
         </IonTitle>
         <br/>
         <br/>
-        <IonItem lines='none' id='block'>
-          <IonInput class='addSource' onIonChange={(e) => {this.setState({sourceToUnBlock: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.unBlockSource(this.state.sourceToUnBlock)}}  fill='clear'>
-            <IonIcon id='addBlockIcon' icon={addCircleOutline} />
-          </IonButton>
-        </IonItem>
-        <br/>
+       
         <IonHeader id = 'blockedSourcesHeader'>You Won't See Content From:</IonHeader>
         <br/>
 
@@ -478,6 +472,9 @@ isValidSite(siteName:string) {
             this.state.blockedSources.map(Blocked =>
               <IonItem key = {Blocked.toString()}>
               <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
+                <IonButton slot = "end" onClick={() => {this.unBlockSource(Blocked.toString())}}  fill='clear'>
+            <IonIcon id='addBlockIcon' icon={closeOutline} />
+          </IonButton>
               </IonItem>
             )}
         </IonContent>
