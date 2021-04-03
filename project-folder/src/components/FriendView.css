@@ -108,5 +108,8 @@
 
 }
 .friendTitle {
+  text-align: center;
+}
+#friendHeader {
   background-color: #3880ff;
 }
