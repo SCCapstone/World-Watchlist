@@ -30,11 +30,15 @@ interface readReceipt {
 
 
 interface MessageProps {
+  uid: string;
   photo: string;
   content: string;
   sender: string;
   read: readReceipt[];
   openProfile: (sender: string) => void;
+
+
+setSenderToView: (sender:string)=> void;
   closeProfile: () => void;
 }
 
@@ -44,7 +48,7 @@ interface MessageProps {
       <div>
         <IonLabel class='messageLabel text-wrap' position='stacked'>{props.sender}</IonLabel>
         <IonItem class='messageItem' onClick={() => {setReadReceiptViewable(!readReceiptViewable)}}>
-          <IonAvatar slot="start">
+          <IonAvatar onClick={()=>{props.setSenderToView(props.uid)}} slot="start">
             <img src={props.photo !== '' ? props.photo : Placeholder} />
           </IonAvatar>
 

@@ -54,6 +54,7 @@ import FeedList from '../components/FeedList';
 
 type MyState = {
   articles: article[],
+  
   blockedSources: string[],
   subscriptions: string[],
   subscriptionListener: any,
@@ -81,7 +82,7 @@ type MyState = {
   nameDictionary: any,
   blockedList: string[],
   subArticles:any[],
-  senderToView: any;
+  senderToView: string;
   senderImage: string;
   subs: string[];
   isProfileModalOpen:boolean;
@@ -89,6 +90,7 @@ type MyState = {
 
 type MyProps = {
   history: any;
+
   location: any;
   groupDetails: GroupType;
   isGroupModalOpen: boolean;
@@ -168,7 +170,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     currentMessage: '',
     nameDictionary: {},
     blockedList: [],
-    senderToView: undefined,
+    senderToView: '',
     senderImage:'',
 
   };
@@ -180,6 +182,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     this.anchorRef = React.createRef()
     this.openProfile = this.openProfile.bind(this);
     this.closeProfile = this.closeProfile.bind(this);
+    this.setSenderToView=this.setSenderToView.bind(this);
   }
 
   componentDidMount() {
@@ -477,20 +480,9 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   setSenderToView(s:string) {
-    console.log(s)
-    console.log(firebase.auth().currentUser!.uid)
-    if(firebase.auth().currentUser!.uid == s) // It's you
+    this.setState({senderToView:s})
+    this.props.setSenderToView(s)
 
-    this.setState({senderToView:this.state.nameDictionary[s]})
-     this.setState({senderImage: this.state.photoDictionary[s]})
-    db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
-      this.setState({subs:snapshot.data()!.subList})
-    })
-    db.collection('profiles').doc(s).get().then(doc=>{
-
-     // lastMessageSender: this.props.ourUsername
-    })
-    console.log(this.state.subs)
 
   }
   // // copied from Feed.tsx
@@ -747,8 +739,8 @@ class GroupView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
               return !this.state.blockedList.includes(message.sender) ?
-              <div onClick={()=>{console.log(this.state.photoDictionary[message.photo]); this.props.setSenderToView(message.sender)}}> <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> </div>:
-               <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
+              <Message uid = {message.sender} setSenderToView={this.setSenderToView} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/>:
+               <Message uid = {message.sender} setSenderToView={this.setSenderToView} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />
