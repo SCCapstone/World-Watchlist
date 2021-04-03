@@ -5,12 +5,12 @@ import FeedList from './FeedList';
 import ChildComponent from './SubscriptionChild'
 import ParentComponent from './SubscriptionParent';
 
-function ChildrenComponent(props: {subs: Array<String>, func: any, articles:any[], mode: string, sort: string}) {
+function ChildrenComponent(props: {subs: Array<String>, func: any, articles:any[], openShareModal: (theArticle: article, shouldOpen: boolean) => void, mode: string, sort: string}) {
     // console.log("Child list: "+props.subs.length+" in list");
     let subs: Array<any> = [];
     if ( props.mode == "cards") {
       subs = props.subs.map((item, index)=> {return <ChildComponent  key={item.toString()} subscription={item}
-        index={index} func={props.func} articles={props.articles[index]}></ChildComponent>});
+        index={index} func={props.func} articles={props.articles[index]} openShareModal={props.openShareModal}></ChildComponent>});
       return <ParentComponent>{subs}</ParentComponent>;
     } else if ( props.mode == "all") {
       props.articles.forEach((subs_articles: Array<article>) => {
@@ -31,7 +31,7 @@ function ChildrenComponent(props: {subs: Array<String>, func: any, articles:any[
       // } else if ( props.sort == "pubDate") {
       //   subs = subs.sort((a, b) => ( new Date(a.pubDate).valueOf() - new Date(b.pubDate).valueOf()));
       // }
-      return <FeedList headerName={"News"} articleList={subs}></FeedList>
+      return <FeedList headerName={"News"} articleList={subs} openShareModal={props.openShareModal}></FeedList>
     }
     return <div></div>
 } 

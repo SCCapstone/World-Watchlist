@@ -44,9 +44,18 @@ export type GroupFeedState = {
   mode: "cards" | "all",
   sort: "title" | "pubDate" | "none"
 }
+
+interface article {
+    title: string;
+    link: string;
+    description: string;
+    source:any;
+    pubDate:any;
+}
 export type FeedProps = {
     history: any;
     location: any;
+    openShareModal: (theArticle: article, shouldOpen: boolean) => void
   }
 export type GroupFeedProps = {
   groupId: string;

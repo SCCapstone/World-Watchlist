@@ -15,6 +15,7 @@ import Settings from '../pages/Settings'
 import Bookmark from '../pages/Bookmark'
 import {auth, db} from '../firebase'
 import './Tabs.css'
+import { article } from '../components/ArticleTypes';
 
 type Friend = {
   uuid: string;
@@ -53,8 +54,9 @@ type MyState = {
   numGroups: number;
   groupArray: Group[]
   unsubscribeGroupArray: any[];
-  unsubscribeIncomingRequests: any;
-  unsubscribeOutgoingRequests: any
+  unsubscribeIncomingRequests: (() => void) | undefined;
+  unsubscribeOutgoingRequests: (() => void) | undefined;
+  isShareModalOpen: boolean
 }
 
 class Tabs extends React.Component<MyProps, MyState> {
@@ -71,8 +73,9 @@ class Tabs extends React.Component<MyProps, MyState> {
     numGroups: 0,
     groupArray: [],
     unsubscribeGroupArray: [],
-    unsubscribeIncomingRequests: [],
-    unsubscribeOutgoingRequests: []
+    unsubscribeIncomingRequests: undefined,
+    unsubscribeOutgoingRequests: undefined,
+    isShareModalOpen: false
   };
 
   constructor(props: MyProps){
@@ -191,8 +194,13 @@ class Tabs extends React.Component<MyProps, MyState> {
 
   componentWillUnmount() {
     //since we have subscriptions, we cancel them here to prevent a memory leak
-    this.state.unsubscribeIncomingRequests()
-    this.state.unsubscribeOutgoingRequests()
+    if(this.state.unsubscribeIncomingRequests !== undefined) {
+      this.state.unsubscribeIncomingRequests()
+    }
+    if(this.state.unsubscribeOutgoingRequests !== undefined) {
+      this.state.unsubscribeOutgoingRequests()
+    }
+
     for(let i = 0; i < this.state.unsubscribeGroupArray.length; i++) {
       this.state.unsubscribeGroupArray[i]()
     }
@@ -217,13 +225,17 @@ class Tabs extends React.Component<MyProps, MyState> {
 
   }
 
+  openShareModal(theArticle: article, shouldOpen: boolean) {
+    this.setState({isShareModalOpen: true})
+  }
+
   render() {
     return (
       <IonTabs>
         <IonRouterOutlet>
           <Route path="/main" exact render={() => <Redirect to="/main/feed"/>} />
           <Route path="/main/feed" component={Feed} exact={true} />
-          <Route path="/main/social" render={() => <Social {...this.props} friendsList={this.state.friendsList} groupArray={this.state.groupArray} ourUsername={this.state.ourUsername} incomingRequests={this.state.incomingRequests} outgoingRequests={this.state.outgoingRequests}/> } />
+          <Route path="/main/social" render={() => <Social {...this.props} friendsList={this.state.friendsList} groupArray={this.state.groupArray} ourUsername={this.state.ourUsername} incomingRequests={this.state.incomingRequests} outgoingRequests={this.state.outgoingRequests} openShareModal={this.openShareModal}/> } />
           <Route path="/main/settings" component={Settings} exact={true}/>
           <Route path="/main/bookmark" component={Bookmark} exact={true}/>
         </IonRouterOutlet>

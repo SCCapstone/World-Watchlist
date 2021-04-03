@@ -44,7 +44,7 @@ interface MessageProps {
       <div>
         <IonLabel class='messageLabel text-wrap' position='stacked'>{props.sender}</IonLabel>
         <IonItem class='messageItem' onClick={() => {setReadReceiptViewable(!readReceiptViewable)}}>
-          <IonAvatar slot="start">
+          <IonAvatar slot="start" onClick={() => {console.log('This is me clicking the avatar')}}>
             <img src={props.photo !== '' ? props.photo : Placeholder} />
           </IonAvatar>
 

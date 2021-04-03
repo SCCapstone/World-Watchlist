@@ -4,12 +4,17 @@ import React, { useEffect, useState } from 'react';
 import FeedList from './FeedList';
 import CollectionModal from './CollectionModal'
 import './SubscriptionChild.css'
+import { article } from './ArticleTypes';
 
 type MyState = {
     isCollectionModalOpen: any;
 }
 type MyProp ={
-     subscription: any; index: any; func: any; articles: any[];
+     subscription: any;
+     index: any;
+     func: any;
+     articles: any[];
+     openShareModal: (theArticle: article, shouldOpen: boolean) => void
 }
 
 class ChildComponent extends React.Component<MyProp, MyState> {
@@ -17,18 +22,18 @@ class ChildComponent extends React.Component<MyProp, MyState> {
         isCollectionModalOpen:false
     }
 
-    
+
     constructor(props:MyProp) {
         super(props)
         this.collectionCloseButton = this.collectionCloseButton.bind(this);
     }
 
-    
+
 
     handleCloseModal = () => {
         this.setState({ isCollectionModalOpen: false });
       };
-    
+
 
     collectionCloseButton() {
         this.setState({isCollectionModalOpen: false});
@@ -44,13 +49,16 @@ class ChildComponent extends React.Component<MyProp, MyState> {
                     </IonCardHeader>
                 </IonCard>
                 </IonItem>
-                <CollectionModal showModal={this.state.isCollectionModalOpen} 
-                closeModal={this.collectionCloseButton} 
-                articles={this.props.articles} index={this.props.index} 
-                subscription={this.props.subscription} 
-                func={this.props.func}></CollectionModal>
-                </>
-                )
-    ;}}
+                <CollectionModal showModal={this.state.isCollectionModalOpen}
+                  closeModal={this.collectionCloseButton}
+                  articles={this.props.articles} index={this.props.index}
+                  subscription={this.props.subscription}
+                  func={this.props.func}
+                  openShareModal={this.props.openShareModal}
+                />
+              </>
+              );
+            }
+          }
 
 export default ChildComponent;

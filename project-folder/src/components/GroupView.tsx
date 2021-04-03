@@ -99,8 +99,8 @@ type MyProps = {
   deleteGroup: () => void,
   friendList: Friend[],
   addFriendToGroup: (friend : string, group: string) => void,
-  setSenderToView: (sender:string)=> void,
-  ourUsername: string
+  ourUsername: string,
+  openShareModal: (theArticle: article, shouldOpen: boolean) => void
 }
 
 type GroupType = {
@@ -210,11 +210,6 @@ class GroupView extends React.Component<MyProps, MyState> {
     this.addGroupSubscriptionListener();
   }
 
-  async getPhoto(photo:string) {
-    return await this.state.photoDictionary[photo]
-
-  }
-
   componentDidUpdate(prevProps: MyProps) {
     if(this.state.messages != []) {
       this.crawlMessageReadReceipts(this.state.messages.length - 1)
@@ -276,23 +271,24 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   crawlMessageReadReceipts(index: number) {
-
-    if(index >= 0) {
-      let timestamp = Date.now()
-      let flag = true
-      let tempMessages = this.state.messages
-      tempMessages[index].read.forEach((readObj: readReceipt) => {
-        if(readObj.readBy === auth.currentUser!.email) {
-          flag = false
-        }
-      })
-      if(flag) {
-        this.crawlMessageReadReceipts(index - 1)
-        if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
-          tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
-          this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
-            read: tempMessages[index].read
-          })
+    if(auth.currentUser !== null) {
+      if(index >= 0) {
+        let timestamp = Date.now()
+        let flag = true
+        let tempMessages = this.state.messages
+        tempMessages[index].read.forEach((readObj: readReceipt) => {
+          if(readObj.readBy === auth.currentUser!.email) {
+            flag = false
+          }
+        })
+        if(flag) {
+          this.crawlMessageReadReceipts(index - 1)
+          if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
+            tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
+            this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
+              read: tempMessages[index].read
+            })
+          }
         }
       }
     }
@@ -677,7 +673,8 @@ class GroupView extends React.Component<MyProps, MyState> {
       addTopicButton={this.handleAddTopic.bind(this)}
       articlesSearched={this.state.articlesSearched}
       showSubscribeAlert={this.state.showSubscribeAlert}
-      dismissSubscribeAlertButton={this.handleDismissSubscribe.bind(this)}></SearchModal>
+      dismissSubscribeAlertButton={this.handleDismissSubscribe.bind(this)}
+      openShareModal={this.props.openShareModal}></SearchModal>
 
         <IonPopover
           cssClass='groupViewPopover'
@@ -751,7 +748,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
               return !this.state.blockedList.includes(message.sender) ?
-              <div onClick={()=>{console.log(this.state.photoDictionary[message.photo]); this.props.setSenderToView(message.sender)}}> <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> </div>:
+               <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> :
                <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
             })}
             <div className='groupViewAnchor'  />
@@ -771,6 +768,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       unsubButton={this.unsubscribeButton.bind(this)}
       subscriptions={this.state.subscriptions}
       articles={this.state.articles}
+      openShareModal={this.props.openShareModal}
       mode={this.state.mode}
       sort={this.state.sort}></SubscriptionModal>
           </IonContent>
