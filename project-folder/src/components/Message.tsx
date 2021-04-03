@@ -63,7 +63,7 @@ setSenderToView: (sender:string)=> void;
               </IonAvatar>
 
 
-              <IonLabel class='messageContent ion-text-wrap'>{props.content}</IonLabel>
+            <IonLabel class='messageContent ion-text-wrap'>{props.content}</IonLabel>
             </IonItem>
             {readReceiptViewable ?
               <div className='readReceipt'>
