@@ -37,6 +37,7 @@ import './Social.css'
 import AddFriends from '../components/AddFriends';
 import PendingRequests from '../components/PendingRequests';
 import FriendView from '../components/FriendView'
+import { article } from '../components/ArticleTypes';
 
 type MyState = {
   isAddFriendModalOpen: boolean;
@@ -76,6 +77,7 @@ type MyProps = {
   ourUsername: string;
   incomingRequests: string[];
   outgoingRequests: string[];
+  openShareModal: (theArticle: article, shouldOpen: boolean) => void;
 }
 
 type Group = {
@@ -205,25 +207,31 @@ class Social extends React.Component<MyProps, MyState> {
   }
 
   async setSenderToView(uid:string) {
-    
-    console.log(firebase.auth().currentUser!.uid)
+
     //if(firebase.auth().currentUser!.uid == uid) // It's you
     var temp = [""];
 
 
+    db.collection('profiles').doc(uid).get().then(async (doc)=> {
+      if(await doc.data()) {
+
     this.setState({isProfileModalOpen:true})
+  
     await db.collection('topicSubscription').doc(uid).onSnapshot((snapshot) => {
+      if(snapshot.data())
      this.setState({subList:snapshot.data()!.subList})
-     
+
 
     })
     console.log(this.state.subList)
     var friendName = "";
     var photoName = "";
-  
+
      await db.collection("profiles").doc(uid).get().then(doc => {
+       if(doc.data()) {
        friendName = doc.data()!.displayName;
        photoName = doc.data()!.photo;
+     }
 
      })
     this.setState({profileToView: {
@@ -236,8 +244,12 @@ class Social extends React.Component<MyProps, MyState> {
 
      // lastMessageSender: this.props.ourUsername
     })
+
+  }
    
 
+
+})
   }
 
 
@@ -367,7 +379,7 @@ class Social extends React.Component<MyProps, MyState> {
           lastMessageSender: 'World-Watchlist'
         })
         let timestamp = Date.now()
-        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp})
+        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp, isArticle: false})
       })
     }
   }
@@ -439,7 +451,7 @@ class Social extends React.Component<MyProps, MyState> {
         groups: firebase.firestore.FieldValue. arrayUnion(code),
       })
       let timestamp = Date.now()
-      this.realtime_db.ref(code).child(timestamp.toString()).set({content: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp})
+      this.realtime_db.ref(code).child(timestamp.toString()).set({content: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp, isArticle: false})
     })
 
   }
@@ -567,6 +579,7 @@ class Social extends React.Component<MyProps, MyState> {
           friendList={this.props.friendsList}
           addFriendToGroup={this.addFriendToGroup}
           ourUsername={this.props.ourUsername}
+          openShareModal={this.props.openShareModal}
           setSenderToView={this.setSenderToView}
         />
 
@@ -580,6 +593,7 @@ class Social extends React.Component<MyProps, MyState> {
           isProfileModalOpen={this.state.isProfileModalOpen}
           toggleProfileModal={this.state.toggleProfileModal}
           setSenderToView={this.setSenderToView}
+          openShareModal={this.props.openShareModal}
         />
 
 
@@ -696,13 +710,13 @@ class Social extends React.Component<MyProps, MyState> {
             <IonAvatar class = "image-center">
           <img src = {this.state.profileToView.photo !== '' ?this.state.profileToView.photo : Placeholder}/>
         </IonAvatar>
-        
+
             </IonTitle><IonTitle class = "image-center">{this.state.profileToView.displayName}</IonTitle>
             </IonToolbar>
-            
+
           </IonHeader>
           <IonItem>
-        
+
           <IonLabel class = "colored">Topic Subscriptions</IonLabel>
           </IonItem>
         <IonContent>

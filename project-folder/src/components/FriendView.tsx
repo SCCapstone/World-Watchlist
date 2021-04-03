@@ -29,6 +29,7 @@ import {
 } from 'ionicons/icons'
 
 import Message from '../components/Message'
+import { article } from './ArticleTypes';
 
 
 
@@ -57,9 +58,10 @@ type MyProps = {
   isProfileModalOpen:boolean;
   toggleProfileModal:boolean;
   toggleFriendModal: any;
-  removeFriend: (targetUserId: string) => void,
-  setSenderToView: (sender:string)=> void,
-  ourUsername: string
+  removeFriend: (targetUserId: string) => void;
+  setSenderToView: (sender:string)=> void;
+  ourUsername: string;
+  openShareModal: (theArticle: article, shouldOpen: boolean) => void
 }
 
 
@@ -71,6 +73,8 @@ type Friend = {
   lastMessage: string;
   lastMessageSender: string;
 }
+
+
 
 
 
@@ -96,6 +100,8 @@ class FriendView extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props)
     this.anchorRef = React.createRef()
+    this.setSenderToView = this.setSenderToView.bind(this)
+    this.openShareModal = this.openShareModal.bind(this)
 
     this.openProfile = this.openProfile.bind(this);
     this.closeProfile = this.closeProfile.bind(this);
@@ -106,23 +112,11 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   }
 
-  /*setSenderToView(s:string) {
-    console.log(s)
-    console.log(firebase.auth().currentUser!.uid)
-    if(firebase.auth().currentUser!.uid == s) // It's you
+  setSenderToView(s:string) {
+    this.setState({senderToView:s})
+    this.props.setSenderToView(s)
 
-    this.setState({senderToView:this.state.nameDictionary[s]})
-     this.setState({senderImage: this.state.photoDictionary[s]})
-    db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
-      this.setState({subs:snapshot.data()!.subList})
-    })
-    db.collection('profiles').doc(s).get().then(doc=>{
-
-     // lastMessageSender: this.props.ourUsername
-    })
-    console.log(this.state.subs)
-
-  }*/
+  }
 
   componentDidUpdate(prevProps: MyProps) {
     if(prevProps.friendDetails.uid !== this.props.friendDetails.uid) {
@@ -158,6 +152,10 @@ class FriendView extends React.Component<MyProps, MyState> {
     }
   }
 
+  openShareModal(){
+
+  }
+
   sendMessage() {
     let timestamp = Date.now()
     this.realtime_db.ref(this.props.friendDetails.uuid).child(timestamp.toString()).set(
@@ -165,7 +163,8 @@ class FriendView extends React.Component<MyProps, MyState> {
         message: this.state.currentMessage,
         sender: auth.currentUser?.uid,
         read: [{readBy: auth.currentUser?.email, readAt: Date.now.toString()}],
-        time: timestamp.toString()
+        time: timestamp.toString(),
+        isArticle: false
       }
     )
     console.log('my id ' + auth.currentUser!.uid)
@@ -245,10 +244,15 @@ class FriendView extends React.Component<MyProps, MyState> {
           <IonContent className='friendViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'onClick={()=>{console.log("here"); this.setState({isProfileModalOpen:true})}}>
             {this.state.messages.map((message) => {
+
               
-              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} /></div>
+              return <Message article = {undefined} openShareModal = {this.openShareModal} setSenderToView={this.setSenderToView} isArticle = {message.isArticle} uid = {message.sender} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} />
+
+
+              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message setSenderToView = {this.setSenderToView} uid = {message.sender} isArticle={message.isArticle} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} openShareModal={this.props.openShareModal} article={message.article}/></div>
+
               //console.log(db.collection('profiles').doc(message.sender))
-              
+
             })}
             <div onClick={() => {this.setState({isProfileModalOpen:true}); console.log("here");this.openProfile(this.state.senderToView); console.log("here")}} className='friendViewAnchor'  />
             <div className='friendViewAnchor2' onClick={() => {console.log("here")}} ref={this.anchorRef} />

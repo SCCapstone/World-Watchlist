@@ -54,6 +54,7 @@ import FeedList from '../components/FeedList';
 
 type MyState = {
   articles: article[],
+  
   blockedSources: string[],
   subscriptions: string[],
   subscriptionListener: any,
@@ -81,24 +82,29 @@ type MyState = {
   nameDictionary: any,
   blockedList: string[],
   subArticles:any[],
-  senderToView: any;
+  senderToView: string;
   senderImage: string;
   subs: string[];
   isProfileModalOpen:boolean;
+  mode: "cards" | "all",
+  sort: "title" | "pubDate";
+  sentArray: string[];
 }
 
 type MyProps = {
   history: any;
+
   location: any;
   groupDetails: GroupType;
   isGroupModalOpen: boolean;
   toggleGroupModal: any;
-  leaveGroup: () => void,
-  deleteGroup: () => void,
-  friendList: Friend[],
-  addFriendToGroup: (friend : string, group: string) => void,
-  setSenderToView: (sender:string)=> void,
-  ourUsername: string
+  leaveGroup: () => void;
+  deleteGroup: () => void;
+  friendList: Friend[];
+  addFriendToGroup: (friend : string, group: string) => void;
+  ourUsername: string;
+  openShareModal: (theArticle: article, shouldOpen: boolean) => void;
+  setSenderToView:(uid:string)=> void;
 }
 
 type GroupType = {
@@ -133,6 +139,8 @@ interface MessageProps {
   read: readReceipt[];
   key: any;
   time: string;
+  isArticle: boolean;
+  article: article | undefined;
 }
 
 class GroupView extends React.Component<MyProps, MyState> {
@@ -168,8 +176,11 @@ class GroupView extends React.Component<MyProps, MyState> {
     currentMessage: '',
     nameDictionary: {},
     blockedList: [],
-    senderToView: undefined,
+    senderToView: '',
     senderImage:'',
+    mode: "cards",
+    sort: "title",
+    sentArray: []
 
   };
   realtime_db = firebase.database();
@@ -180,6 +191,8 @@ class GroupView extends React.Component<MyProps, MyState> {
     this.anchorRef = React.createRef()
     this.openProfile = this.openProfile.bind(this);
     this.closeProfile = this.closeProfile.bind(this);
+    this.setSenderToView=this.setSenderToView.bind(this);
+    this.openShareModal=this.openShareModal.bind(this);
   }
 
   componentDidMount() {
@@ -244,7 +257,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       this.setState({
         members: members,
         photoDictionary: photoDictionary,
-        nameDictionary: nameDictionary
+        nameDictionary: nameDictionary,
       })
     }
     if(prevProps.groupDetails.id !== this.props.groupDetails.id) {
@@ -267,23 +280,24 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   crawlMessageReadReceipts(index: number) {
-
-    if(index >= 0) {
-      let timestamp = Date.now()
-      let flag = true
-      let tempMessages = this.state.messages
-      tempMessages[index].read.forEach((readObj: readReceipt) => {
-        if(readObj.readBy === auth.currentUser!.email) {
-          flag = false
-        }
-      })
-      if(flag) {
-        this.crawlMessageReadReceipts(index - 1)
-        if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
-          tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
-          this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
-            read: tempMessages[index].read
-          })
+    if(auth.currentUser !== null) {
+      if(index >= 0) {
+        let timestamp = Date.now()
+        let flag = true
+        let tempMessages = this.state.messages
+        tempMessages[index].read.forEach((readObj: readReceipt) => {
+          if(readObj.readBy === auth.currentUser!.email) {
+            flag = false
+          }
+        })
+        if(flag) {
+          this.crawlMessageReadReceipts(index - 1)
+          if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
+            tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
+            this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
+              read: tempMessages[index].read
+            })
+          }
         }
       }
     }
@@ -361,7 +375,8 @@ class GroupView extends React.Component<MyProps, MyState> {
         content: this.state.currentMessage,
         sender: auth.currentUser?.uid,
         read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}],
-        time: timestamp.toString()
+        time: timestamp.toString(),
+        isArticle: false
       }
     )
     db.collection('groups').doc(this.props.groupDetails.id).update({
@@ -472,22 +487,17 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   setSenderToView(s:string) {
-    console.log(s)
-    console.log(firebase.auth().currentUser!.uid)
-    if(firebase.auth().currentUser!.uid == s) // It's you
+    this.setState({senderToView:s})
+    this.props.setSenderToView(s)
 
-    this.setState({senderToView:this.state.nameDictionary[s]})
-     this.setState({senderImage: this.state.photoDictionary[s]})
-    db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
-      this.setState({subs:snapshot.data()!.subList})
-    })
-    db.collection('profiles').doc(s).get().then(doc=>{
-
-     // lastMessageSender: this.props.ourUsername
-    })
-    console.log(this.state.subs)
 
   }
+
+  openShareModal(){
+
+  }
+
+
   // // copied from Feed.tsx
   // async searchTopic(topic:any) {
   //   this.setState({showLoading: true})
@@ -642,8 +652,8 @@ class GroupView extends React.Component<MyProps, MyState> {
                   <IonLabel>
                     {FriendObj.displayName}
                   </IonLabel>
-                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.uid, this.props.groupDetails.id)}} fill='clear'>
-                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(FriendObj.uid) ? checkmarkOutline : addOutline}/>
+                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.uid, this.props.groupDetails.id); this.setState({sentArray: [...this.state.sentArray, FriendObj.uid]})}} fill='clear'>
+                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(FriendObj.uid) || this.state.sentArray.includes(FriendObj.uid)? checkmarkOutline : addOutline}/>
                   </IonButton>
                 </IonItem>
               )
@@ -668,7 +678,8 @@ class GroupView extends React.Component<MyProps, MyState> {
       addTopicButton={this.handleAddTopic.bind(this)}
       articlesSearched={this.state.articlesSearched}
       showSubscribeAlert={this.state.showSubscribeAlert}
-      dismissSubscribeAlertButton={this.handleDismissSubscribe.bind(this)}></SearchModal>
+      dismissSubscribeAlertButton={this.handleDismissSubscribe.bind(this)}
+      openShareModal={this.props.openShareModal}></SearchModal>
 
         <IonPopover
           cssClass='groupViewPopover'
@@ -741,9 +752,24 @@ class GroupView extends React.Component<MyProps, MyState> {
           <IonContent className='groupViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return !this.state.blockedList.includes(message.sender) ?
-              <div onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> </div>:
-               <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
+              
+
+               return <Message
+                  isArticle={message.isArticle}
+                  openProfile={this.openProfile}
+                  closeProfile={this.closeProfile}
+                  key={message.key}
+                  sender={this.state.nameDictionary[message.sender]}
+                  content={this.state.blockedList.includes(message.sender) ? 'This content is from a blocked user.' : message.content}
+                  photo={this.state.photoDictionary[message.sender]}
+                  article={message.article}
+                  read={message.read}
+                  openShareModal={this.props.openShareModal}
+                  uid={message.sender}
+                  setSenderToView={this.setSenderToView}
+                />
+                
+
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />
@@ -761,7 +787,10 @@ class GroupView extends React.Component<MyProps, MyState> {
             <SubscriptionModal
       unsubButton={this.unsubscribeButton.bind(this)}
       subscriptions={this.state.subscriptions}
-      articles={this.state.articles}></SubscriptionModal>
+      articles={this.state.articles}
+      openShareModal={this.props.openShareModal}
+      mode={this.state.mode}
+      sort={this.state.sort}></SubscriptionModal>
           </IonContent>
   }
         </IonModal>

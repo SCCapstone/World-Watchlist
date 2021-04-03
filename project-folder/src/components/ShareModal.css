@@ -1,0 +1,22 @@
+#shareModalCloseButton {
+  --color: #ff0000;
+}
+
+#shareModalCloseIcon {
+  font-size: 32px;
+}
+
+
+.shareModalToolbar {
+  --background:#3171e0;
+  --color: white;;
+  --color: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.shareModalTitle{
+  text-align: center;
+  margin-left: 10px;
+  margin-right: 60px;
+}

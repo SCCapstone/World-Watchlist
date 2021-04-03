@@ -19,6 +19,8 @@ import { isValidEmail, isValidPassword } from '../components/TempFunctions';
 import Errors from '../components/Errors';
 import { Plugins } from '@capacitor/core';
 import "@codetrix-studio/capacitor-google-auth";
+import globe from "../images/globe.png"
+import google from "../images/google.png"
 
 type MyState = {
   loginEmail: string;
@@ -61,7 +63,7 @@ class Landing extends React.Component<MyProps, MyState> {
     super(props)
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
-    this.state.btnText = 'Create an Account';
+    this.state.btnText = 'Create One!';
   }
 
   login() {
@@ -115,6 +117,41 @@ class Landing extends React.Component<MyProps, MyState> {
       this.props.history.push("/main")
     }
   }
+
+  hideg() {
+  var x = document.getElementById("noaccountg");
+  if (x!.style.display === "none") {
+    x!.style.display = "block";
+  } else {
+    x!.style.display = "none";
+  }
+
+
+}
+
+hidea() {
+  var x = document.getElementById("noaccount");
+  if (x!.style.display === "none") {
+    x!.style.display = "block";
+  } else {
+    x!.style.display = "none";
+  }
+
+
+}
+
+hidel() {
+  var x = document.getElementById("noaccountl");
+  if (x!.style.display === "none") {
+    x!.style.display = "block";
+  } else {
+    x!.style.display = "none";
+  }
+
+
+}
+
+
 
   register() {
     let guard = true
@@ -220,39 +257,47 @@ class Landing extends React.Component<MyProps, MyState> {
     render() {
       return (
       <IonPage>
-        <IonHeader>
-          <IonToolbar className='landingToolbar'>
-            <IonTitle class='loginTitle'>
-              {this.state.shouldLoginShow ? 'Login' : 'Create an Account'}
-            </IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        
+          
+       
         <IonContent className='landingContent'>
         {
+
           this.state.shouldLoginShow ?
+
             <div className='loginContainer'>
+            
               <div id='loginInputContainer'>
-                <h1 id='header'>World Watchlist</h1>
+
+              <IonItem lines = 'none' id = "globeWrapper"> <img id = "globe" src= {globe}/></IonItem>
+               
+
+
+                <IonLabel id = "welcome">Welcome to World Watchlist.</IonLabel>
                 <IonItem lines='none' className='loginItem'>
                 <IonLabel class='loginLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
+                <br/>
 
                 <IonItem lines='none' className='loginItem'>
                   <IonLabel className='loginLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.loginPassword}  className='loginInput' type='password' placeholder = 'Password' onIonChange={(e) => {this.setState({loginPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
-              <IonButton shape = 'round' onClick={() => {this.login()}} className='loginButton'>Submit</IonButton>
+              <br/>
+              <IonButton  shape = 'round' onClick={() => {this.login()}} className='loginButton'>Log In</IonButton>
+              
+            
               <Errors errors={this.state.login_error_messages}></Errors>
             </div>
           :
             <div className='registerContainer'>
               <div id='registerInputContainer'>
-              <h1 id='header'>Register for an account</h1>
+              
                 <IonItem lines='none' className='registerItem'>
                 <IonLabel className='registerLabel' position='floating' id = 'email'></IonLabel>
-                  <IonInput id = 'test' value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
+                  <IonInput value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
@@ -275,8 +320,13 @@ class Landing extends React.Component<MyProps, MyState> {
             </div>
         }
 
-          <IonButton shape = 'round' className = 'landingSwitch' onClick={() => {if(this.state.btnText=='Create an Account') this.state.btnText='Log In'; else this.state.btnText='Create an Account';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
-          <IonButton shape = 'round' className = 'landingSwitch' onClick= {()=> {this.googleLogin()}}>GOOGLE</IonButton>
+          
+          <IonLabel id = "noaccount">Or log in with</IonLabel>
+          <br/>
+          
+         <img id = "noaccountg" src = {google} className = 'google' onClick= {()=> {this.googleLogin()}}/>
+         <br/>
+         <IonLabel id ="noaccountl">No Account?</IonLabel><IonButton shape = 'round' className = 'landingSwitch' onClick={() => {this.hideg();this.hidel();this.hidea(); if(this.state.btnText=='Create One!') this.state.btnText='Log In'; else this.state.btnText='Create One!';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
         </IonContent>
       </IonPage>
       )
