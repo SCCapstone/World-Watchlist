@@ -1,28 +1,63 @@
 
-  
-.landingContent {
-  --background: #e8e9ec;
-  text-align: center;
+  :root {
+  --ion-color-favorite: #FFFFFF;
+  --ion-color-favorite-rgb: 105,187,123;
+  --ion-color-favorite-contrast: #ffffff;
+  --ion-color-favorite-contrast-rgb: 255,255,255;
+  --ion-color-favorite-shade: #5ca56c;
+  --ion-color-favorite-tint: #78c288;
 }
 
+
+.landingContent {
+  --background:#fb9e55;
+  text-align: center;
+}
+.element::-webkit-input-placeholder {
+    color: blue;
+    font-weight: bold;
+}
 .loginInput {
-  width: 50%;
-  border-bottom: 2px solid #3171e0;
+  width: 90%;
+ 
   text-align:center;
   margin-top: 10px;
-  color:#2d539e;
+ 
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  font-weight:bold;
+    --border-color: var(--ion-color-medium-shade);
+  -webkit-border-radius: 3px;
+  border-radius: 20px;
+  --border-width: 1px;
+  --box-shadow: 2px gray;
+  --highlight-height: 0;
+  --background: white;
+  --color:black;
 }
 .landingToolbar {
-    --background: #3171e0;
+    --background: #fb9e55;
     text-align:center;
     --color: white;
+     border:none;
+
+}
+
+#create {
+--background:#fb9e55;
+--color:white;
+text-align:center;
+
+
 }
 
 .loginItem {
   --background: transparent;
+}
+
+.loginWrapper{
+  --background-color:#fb9e55;
 }
 
 
@@ -31,11 +66,15 @@
   display: flex;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 80px;
-  --background: #ededed;
-  --color: #000000;
+ border-color:white;
+  --color: #fb9e55;
+  --background: white;
+  border-color:white;
+  border-radius:10px;
+  border-width: 1px;
   max-width: 600px;
 }
+
 
 .loginLabel {
   text-align:center;
@@ -46,19 +85,55 @@
   align-content: center;
 }
 
+#globe {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 20%;
+  height: auto;
+
+}
+
+.google{
+  height:auto;
+   margin-left: auto;
+  margin-right: auto;
+
+  width:10%
+}
+
+#globeWrapper{
+  --background: #fb9e55;
+}
+
+#welcome{
+  font-size:28px;
+  --color:white;
+}
+
 #loginInputContainer {
   margin-top: 25px;
   text-align: center;
+
 }
 
 .registerInput {
-  width: 60%;
-  border-bottom: 2px solid #3171e0;
+   width: 90%;
+ 
   text-align:center;
   margin-top: 10px;
-  color:#2d539e;
+ 
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  font-weight:bold;
+    --border-color: var(--ion-color-medium-shade);
+  -webkit-border-radius: 3px;
+  border-radius: 20px;
+  --border-width: 1px;
+  --box-shadow: 2px gray;
+  --highlight-height: 0;
+  --background: white;
+  --color:black;
 }
 
 .registerItem {
@@ -93,15 +168,21 @@
   text-align: center;
 }
 
+#noaccount{
+  --color:white;
+}
+
 .landingSwitch {
-  width: 60%;
-  display: flex;
-  margin-left: auto;
+  
+  
+  margin-bottom: 10px;
   margin-right: auto;
   margin-top: auto;
-  --background: #3171e0;
-  --color: #ededed;;
-  max-width: 600px;
+  --background: white;
+  --color:#fb9e55 ;
+  max-width:60%;
+  align-items: center;
+  
 }
 
 #header {
@@ -112,10 +193,16 @@
   font-weight: bold;
   padding-top: 30px;
   padding-bottom: 20px;
-  color: #2d539e;
+  color: #fb9e55;
 }
 
 .loginTitle {
   font-size: 20px;
+   border: 0px !important;
+    border-bottom-color: transparent !important;
+    background-image: none !important;
+    border-bottom: none !important;
+
+
 }
 

@@ -208,15 +208,15 @@ class Social extends React.Component<MyProps, MyState> {
 
   async setSenderToView(uid:string) {
 
-    console.log(firebase.auth().currentUser!.uid)
     //if(firebase.auth().currentUser!.uid == uid) // It's you
     var temp = [""];
 
 
     db.collection('profiles').doc(uid).get().then(async (doc)=> {
-      if(doc.data()) {
+      if(await doc.data()) {
+
     this.setState({isProfileModalOpen:true})
-  }
+  
     await db.collection('topicSubscription').doc(uid).onSnapshot((snapshot) => {
       if(snapshot.data())
      this.setState({subList:snapshot.data()!.subList})
@@ -244,6 +244,10 @@ class Social extends React.Component<MyProps, MyState> {
 
      // lastMessageSender: this.props.ourUsername
     })
+
+  }
+   
+
 
 })
   }
@@ -576,6 +580,7 @@ class Social extends React.Component<MyProps, MyState> {
           addFriendToGroup={this.addFriendToGroup}
           ourUsername={this.props.ourUsername}
           openShareModal={this.props.openShareModal}
+          setSenderToView={this.setSenderToView}
         />
 
         <FriendView
