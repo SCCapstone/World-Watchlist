@@ -211,8 +211,12 @@ class Social extends React.Component<MyProps, MyState> {
     var temp = [""];
 
 
+    db.collection('profiles').doc(uid).get().then(async (doc)=> {
+      if(doc.data()) {
     this.setState({isProfileModalOpen:true})
+  }
     await db.collection('topicSubscription').doc(uid).onSnapshot((snapshot) => {
+      if(snapshot.data())
      this.setState({subList:snapshot.data()!.subList})
      
 
@@ -222,8 +226,10 @@ class Social extends React.Component<MyProps, MyState> {
     var photoName = "";
   
      await db.collection("profiles").doc(uid).get().then(doc => {
+       if(doc.data()) {
        friendName = doc.data()!.displayName;
        photoName = doc.data()!.photo;
+     }
 
      })
     this.setState({profileToView: {
@@ -237,7 +243,7 @@ class Social extends React.Component<MyProps, MyState> {
      // lastMessageSender: this.props.ourUsername
     })
    
-
+})
   }
 
 
