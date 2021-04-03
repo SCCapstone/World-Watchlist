@@ -40,6 +40,7 @@ interface MessageProps {
   isArticle: boolean;
   article: article | undefined;
   openShareModal: (theArticle: article, shouldOpen: boolean) => void;
+  ourUsername: string;
 }
 
  function Message(props: MessageProps) {

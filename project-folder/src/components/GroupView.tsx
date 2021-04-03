@@ -766,6 +766,7 @@ class GroupView extends React.Component<MyProps, MyState> {
                   article={message.article}
                   read={message.read}
                   openShareModal={this.props.openShareModal}
+                  ourUsername={this.props.ourUsername}
                 />
                 :
                <Message
@@ -779,6 +780,7 @@ class GroupView extends React.Component<MyProps, MyState> {
                   photo={this.state.photoDictionary[message.sender]}
                   read={message.read}
                   openShareModal={this.props.openShareModal}
+                  ourUsername={this.props.ourUsername}
                 />
             })}
             <div className='groupViewAnchor'  />
