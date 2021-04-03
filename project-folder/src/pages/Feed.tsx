@@ -67,12 +67,20 @@ class Feed extends React.Component<FeedProps, FeedState> {
     showSubscribeAlert:false,
     isChanging:false,
     showErrorAlert:false,
-    showErrorSubscribe:false
+    showErrorSubscribe:false,
+    mode: "all",
+    sort: "title",
   };
 
   constructor(props: FeedProps) {
     super(props)
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
+  }
+
+  async componentDidMount(){
+    this.setState({subArticles:[]})
+    this.setState({subs:[]})
+    await LocalNotifications.requestPermission()
     auth.onAuthStateChanged(async () => {
       if(auth.currentUser) {
         this.setState({CurrentUser:auth.currentUser?.uid})
@@ -93,6 +101,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           .onSnapshot(async (sub_list) => {
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
+              console.log(sub_list.data()!.subList)
               // console.log("subs",this.state.subs)
               // get articles
               await this.getSubscribedArticles()
@@ -105,10 +114,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         // end of getting data from server
       }
     })
-  }
-
-  async componentDidMount(){
-    await LocalNotifications.requestPermission()
     // await LocalNotifications.requestPermission().then(res=>{
     //   console.log("local notification granted: "+ res.granted)
     // })
@@ -116,39 +121,40 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   async getSubscribedArticles(){
     // this.setState({articles:[]})
-    this.setState({subArticles:[]})
     // get blocked sources on firestore
     let aList : any[];
-    for (var i = 0; i < this.state.subs.length; i++) {
-      /* Observe any changes in firestore and send a notification*/
-      await this.checkCollection(this.state.subs[i],i)
-      aList = []
-      var articlesLocal = await Storage.get({key:this.state.subs[i]})
-      // check local storage if collection exist take from cache, if collection changes, get from server
-      if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
-        console.log("local storage empty for", this.state.subs[i])
-        await NewsDB.collection(this.state.subs[i]).get()
-      .then(async (snapshot) => {
-        snapshot.forEach(async doc => {
-          if (doc.exists) {
-            let articleItem = doc.data();
-            if(!this.state.blockedSources.includes(articleItem.source)) {
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:articleItem.source, pubDate: articleItem.pubDate})
+    if (this.state.subs) {
+      for (var i = 0; i < this.state.subs.length; i++) {
+        /* Observe any changes in firestore and send a notification*/
+        await this.checkCollection(this.state.subs[i],i)
+        aList = []
+        var articlesLocal = await Storage.get({key:this.state.subs[i]})
+        // check local storage if collection exist take from cache, if collection changes, get from server
+        if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
+          console.log("local storage empty for", this.state.subs[i])
+          await NewsDB.collection(this.state.subs[i]).get()
+        .then(async (snapshot) => {
+          snapshot.forEach(async doc => {
+            if (doc.exists) {
+              let articleItem = doc.data();
+              if(!this.state.blockedSources.includes(articleItem.source)) {
+                aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:articleItem.source, pubDate: articleItem.pubDate})
+              }
+            } else {
+              console.log("Cannot find anything in database.")
             }
-          } else {
-            console.log("Cannot find anything in database.")
-          }
+          })
+          var source = snapshot.metadata.fromCache ? "local cache" : "server";
+          console.log("Sub Articles came from " + source);
+          await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
+          this.state.subArticles.push(aList)
         })
-        var source = snapshot.metadata.fromCache ? "local cache" : "server";
-        console.log("Sub Articles came from " + source);
-        await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
-        this.state.subArticles.push(aList)
-      })
-      } else {
-        this.state.subArticles.push(JSON.parse(articlesLocal.value))
-        console.log("taking from capacitor cache")
+        } else {
+          this.state.subArticles.push(JSON.parse(articlesLocal.value))
+          console.log("taking from capacitor cache")
+        }
+        this.setState({isChanging:false})
       }
-      this.setState({isChanging:false})
     }
   }
 
@@ -452,9 +458,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
     </IonModal>
     <SubscriptionModal
       unsubButton={this.unsubscribe.bind(this)}
-      subscriptions={this.state.subs}
-      articles={(this.state.subArticles)}
+      subscriptions={this.state.subs? this.state.subs : []}
+      articles={(this.state.subArticles? this.state.subArticles : [])}
       openShareModal={this.props.openShareModal}
+      mode={this.state.mode}
+      sort={this.state.sort}
     ></SubscriptionModal>
     {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>

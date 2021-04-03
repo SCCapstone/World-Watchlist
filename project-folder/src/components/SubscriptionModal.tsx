@@ -6,10 +6,10 @@ import ChildrenComponent from "./SubscriptionChildren"
 import FeedList from '../components/FeedList';
 
 
-function SubscriptionModal(props: {unsubButton: any, subscriptions: string[], articles:any[], openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
-
-return ( <>{<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles} openShareModal={props.openShareModal}></ChildrenComponent>}</>
-
+function SubscriptionModal(props: {unsubButton: any, subscriptions: string[], articles:any[], openShareModal: (theArticle: article, shouldOpen: boolean) => void, mode: string, sort: string}) {
+      
+return ( <>{<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles} openShareModal={props.openShareModal} mode={props.mode} sort={props.sort}></ChildrenComponent>}</>
+        
 );
 
 }
