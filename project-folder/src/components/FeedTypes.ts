@@ -53,10 +53,24 @@ interface article {
     source:any;
     pubDate:any;
 }
+type Group = {
+  nickname: string;
+  members: string[];
+  id: string;
+  profilePicture: string;
+  owner: string;
+  lastMessage: string;
+  lastMessageSender: string;
+}
+
 export type FeedProps = {
     history: any;
     location: any;
-    openShareModal: (theArticle: article, shouldOpen: boolean) => void
+    openShareModal: (theArticle: article, shouldOpen: boolean) => void;
+    isShareModalOpen: boolean;
+    myArticle: article;
+    groupArray: Group[];
+    ourUsername: string;
   }
 export type GroupFeedProps = {
   groupId: string;

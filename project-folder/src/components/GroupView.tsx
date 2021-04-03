@@ -135,6 +135,8 @@ interface MessageProps {
   read: readReceipt[];
   key: any;
   time: string;
+  isArticle: boolean;
+  article: article | undefined
 }
 
 class GroupView extends React.Component<MyProps, MyState> {
@@ -248,7 +250,7 @@ class GroupView extends React.Component<MyProps, MyState> {
       this.setState({
         members: members,
         photoDictionary: photoDictionary,
-        nameDictionary: nameDictionary
+        nameDictionary: nameDictionary,
       })
     }
     if(prevProps.groupDetails.id !== this.props.groupDetails.id) {
@@ -366,7 +368,8 @@ class GroupView extends React.Component<MyProps, MyState> {
         content: this.state.currentMessage,
         sender: auth.currentUser?.uid,
         read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}],
-        time: timestamp.toString()
+        time: timestamp.toString(),
+        isArticle: false
       }
     )
     db.collection('groups').doc(this.props.groupDetails.id).update({
@@ -748,8 +751,31 @@ class GroupView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
               return !this.state.blockedList.includes(message.sender) ?
-               <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/> :
-               <Message openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
+               <Message
+                  isArticle={message.isArticle}
+                  openProfile={this.openProfile}
+                  closeProfile={this.closeProfile}
+                  key={message.key}
+                  sender={this.state.nameDictionary[message.sender]}
+                  content={message.content}
+                  photo={this.state.photoDictionary[message.sender]}
+                  article={message.article}
+                  read={message.read}
+                  openShareModal={this.props.openShareModal}
+                />
+                :
+               <Message
+                  isArticle={message.isArticle}
+                  openProfile={this.openProfile}
+                  closeProfile={this.closeProfile}
+                  key={message.key}
+                  sender={this.state.nameDictionary[message.sender]}
+                  article={message.article}
+                  content={'This content is from a blocked user.'}
+                  photo={this.state.photoDictionary[message.sender]}
+                  read={message.read}
+                  openShareModal={this.props.openShareModal}
+                />
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />

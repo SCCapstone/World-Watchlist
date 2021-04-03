@@ -375,7 +375,7 @@ class Social extends React.Component<MyProps, MyState> {
           lastMessageSender: 'World-Watchlist'
         })
         let timestamp = Date.now()
-        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp})
+        this.realtime_db.ref(uniqueFriendId).child(timestamp.toString()).set({message: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp, isArticle: false})
       })
     }
   }
@@ -447,7 +447,7 @@ class Social extends React.Component<MyProps, MyState> {
         groups: firebase.firestore.FieldValue. arrayUnion(code),
       })
       let timestamp = Date.now()
-      this.realtime_db.ref(code).child(timestamp.toString()).set({content: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp})
+      this.realtime_db.ref(code).child(timestamp.toString()).set({content: 'Join the conversation! Send a message here to get started.', sender: 'World-Watchlist', read: [{readBy: auth.currentUser?.email, readAt: timestamp.toString()}], time: timestamp, isArticle: false})
     })
 
   }
@@ -588,6 +588,7 @@ class Social extends React.Component<MyProps, MyState> {
           isProfileModalOpen={this.state.isProfileModalOpen}
           toggleProfileModal={this.state.toggleProfileModal}
           setSenderToView={this.setSenderToView}
+          openShareModal={this.props.openShareModal}
         />
 
 
