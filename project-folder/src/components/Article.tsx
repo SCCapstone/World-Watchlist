@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import { get } from 'http';
 import { type } from 'os';
 import axios from 'axios';
-import { bookmarkOutline, handLeftOutline, newspaper, newspaperOutline } from 'ionicons/icons';
+import { bookmarkOutline, handLeftOutline, newspaper, newspaperOutline, sendOutline } from 'ionicons/icons';
 const { Browser , Storage } = Plugins;
 
 function Article(props: {theArticle: article, openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
