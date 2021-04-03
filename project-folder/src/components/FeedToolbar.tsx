@@ -1,14 +1,15 @@
-import { IonButton, IonButtons, IonIcon, IonTitle, IonToolbar } from '@ionic/react';
-import { cloud, bookmarks, search } from 'ionicons/icons';
-import React from 'react';
+import { IonButton, IonButtons, IonContent, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonPopover, IonTitle, IonToolbar } from '@ionic/react';
+import { cloud, bookmarks, search, albums, listOutline } from 'ionicons/icons';
+import React, { useState } from 'react';
 
 import './FeedToolbar.css'
 
 function FeedToolbar (props: { openWeather: any, showModal: any}) {
-    
+  const [showPopover, setShowPopover] = useState(false);
     // let openWeather = () => props.openWeather();
     // let showSubs = () => props.showSubs();
     // let showModal = () => props.showModal();
+    
     return (<IonToolbar class ='feedToolbar'>
     <IonTitle class='feedTitle'>
       Feed
@@ -20,10 +21,33 @@ function FeedToolbar (props: { openWeather: any, showModal: any}) {
     </IonButton>
     </IonButtons>
     <IonButtons slot="end">
+    <IonButton id="feedButton"  fill='clear'>
+        <IonIcon icon={listOutline} />
+    </IonButton>
+    </IonButtons>
+    <IonButtons slot="end">
+    <IonButton id="feedButton" onClick={()=>setShowPopover(true)}   fill='clear'>
+        <IonIcon icon={albums} />
+    </IonButton>
+    </IonButtons>
+    <IonButtons slot="end">
     <IonButton id="feedButton" onClick={props.showModal}  fill='clear'>
         <IonIcon icon={search} />
     </IonButton>
     </IonButtons>
+    <IonPopover
+        isOpen={showPopover}
+        onDidDismiss={()=>setShowPopover(false)}
+      >
+                  <IonContent>
+            <IonList>
+              <IonListHeader id='socialPopoverListHeader'><b>Sort Filter</b></IonListHeader>
+              <IonItem button={true} >Sort by Title</IonItem>
+              <IonItem button={true} >Sort by Date</IonItem>
+              {/* <IonItem button={true}><IonLabel>New Message</IonLabel><IonIcon className='socialPopoverIcon' slot='end' icon={sendOutline}/></IonItem> */}
+            </IonList>
+          </IonContent>
+      </IonPopover>
   </IonToolbar>);
 }
 
