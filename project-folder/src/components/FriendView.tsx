@@ -237,7 +237,7 @@ class FriendView extends React.Component<MyProps, MyState> {
 
               </IonButtons>
 
-              <IonTitle>{this.props.friendDetails ? this.props.friendDetails.displayName : undefined}</IonTitle>
+              <IonTitle className="friendTitle">{this.props.friendDetails ? this.props.friendDetails.displayName : undefined}</IonTitle>
             </IonToolbar>
           </IonHeader>
 
