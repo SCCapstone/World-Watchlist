@@ -38,6 +38,7 @@ import AddFriends from '../components/AddFriends';
 import PendingRequests from '../components/PendingRequests';
 import FriendView from '../components/FriendView'
 import { article } from '../components/ArticleTypes';
+import { isEnterKey } from '../components/TempFunctions';
 
 type MyState = {
   isAddFriendModalOpen: boolean;
@@ -620,7 +621,8 @@ class Social extends React.Component<MyProps, MyState> {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonInput className='createGroupInput' placeholder='Group Nickname' onIonChange={(e) => {this.setState({groupNickname: (e.target as HTMLInputElement).value})}}/>
+            <IonInput className='createGroupInput' placeholder='Group Nickname' onKeyDown={(e) => {if (isEnterKey(e)) {this.createGroup(); this.setState({isCreateGroupModalOpen: false})}}}
+             onIonChange={(e) => {this.setState({groupNickname: (e.target as HTMLInputElement).value})}}/>
             <IonButton onClick={() => {this.createGroup(); this.setState({isCreateGroupModalOpen: false})}} id='createGroupButton'>Create</IonButton>
           </IonContent>
         </IonModal>

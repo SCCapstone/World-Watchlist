@@ -30,6 +30,7 @@ import {
 
 import Message from '../components/Message'
 import { article } from './ArticleTypes';
+import { isEnterKey } from './TempFunctions';
 
 
 
@@ -257,7 +258,7 @@ class FriendView extends React.Component<MyProps, MyState> {
             <div className='friendViewAnchor2' onClick={() => {console.log("here")}} ref={this.anchorRef} />
           </div>
             <div className='friendViewMessageBox'>
-              <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='friendViewMessageInput' />
+              <IonInput value={this.state.currentMessage} onKeyDown={(e) => {if (isEnterKey(e)) this.sendMessage()}} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='friendViewMessageInput' />
               <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='friendViewMessageButton'>
                 <IonIcon  slot="icon-only" className='friendViewMessageSend' icon={sendOutline} />
               </IonButton>

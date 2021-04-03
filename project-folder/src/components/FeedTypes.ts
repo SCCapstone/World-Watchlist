@@ -1,6 +1,6 @@
 import { articleList } from "./ArticleTypes"
 type modeTypes = "cards" | "all";
-type sortTypes = "title" | "pubDate" | "none";
+export type sortTypes = "title" | "pubDate" | "none";
 export type FeedState = {
     articles: articleList;
     subs: string[];

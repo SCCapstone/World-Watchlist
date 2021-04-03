@@ -235,7 +235,7 @@ class Landing extends React.Component<MyProps, MyState> {
                 <h1 id='header'>World Watchlist</h1>
                 <IonItem lines='none' className='loginItem'>
                 <IonLabel class='loginLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}} />
+                  <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}}  autofocus={true}/>
                 </IonItem>
 
                 <IonItem lines='none' className='loginItem'>
