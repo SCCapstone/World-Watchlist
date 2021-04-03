@@ -27,7 +27,7 @@ import {
 import firebase, {db, auth, signInWithGoogle} from '../firebase'
 import "@codetrix-studio/capacitor-google-auth";
 
-import {addCircleOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
+import {addCircleOutline, closeOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
  const { PushNotifications } = Plugins;
  const { Toast } = Plugins;
@@ -186,6 +186,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
         newPicRef.put(file);
         await new Promise(r => setTimeout(r, 1000));
+        if(file.size < 2097152){
         newPicRef.getDownloadURL().then((url) => {
           db.collection('profiles').doc(auth.currentUser?.uid).update({
             photo: url
@@ -193,6 +194,10 @@ class Settings extends React.Component<MyProps, MyState> {
         })
 
         this.pullImage();
+      }
+      else {
+        console.log("Image is too big")
+      }
     }
   }
 
@@ -250,14 +255,28 @@ changeEmail(newEmail: string) {
 }
 }
 
+changeDisplayName(newName: string) {
+  if(auth.currentUser) {
+     db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => {
+      if(document.exists) {
+        db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+        displayName : newName
+        })
+      }
+    })
+  }
+
+    
+}
+
+
   async signOutUser() {
   if (auth.currentUser) {
     
-    auth.signOut()
-    
     if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
       await Plugins.GoogleAuth.signOut()
-
+    else 
+      auth.signOut()
     await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
   }
@@ -444,13 +463,7 @@ isValidSite(siteName:string) {
         </IonTitle>
         <br/>
         <br/>
-        <IonItem lines='none' id='block'>
-          <IonInput class='addSource' onIonChange={(e) => {this.setState({sourceToUnBlock: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.unBlockSource(this.state.sourceToUnBlock)}}  fill='clear'>
-            <IonIcon id='addBlockIcon' icon={addCircleOutline} />
-          </IonButton>
-        </IonItem>
-        <br/>
+       
         <IonHeader id = 'blockedSourcesHeader'>You Won't See Content From:</IonHeader>
         <br/>
 
@@ -459,6 +472,9 @@ isValidSite(siteName:string) {
             this.state.blockedSources.map(Blocked =>
               <IonItem key = {Blocked.toString()}>
               <IonItem class = 'blockedListEntry'>{Blocked.toString()}</IonItem>
+                <IonButton slot = "end" onClick={() => {this.unBlockSource(Blocked.toString())}}  fill='clear'>
+            <IonIcon id='addBlockIcon' icon={closeOutline} />
+          </IonButton>
               </IonItem>
             )}
         </IonContent>
@@ -604,7 +620,6 @@ isValidSite(siteName:string) {
           <img id = 'myimg' />
         </IonAvatar>
         {this.state.currentUserName}
-        {console.log("testname " + this.state.currentUserName)}
         </IonItem>
         {/* <IonItem>
             <IonLabel>Notifications</IonLabel>
@@ -627,7 +642,7 @@ isValidSite(siteName:string) {
 
                   <IonButton id = 'submit'>
 
-        <input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+        <input type="file" accept="image/x-png,image/gif,image/jpeg" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
 
        <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
         </IonButton>
@@ -647,6 +662,8 @@ isValidSite(siteName:string) {
               </IonButton>
               </IonButtons>
               </IonItem>
+
+
 
         </IonContent>
       </IonPage>

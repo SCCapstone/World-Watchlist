@@ -13,8 +13,12 @@ function CollectionModal(props: {showModal: any, closeModal: any, articles:any, 
 
   // call before rendering to check if it has already been muted
   useEffect(() => {
-    checkIfMuted().then(res=>setIsMuted(res))
-  },[]);
+    auth.onAuthStateChanged(async () => {
+      if(auth.currentUser) {
+        checkIfMuted().then(res=>setIsMuted(res))
+      }
+    })
+  });
   
   async function checkIfMuted(){
     const profile = db.collection('profiles').doc(auth.currentUser?.uid)
