@@ -86,7 +86,8 @@ type MyState = {
   subs: string[];
   isProfileModalOpen:boolean;
   mode: "cards" | "all",
-  sort: "title" | "pubDate"
+  sort: "title" | "pubDate";
+  sentArray: string[];
 }
 
 type MyProps = {
@@ -95,12 +96,12 @@ type MyProps = {
   groupDetails: GroupType;
   isGroupModalOpen: boolean;
   toggleGroupModal: any;
-  leaveGroup: () => void,
-  deleteGroup: () => void,
-  friendList: Friend[],
-  addFriendToGroup: (friend : string, group: string) => void,
-  ourUsername: string,
-  openShareModal: (theArticle: article, shouldOpen: boolean) => void
+  leaveGroup: () => void;
+  deleteGroup: () => void;
+  friendList: Friend[];
+  addFriendToGroup: (friend : string, group: string) => void;
+  ourUsername: string;
+  openShareModal: (theArticle: article, shouldOpen: boolean) => void;
 }
 
 type GroupType = {
@@ -136,7 +137,7 @@ interface MessageProps {
   key: any;
   time: string;
   isArticle: boolean;
-  article: article | undefined
+  article: article | undefined;
 }
 
 class GroupView extends React.Component<MyProps, MyState> {
@@ -175,7 +176,8 @@ class GroupView extends React.Component<MyProps, MyState> {
     senderToView: undefined,
     senderImage:'',
     mode: "cards",
-    sort: "title"
+    sort: "title",
+    sentArray: []
 
   };
   realtime_db = firebase.database();
@@ -496,6 +498,8 @@ class GroupView extends React.Component<MyProps, MyState> {
     console.log(this.state.subs)
 
   }
+
+
   // // copied from Feed.tsx
   // async searchTopic(topic:any) {
   //   this.setState({showLoading: true})
@@ -650,8 +654,8 @@ class GroupView extends React.Component<MyProps, MyState> {
                   <IonLabel>
                     {FriendObj.displayName}
                   </IonLabel>
-                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.uid, this.props.groupDetails.id)}} fill='clear'>
-                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(FriendObj.uid) ? checkmarkOutline : addOutline}/>
+                  <IonButton onClick={() => {this.props.addFriendToGroup(FriendObj.uid, this.props.groupDetails.id); this.setState({sentArray: [...this.state.sentArray, FriendObj.uid]})}} fill='clear'>
+                    <IonIcon slot='end' icon={this.props.groupDetails.members.includes(FriendObj.uid) || this.state.sentArray.includes(FriendObj.uid)? checkmarkOutline : addOutline}/>
                   </IonButton>
                 </IonItem>
               )
