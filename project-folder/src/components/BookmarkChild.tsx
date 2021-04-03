@@ -2,11 +2,16 @@ import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardS
 import { closeCircleOutline, removeCircleOutline, trashBinOutline, trashOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import firebase, {db,auth} from '../firebase'
-import { Browser } from '@capacitor/core';
+import { Browser, Storage } from '@capacitor/core';
 function BookmarkChild (props: {bookmark:any, index:any}) {
     const [showModal, setShowModal] = useState(false);
     async function removeBookmark(){
         await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayRemove(props.bookmark)})
+        const bookmarkStorage = await Storage.get({key:"bookmark"})
+        let bookmarkArr:any[] = await JSON.parse(bookmarkStorage.value||"")
+        bookmarkArr = bookmarkArr.filter(e=>e.title!=props.bookmark.title)
+        await Storage.set({key:'bookmark',value:JSON.stringify(bookmarkArr)})
+        
     }
 
     async function openURL(url:any){
@@ -45,7 +50,11 @@ function BookmarkChild (props: {bookmark:any, index:any}) {
               </IonToolbar>
           </IonHeader>
           <IonContent>
-                  <IonImg src={props.bookmark.logo}></IonImg>
+              <IonItem>
+              <IonImg src={props.bookmark.logo}></IonImg>
+              <IonButton color="primary" onClick={() => {openURL(props.bookmark.url)} }>Source</IonButton>
+            </IonItem>
+                  
               <IonItem>
                   <IonText>
                       <h4>
@@ -53,9 +62,7 @@ function BookmarkChild (props: {bookmark:any, index:any}) {
                       </h4>
                   </IonText>
               </IonItem>
-              <IonItem>
-              <IonButton color="warning" onClick={() => {openURL(props.bookmark.url)} }>Source</IonButton>
-          </IonItem>
+              
           </IonContent>
       </IonModal>
       

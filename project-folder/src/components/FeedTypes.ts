@@ -20,6 +20,8 @@ export type FeedState = {
     isChanging:boolean,
     showErrorSubscribe:boolean,
     showErrorAlert:boolean,
+    mode: "cards" | "all",
+    sort: "title" | "pubDate" | "none"
 }
 export type GroupFeedState = {
   articles: articleList;
@@ -39,10 +41,35 @@ export type GroupFeedState = {
   isChanging:boolean,
   isWeatherModalOpen: boolean,
   groupId: string;
+  mode: "cards" | "all",
+  sort: "title" | "pubDate" | "none"
 }
+
+interface article {
+    title: string;
+    link: string;
+    description: string;
+    source:any;
+    pubDate:any;
+}
+type Group = {
+  nickname: string;
+  members: string[];
+  id: string;
+  profilePicture: string;
+  owner: string;
+  lastMessage: string;
+  lastMessageSender: string;
+}
+
 export type FeedProps = {
     history: any;
     location: any;
+    openShareModal: (theArticle: article, shouldOpen: boolean) => void;
+    isShareModalOpen: boolean;
+    myArticle: article;
+    groupArray: Group[];
+    ourUsername: string;
   }
 export type GroupFeedProps = {
   groupId: string;

@@ -3,10 +3,11 @@ import { closeCircleOutline, addCircle, removeCircleOutline, notificationsCircle
 import React, { useEffect, useState } from "react";
 import FeedList from "./FeedList";
 import firebase, {db,auth} from '../firebase'
-function CollectionModal(props: {showModal: any, closeModal: any, articles:any, func:any, subscription:any, index:any }) {
+import { article } from "./ArticleTypes";
+function CollectionModal(props: {showModal: any, closeModal: any, articles:any, func:any, subscription:any, index:any, openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
 
   const [isMuted,setIsMuted] = useState(Boolean)
-  
+
   function unsubClick() {
     props.func(props.subscription, props.index);
   }
@@ -19,7 +20,7 @@ function CollectionModal(props: {showModal: any, closeModal: any, articles:any, 
       }
     })
   });
-  
+
   async function checkIfMuted(){
     const profile = db.collection('profiles').doc(auth.currentUser?.uid)
     let doc = profile.get()
@@ -35,7 +36,7 @@ function CollectionModal(props: {showModal: any, closeModal: any, articles:any, 
           return (true)
         }
       }
-      
+
     }
     return false
   }
@@ -84,7 +85,7 @@ function CollectionModal(props: {showModal: any, closeModal: any, articles:any, 
               </IonToolbar>
             </IonHeader>
             <IonContent>
-              <FeedList headerName={"Recent News"} articleList={props.articles}></FeedList>
+              <FeedList headerName={"Recent News"} articleList={props.articles} openShareModal={props.openShareModal}></FeedList>
             </IonContent>
           </IonModal>);
 
