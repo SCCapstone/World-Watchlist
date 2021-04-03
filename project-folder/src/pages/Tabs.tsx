@@ -56,7 +56,8 @@ type MyState = {
   unsubscribeGroupArray: any[];
   unsubscribeIncomingRequests: (() => void) | undefined;
   unsubscribeOutgoingRequests: (() => void) | undefined;
-  isShareModalOpen: boolean
+  isShareModalOpen: boolean;
+  myArticle: article;
 }
 
 class Tabs extends React.Component<MyProps, MyState> {
@@ -75,11 +76,20 @@ class Tabs extends React.Component<MyProps, MyState> {
     unsubscribeGroupArray: [],
     unsubscribeIncomingRequests: undefined,
     unsubscribeOutgoingRequests: undefined,
-    isShareModalOpen: false
+    isShareModalOpen: false,
+    myArticle: {
+      title: '',
+      link: '',
+      description: '',
+      source: '',
+      pubDate: ''
+    }
   };
 
   constructor(props: MyProps){
     super(props)
+
+    this.openShareModal = this.openShareModal.bind(this);
 
     auth.onAuthStateChanged(() => {
       if(auth.currentUser) {
@@ -226,7 +236,7 @@ class Tabs extends React.Component<MyProps, MyState> {
   }
 
   openShareModal(theArticle: article, shouldOpen: boolean) {
-    this.setState({isShareModalOpen: true})
+    this.setState({isShareModalOpen: shouldOpen, myArticle: theArticle})
   }
 
   render() {
@@ -234,7 +244,7 @@ class Tabs extends React.Component<MyProps, MyState> {
       <IonTabs>
         <IonRouterOutlet>
           <Route path="/main" exact render={() => <Redirect to="/main/feed"/>} />
-          <Route path="/main/feed" component={Feed} exact={true} />
+          <Route path="/main/feed" render={() => <Feed {...this.props} groupArray={this.state.groupArray} openShareModal={this.openShareModal} isShareModalOpen={this.state.isShareModalOpen} ourUsername={this.state.ourUsername} myArticle={this.state.myArticle}/>} exact={true} />
           <Route path="/main/social" render={() => <Social {...this.props} friendsList={this.state.friendsList} groupArray={this.state.groupArray} ourUsername={this.state.ourUsername} incomingRequests={this.state.incomingRequests} outgoingRequests={this.state.outgoingRequests} openShareModal={this.openShareModal}/> } />
           <Route path="/main/settings" component={Settings} exact={true}/>
           <Route path="/main/bookmark" component={Bookmark} exact={true}/>

@@ -127,7 +127,7 @@ const { Storage } = Plugins;
 //     }
 //   }
 
-function GroupFeed(props: {headerName: string, articles: article[], openShareModal: (theArticle: article) => void}) {
+function GroupFeed(props: {headerName: string, articles: article[], openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
   // let articles = Array<article>();
   // db.collection('topicSubscription').doc(props.groupId).get().then(docData => {
   //   if (docData.exists) {

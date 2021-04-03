@@ -39,6 +39,7 @@ import ChildrenComponent from '../components/SubscriptionChildren';
 import { FeedProps, FeedState } from '../components/FeedTypes';
 import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
+import ShareModal from '../components/ShareModal'
 import { tempaddSubscription, tempremoveSubscription, tempapiSearch, tempsubscribe,  } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 const { Storage, PushNotifications, FCMPlugin, BackgroundTask, App, LocalNotifications   } = Plugins;
@@ -372,6 +373,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonRefresher>
         <Weather toggleWeatherModal={this.toggleWeatherModal} isOpen={this.state.isWeatherModalOpen}/>
         {/* Modal for searching topics */}
+    <ShareModal {...this.props} isShareModalOpen={this.props.isShareModalOpen} openShareModal={this.props.openShareModal} ourUsername={this.props.ourUsername}/>
     <IonModal isOpen={this.state.showModal} onDidDismiss={() =>this.setState({showModal: false})}>
         <IonHeader>
             <IonToolbar class='feedToolbar2'>
