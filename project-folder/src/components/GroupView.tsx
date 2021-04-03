@@ -192,6 +192,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     this.openProfile = this.openProfile.bind(this);
     this.closeProfile = this.closeProfile.bind(this);
     this.setSenderToView=this.setSenderToView.bind(this);
+    this.openShareModal=this.openShareModal.bind(this);
   }
 
   componentDidMount() {
@@ -492,6 +493,10 @@ class GroupView extends React.Component<MyProps, MyState> {
 
   }
 
+  openShareModal(){
+
+  }
+
 
   // // copied from Feed.tsx
   // async searchTopic(topic:any) {
@@ -747,37 +752,24 @@ class GroupView extends React.Component<MyProps, MyState> {
           <IonContent className='groupViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              return !this.state.blockedList.includes(message.sender) ?
-<<<<<<< HEAD
-              <Message uid = {message.sender} setSenderToView={this.setSenderToView} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.content}  photo={this.state.photoDictionary[message.sender]} read={message.read}/>:
-               <Message uid = {message.sender} setSenderToView={this.setSenderToView} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={'This content is from a blocked user.'}  photo={this.state.photoDictionary[message.sender]} read={message.read} />
-=======
-               <Message
+              
+
+               return <Message
                   isArticle={message.isArticle}
                   openProfile={this.openProfile}
                   closeProfile={this.closeProfile}
                   key={message.key}
                   sender={this.state.nameDictionary[message.sender]}
-                  content={message.content}
+                  content={this.state.blockedList.includes(message.sender) ? 'This content is from a blocked user.' : message.content}
                   photo={this.state.photoDictionary[message.sender]}
                   article={message.article}
                   read={message.read}
                   openShareModal={this.props.openShareModal}
+                  uid={message.sender}
+                  setSenderToView={this.setSenderToView}
                 />
-                :
-               <Message
-                  isArticle={message.isArticle}
-                  openProfile={this.openProfile}
-                  closeProfile={this.closeProfile}
-                  key={message.key}
-                  sender={this.state.nameDictionary[message.sender]}
-                  article={message.article}
-                  content={'This content is from a blocked user.'}
-                  photo={this.state.photoDictionary[message.sender]}
-                  read={message.read}
-                  openShareModal={this.props.openShareModal}
-                />
->>>>>>> 276f792e248eb88e444a56d1831a368ed78653d8
+                
+
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />

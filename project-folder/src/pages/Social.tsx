@@ -580,6 +580,7 @@ class Social extends React.Component<MyProps, MyState> {
           addFriendToGroup={this.addFriendToGroup}
           ourUsername={this.props.ourUsername}
           openShareModal={this.props.openShareModal}
+          setSenderToView={this.setSenderToView}
         />
 
         <FriendView
