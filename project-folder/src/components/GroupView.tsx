@@ -267,23 +267,24 @@ class GroupView extends React.Component<MyProps, MyState> {
   }
 
   crawlMessageReadReceipts(index: number) {
-
-    if(index >= 0) {
-      let timestamp = Date.now()
-      let flag = true
-      let tempMessages = this.state.messages
-      tempMessages[index].read.forEach((readObj: readReceipt) => {
-        if(readObj.readBy === auth.currentUser!.email) {
-          flag = false
-        }
-      })
-      if(flag) {
-        this.crawlMessageReadReceipts(index - 1)
-        if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
-          tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
-          this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
-            read: tempMessages[index].read
-          })
+    if(auth.currentUser !== null) {
+      if(index >= 0) {
+        let timestamp = Date.now()
+        let flag = true
+        let tempMessages = this.state.messages
+        tempMessages[index].read.forEach((readObj: readReceipt) => {
+          if(readObj.readBy === auth.currentUser!.email) {
+            flag = false
+          }
+        })
+        if(flag) {
+          this.crawlMessageReadReceipts(index - 1)
+          if(auth.currentUser!.email && this.props.groupDetails.id !== "") {
+            tempMessages[index].read.push({readBy: auth.currentUser!.email, readAt: timestamp.toString()})
+            this.realtime_db.ref(this.props.groupDetails.id).child(tempMessages[index].time).update({
+              read: tempMessages[index].read
+            })
+          }
         }
       }
     }
