@@ -193,7 +193,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     // return user_id if current user else null
     return this.state.CurrentUser;
   }
-  
+
   toggleWeatherModal() {
     this.setState({isWeatherModalOpen: false/*!this.state.isWeatherModalOpen}*/});
   }
@@ -201,10 +201,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   // check server collection for changes
   async checkCollection(collection:string,index:any){
-    // Subscribe to a specific 
+    // Subscribe to a specific
     const profile = db.collection('profiles').doc(auth.currentUser?.uid)
     let profileDoc = await profile.get()
-    
+
     if (!( profileDoc).exists) {
       return;
     } else {
@@ -214,7 +214,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       let newArticle:any = querySnapshot.docChanges()[0].doc?.id
         const LocalNotificationPendingList = await LocalNotifications.getPending()
         // console.log(change.doc)
-        // if there are changes to the metadata, clear cache and add new docs to the 
+        // if there are changes to the metadata, clear cache and add new docs to the
         if (querySnapshot.metadata.fromCache === false && querySnapshot.docChanges()[0].doc.metadata.fromCache===false && querySnapshot.docChanges()[0].type==='added') {
           // clear cache so new articles can be added to cache
           Storage.remove({key:collection})
@@ -253,7 +253,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
     });
     }
   }
-  
+
 
   /* can currently subscribe to: gaming, health, politics, sports, technology, world */
   async addSubscription(sub: string) {
@@ -332,7 +332,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
   }
 
   render() {
-    
+
     return (
     <IonPage>
       <IonHeader>
@@ -340,7 +340,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           <IonTitle class='feedTitle'>
             Feed
           </IonTitle>
-          
+
       <IonButtons slot="start">
           <IonButton onClick={() => {this.setState({isWeatherModalOpen: true})}}  fill='clear'>
               <IonIcon icon={cloud} />
@@ -357,10 +357,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
           </IonButton>
           </IonButtons>
         </IonToolbar> */}
-        <FeedToolbar 
-         openWeather={() => this.setState({isWeatherModalOpen: true})} 
+        <FeedToolbar
+         openWeather={() => this.setState({isWeatherModalOpen: true})}
          showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
-         
+
       </IonHeader>
       <IonContent>
       <IonTitle id="subTitle">
@@ -380,7 +380,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
         </IonButtons>
-        
+
 
         <IonTitle class='feedTitle2'>
           Search Topics
@@ -427,7 +427,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       </IonToolbar>
       </IonHeader>
       <IonContent>
-      <ArticleList theArticleList={this.state.articlesSearched}></ArticleList>
+      <ArticleList theArticleList={this.state.articlesSearched} openShareModal={this.props.openShareModal}></ArticleList>
       <IonAlert
           isOpen={this.state.showSubscribeAlert}
           onDidDismiss={() => this.setState({showSubscribeAlert:false,isSearchingModal:false})}
@@ -443,16 +443,16 @@ class Feed extends React.Component<FeedProps, FeedState> {
           onDidDismiss={() => this.setState({showErrorAlert:false})}
           message={"Error, enter valid information"}
        /> */}
-       
+
       </IonContent>
       </IonModal>
         </IonContent>
     </IonModal>
-    <SubscriptionModal 
-    unsubButton={this.unsubscribe.bind(this)}
-    subscriptions={this.state.subs}
-    articles={(this.state.subArticles)}
-    
+    <SubscriptionModal
+      unsubButton={this.unsubscribe.bind(this)}
+      subscriptions={this.state.subs}
+      articles={(this.state.subArticles)}
+      openShareModal={this.props.openShareModal}
     ></SubscriptionModal>
     {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>

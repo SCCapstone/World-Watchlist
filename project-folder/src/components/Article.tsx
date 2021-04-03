@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import { get } from 'http';
 import { type } from 'os';
 import axios from 'axios';
-import { bookmarkOutline, handLeftOutline, newspaper, newspaperOutline } from 'ionicons/icons';
+import { bookmarkOutline, handLeftOutline, newspaper, newspaperOutline, sendOutline } from 'ionicons/icons';
 const { Browser  } = Plugins;
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -35,11 +35,11 @@ async function bookmark(url:any,title:any,description:any,pubDate:any){
 }).catch((error) => {
   console.log(error)
 });
-  
+
 await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayUnion({title:title, description:description, pubDate:pubDate, content:content.content,logo:content.logo || "https://i.stack.imgur.com/6M513.png", url:url})})
 }
 
-function Article(props: {theArticle: article}) {
+function Article(props: {theArticle: article, openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
     //console.log(props.theArticle);
     function blockSource() {
       const ref = db.collection("profiles").doc(auth.currentUser?.uid)
@@ -63,6 +63,9 @@ function Article(props: {theArticle: article}) {
               </IonButton>
             <IonButton onClick={()=>{bookmark(props.theArticle.link,props.theArticle.title,props.theArticle.description,props.theArticle.pubDate)}}>
               <IonIcon icon={bookmarkOutline}> </IonIcon>
+            </IonButton>
+            <IonButton onClick={()=>{props.openShareModal(props.theArticle, true)}}>
+              <IonIcon icon={sendOutline}> </IonIcon>
             </IonButton>
             <IonButton onClick={blockSource}>
             <IonIcon icon={handLeftOutline}> </IonIcon> {props.theArticle.source}</IonButton>

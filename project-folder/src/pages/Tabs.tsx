@@ -15,6 +15,7 @@ import Settings from '../pages/Settings'
 import Bookmark from '../pages/Bookmark'
 import {auth, db} from '../firebase'
 import './Tabs.css'
+import { article } from '../components/ArticleTypes';
 
 type Friend = {
   uuid: string;
@@ -55,6 +56,7 @@ type MyState = {
   unsubscribeGroupArray: any[];
   unsubscribeIncomingRequests: (() => void) | undefined;
   unsubscribeOutgoingRequests: (() => void) | undefined;
+  isShareModalOpen: boolean
 }
 
 class Tabs extends React.Component<MyProps, MyState> {
@@ -72,7 +74,8 @@ class Tabs extends React.Component<MyProps, MyState> {
     groupArray: [],
     unsubscribeGroupArray: [],
     unsubscribeIncomingRequests: undefined,
-    unsubscribeOutgoingRequests: undefined
+    unsubscribeOutgoingRequests: undefined,
+    isShareModalOpen: false
   };
 
   constructor(props: MyProps){
@@ -222,13 +225,17 @@ class Tabs extends React.Component<MyProps, MyState> {
 
   }
 
+  openShareModal(theArticle: article, shouldOpen: boolean) {
+    this.setState({isShareModalOpen: true})
+  }
+
   render() {
     return (
       <IonTabs>
         <IonRouterOutlet>
           <Route path="/main" exact render={() => <Redirect to="/main/feed"/>} />
           <Route path="/main/feed" component={Feed} exact={true} />
-          <Route path="/main/social" render={() => <Social {...this.props} friendsList={this.state.friendsList} groupArray={this.state.groupArray} ourUsername={this.state.ourUsername} incomingRequests={this.state.incomingRequests} outgoingRequests={this.state.outgoingRequests}/> } />
+          <Route path="/main/social" render={() => <Social {...this.props} friendsList={this.state.friendsList} groupArray={this.state.groupArray} ourUsername={this.state.ourUsername} incomingRequests={this.state.incomingRequests} outgoingRequests={this.state.outgoingRequests} openShareModal={this.openShareModal}/> } />
           <Route path="/main/settings" component={Settings} exact={true}/>
           <Route path="/main/bookmark" component={Bookmark} exact={true}/>
         </IonRouterOutlet>

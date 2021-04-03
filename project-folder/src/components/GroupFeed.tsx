@@ -83,10 +83,10 @@ const { Storage } = Plugins;
 //                     snapshot.forEach(doc => {
 //                       if (doc.exists) {
 //                         let articleItem = doc.data();
-//                         var html = articleItem.description; 
-//                         var a = document.createElement("a"); 
-//                         a.innerHTML = html; 
-//                         var text = a.textContent || a.innerText || ""; 
+//                         var html = articleItem.description;
+//                         var a = document.createElement("a");
+//                         a.innerHTML = html;
+//                         var text = a.textContent || a.innerText || "";
 //                         aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source:articleItem.source, pubDate:articleItem.pubDate})
 //                       } else {
 //                         console.log("Cannot find anything in database.")
@@ -114,7 +114,7 @@ const { Storage } = Plugins;
 //         }
 //       })
 //     }
-    
+
 //     getId() {
 //       // return groupId
 //       return "";
@@ -127,7 +127,7 @@ const { Storage } = Plugins;
 //     }
 //   }
 
-function GroupFeed(props: {headerName: string, articles: article[]}) {
+function GroupFeed(props: {headerName: string, articles: article[], openShareModal: (theArticle: article) => void}) {
   // let articles = Array<article>();
   // db.collection('topicSubscription').doc(props.groupId).get().then(docData => {
   //   if (docData.exists) {
@@ -135,6 +135,6 @@ function GroupFeed(props: {headerName: string, articles: article[]}) {
 
   //   }
   // })
-  return <FeedList headerName={props.headerName} articleList={props.articles}></FeedList>
+  return <FeedList headerName={props.headerName} articleList={props.articles} openShareModal={props.openShareModal}></FeedList>
 }
 export default GroupFeed;

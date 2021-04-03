@@ -7,7 +7,7 @@ import { article } from "./ArticleTypes";
 function SearchModal(props: {showModal: boolean, closeModal: any, topicSearched: string,
      handleTopicChange: any, searchTopicButton: any, showSearchAlert: boolean,
       dismissSearchAlertButton: any, showLoading: boolean, showSearchingModal: boolean, closeSearchingModal: any,
-    addTopicButton: any, articlesSearched: article[], showSubscribeAlert: boolean, dismissSubscribeAlertButton: any}) {
+    addTopicButton: any, articlesSearched: article[], showSubscribeAlert: boolean, dismissSubscribeAlertButton: any, openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
         return (
         <IonModal isOpen={props.showModal} onDidDismiss={props.closeModal}>
     <IonHeader>
@@ -67,7 +67,7 @@ function SearchModal(props: {showModal: boolean, closeModal: any, topicSearched:
    </IonHeader>
    <IonContent>
 
-   <ArticleList theArticleList={props.articlesSearched}></ArticleList>
+   <ArticleList theArticleList={props.articlesSearched} openShareModal={props.openShareModal}></ArticleList>
    <IonAlert
        isOpen={props.showSubscribeAlert}
        onDidDismiss={props.dismissSubscribeAlertButton}
