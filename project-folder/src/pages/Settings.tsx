@@ -125,52 +125,52 @@ class Settings extends React.Component<MyProps, MyState> {
   });
 }
 
-  push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
+  // push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
     
-    PushNotifications.register();
-    var temp = this.state.topics;
-    for(var i = 0; i < temp.length; i++) {
-      PushNotifications.register().then(()=> {
-        FCMPlugin.subscribeTo({topic:temp[i]})
-      }).catch((err)=>console.log(err));
-  }
+  //   PushNotifications.register();
+  //   var temp = this.state.topics;
+  //   for(var i = 0; i < temp.length; i++) {
+  //     PushNotifications.register().then(()=> {
+  //       FCMPlugin.subscribeTo({topic:temp[i]})
+  //     }).catch((err)=>console.log(err));
+  // }
 
-    // On succcess, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: PushNotificationToken) => {
-        alert('Push registration success, token: ' + token.value);
-      }
-    );
+  //   // On succcess, we should be able to receive notifications
+  //   PushNotifications.addListener('registration',
+  //     (token: PushNotificationToken) => {
+  //       alert('Push registration success, token: ' + token.value);
+  //     }
+  //   );
 
-    // Some issue with your setup and push will not work
-    PushNotifications.addListener('registrationError',
-      (error: any) => {
-        alert('Error on registration: ' + JSON.stringify(error));
-      }
-    );
+  //   // Some issue with your setup and push will not work
+  //   PushNotifications.addListener('registrationError',
+  //     (error: any) => {
+  //       alert('Error on registration: ' + JSON.stringify(error));
+  //     }
+  //   );
 
-    // Show us the notification payload if the app is open on our device
-    PushNotifications.addListener('pushNotificationReceived',
-      (notification: PushNotification) => {
-        let notif = this.state.notifications;
-        notif.push({ id: notification.id, title: notification.title, body: notification.body })
-        this.setState({
-          notifications: notif
-        })
-      }
-    );
+  //   // Show us the notification payload if the app is open on our device
+  //   PushNotifications.addListener('pushNotificationReceived',
+  //     (notification: PushNotification) => {
+  //       let notif = this.state.notifications;
+  //       notif.push({ id: notification.id, title: notification.title, body: notification.body })
+  //       this.setState({
+  //         notifications: notif
+  //       })
+  //     }
+  //   );
 
-    // Method called when tapping on a notification
-    PushNotifications.addListener('pushNotificationActionPerformed',
-      (notification: PushNotificationActionPerformed) => {
-        let notif = this.state.notifications;
-        notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
-        this.setState({
-          notifications: notif
-        })
-      }
-    );
-  }
+  //   // Method called when tapping on a notification
+  //   PushNotifications.addListener('pushNotificationActionPerformed',
+  //     (notification: PushNotificationActionPerformed) => {
+  //       let notif = this.state.notifications;
+  //       notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
+  //       this.setState({
+  //         notifications: notif
+  //       })
+  //     }
+  //   );
+  // }
 
 
 
@@ -296,21 +296,21 @@ changeDisplayName(newName: string) {
   }
 }
 
-notify() {
+// notify() {
 
-  db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
-          notifications:this.state.isSubbed,
+//   db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
+//           notifications:this.state.isSubbed,
          
-        })
-  if(isPushAvailable&&this.state.isSubbed) 
-    this.push();
-  else if(!this.state.isSubbed) {
+//         })
+//   if(isPushAvailable&&this.state.isSubbed) 
+//     this.push();
+//   else if(!this.state.isSubbed) {
 
-  }
+//   }
 
 
     
-}
+// }
 
 /*changeEmail(email:string) {
   if(this.state.currentUserName!=undefined&& email.length > 3) { //makes sure the source is a valid site and isn't blank
@@ -616,14 +616,15 @@ isValidSite(siteName:string) {
         </IonHeader>
         <IonItem>
         <IonAvatar>
+          <input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
           <img id = 'myimg' />
         </IonAvatar>
         {this.state.currentUserName}
         </IonItem>
-        <IonItem>
+        {/* <IonItem>
             <IonLabel>Notifications</IonLabel>
             <IonToggle checked = {this.state.isSubbed} onClick={(()=> {this.state.isSubbed = !this.state.isSubbed; this.push();this.notify()})} value="Notifications" />
-          </IonItem>
+          </IonItem> */}
 
         <IonContent>
         <IonItem>

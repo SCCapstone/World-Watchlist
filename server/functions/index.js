@@ -12,7 +12,8 @@ const waitTime = 3600000;
 const day = 10
 const oldTime = day * 24 * 60 * 60 * 1000;  
 const app = express();
-
+let currentDate = new Date(); // placeholder for current date/time
+const timeFrame = 119400; // 1.99 minutes
 app.use(cors);
 
 app.get('/favicon.ico', function(req, res) { 

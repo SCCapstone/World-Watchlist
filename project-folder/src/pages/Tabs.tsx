@@ -53,8 +53,8 @@ type MyState = {
   numGroups: number;
   groupArray: Group[]
   unsubscribeGroupArray: any[];
-  unsubscribeIncomingRequests: any;
-  unsubscribeOutgoingRequests: any
+  unsubscribeIncomingRequests: (() => void) | undefined;
+  unsubscribeOutgoingRequests: (() => void) | undefined;
 }
 
 class Tabs extends React.Component<MyProps, MyState> {
@@ -71,8 +71,8 @@ class Tabs extends React.Component<MyProps, MyState> {
     numGroups: 0,
     groupArray: [],
     unsubscribeGroupArray: [],
-    unsubscribeIncomingRequests: [],
-    unsubscribeOutgoingRequests: []
+    unsubscribeIncomingRequests: undefined,
+    unsubscribeOutgoingRequests: undefined
   };
 
   constructor(props: MyProps){
@@ -191,8 +191,13 @@ class Tabs extends React.Component<MyProps, MyState> {
 
   componentWillUnmount() {
     //since we have subscriptions, we cancel them here to prevent a memory leak
-    this.state.unsubscribeIncomingRequests()
-    this.state.unsubscribeOutgoingRequests()
+    if(this.state.unsubscribeIncomingRequests !== undefined) {
+      this.state.unsubscribeIncomingRequests()
+    }
+    if(this.state.unsubscribeOutgoingRequests !== undefined) {
+      this.state.unsubscribeOutgoingRequests()
+    }
+
     for(let i = 0; i < this.state.unsubscribeGroupArray.length; i++) {
       this.state.unsubscribeGroupArray[i]()
     }
