@@ -54,7 +54,7 @@ import FeedList from '../components/FeedList';
 
 type MyState = {
   articles: article[],
-  
+
   blockedSources: string[],
   subscriptions: string[],
   subscriptionListener: any,
@@ -752,9 +752,9 @@ class GroupView extends React.Component<MyProps, MyState> {
           <IonContent className='groupViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              
 
-               return <Message
+
+               return this.state.blockedList.includes(message.sender) ? <Message
                   isArticle={message.isArticle}
                   openProfile={this.openProfile}
                   closeProfile={this.closeProfile}
@@ -765,11 +765,22 @@ class GroupView extends React.Component<MyProps, MyState> {
                   article={message.article}
                   read={message.read}
                   openShareModal={this.props.openShareModal}
-                  uid={message.sender}
-                  setSenderToView={this.setSenderToView}
+                  ourUsername={this.props.ourUsername}
                 />
-                
-
+                :
+               <Message
+                  isArticle={message.isArticle}
+                  openProfile={this.openProfile}
+                  closeProfile={this.closeProfile}
+                  key={message.key}
+                  sender={this.state.nameDictionary[message.sender]}
+                  article={message.article}
+                  content={'This content is from a blocked user.'}
+                  photo={this.state.photoDictionary[message.sender]}
+                  read={message.read}
+                  openShareModal={this.props.openShareModal}
+                  ourUsername={this.props.ourUsername}
+                />
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />
@@ -784,13 +795,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           </IonContent>
           :
           <IonContent>
-            <SubscriptionModal
-      unsubButton={this.unsubscribeButton.bind(this)}
-      subscriptions={this.state.subscriptions}
-      articles={this.state.articles}
-      openShareModal={this.props.openShareModal}
-      mode={this.state.mode}
-      sort={this.state.sort}></SubscriptionModal>
+
           </IonContent>
   }
         </IonModal>
