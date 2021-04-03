@@ -98,6 +98,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
               console.log("articles",this.state.articles)
             } else {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
+              this.setState({subs: []});
             }
           })
         // end of getting data from server
@@ -407,7 +408,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
         duration={20000}
       />
 
-      <IonModal isOpen={this.state.isSearchingModal} >
+      <IonModal isOpen={this.state.isSearchingModal} onDidDismiss={() => this.setState({isSearchingModal: false})}>
       <IonHeader>
       <IonToolbar id="newsToolbar">
       <IonButtons slot='start'>
