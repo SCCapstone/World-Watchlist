@@ -66,7 +66,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
     showSubscribeAlert:false,
     isChanging:false,
     showErrorAlert:false,
-    showErrorSubscribe:false
+    showErrorSubscribe:false,
+    mode: "all",
+    sort: "title",
   };
 
   constructor(props: FeedProps) {
@@ -452,7 +454,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
     unsubButton={this.unsubscribe.bind(this)}
     subscriptions={this.state.subs}
     articles={(this.state.subArticles)}
-    
+    mode={this.state.mode}
+    sort={this.state.sort}
     ></SubscriptionModal>
     {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>

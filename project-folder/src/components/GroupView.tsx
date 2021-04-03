@@ -85,6 +85,8 @@ type MyState = {
   senderImage: string;
   subs: string[];
   isProfileModalOpen:boolean;
+  mode: "cards" | "all",
+  sort: "title" | "pubDate"
 }
 
 type MyProps = {
@@ -170,6 +172,8 @@ class GroupView extends React.Component<MyProps, MyState> {
     blockedList: [],
     senderToView: undefined,
     senderImage:'',
+    mode: "cards",
+    sort: "title"
 
   };
   realtime_db = firebase.database();
@@ -766,7 +770,9 @@ class GroupView extends React.Component<MyProps, MyState> {
             <SubscriptionModal
       unsubButton={this.unsubscribeButton.bind(this)}
       subscriptions={this.state.subscriptions}
-      articles={this.state.articles}></SubscriptionModal>
+      articles={this.state.articles}
+      mode={this.state.mode}
+      sort={this.state.sort}></SubscriptionModal>
           </IonContent>
   }
         </IonModal>

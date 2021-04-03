@@ -6,9 +6,9 @@ import ChildrenComponent from "./SubscriptionChildren"
 import FeedList from '../components/FeedList';
 
 
-function SubscriptionModal(props: {unsubButton: any, subscriptions: string[], articles:any[]}) {
+function SubscriptionModal(props: {unsubButton: any, subscriptions: string[], articles:any[], mode: string, sort: string}) {
       
-return ( <>{<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles}></ChildrenComponent>}</>
+return ( <>{<ChildrenComponent subs={props.subscriptions} func={props.unsubButton} articles={ props.articles} mode={props.mode} sort={props.sort}></ChildrenComponent>}</>
         
 );
 

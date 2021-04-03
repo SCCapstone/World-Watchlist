@@ -20,6 +20,8 @@ export type FeedState = {
     isChanging:boolean,
     showErrorSubscribe:boolean,
     showErrorAlert:boolean,
+    mode: "cards" | "all",
+    sort: "title" | "pubDate" | "none"
 }
 export type GroupFeedState = {
   articles: articleList;
@@ -39,6 +41,8 @@ export type GroupFeedState = {
   isChanging:boolean,
   isWeatherModalOpen: boolean,
   groupId: string;
+  mode: "cards" | "all",
+  sort: "title" | "pubDate" | "none"
 }
 export type FeedProps = {
     history: any;
