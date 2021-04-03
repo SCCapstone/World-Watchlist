@@ -655,7 +655,7 @@ class Social extends React.Component<MyProps, MyState> {
                     <IonLabel className='socialGroupLabel'>
                       {displayGroup.nickname}
                     </IonLabel>
-                    <IonLabel className='socialGroupMessagePreview'><span className='blueColor'>{displayGroup.lastMessageSender}</span>:  {displayGroup.lastMessage}</IonLabel>
+                    <IonLabel className='socialGroupMessagePreview'>{displayGroup.lastMessage}</IonLabel>
                   </div>
                 </IonItem>
               )
@@ -673,7 +673,7 @@ class Social extends React.Component<MyProps, MyState> {
                 <IonLabel className='socialGroupLabel'>
                   {friend.displayName}
                 </IonLabel>
-                <IonLabel className='socialGroupMessagePreview'><span className='blueColor'>{friend.lastMessageSender}</span>:  {friend.lastMessage}</IonLabel>
+                <IonLabel className='socialGroupMessagePreview'>{friend.lastMessage}</IonLabel>
               </div>
 
             </IonItem>
@@ -693,13 +693,18 @@ class Social extends React.Component<MyProps, MyState> {
             </IonButtons>
 
             <IonTitle class='settingsTitle2'>
-            <IonAvatar>
+            <IonAvatar class = "image-center">
           <img src = {this.state.profileToView.photo !== '' ?this.state.profileToView.photo : Placeholder}/>
         </IonAvatar>
-        {this.state.profileToView.displayName}
-            </IonTitle>
+        
+            </IonTitle><IonTitle class = "image-center">{this.state.profileToView.displayName}</IonTitle>
             </IonToolbar>
+            
           </IonHeader>
+          <IonItem>
+        
+          <IonLabel class = "colored">Topic Subscriptions</IonLabel>
+          </IonItem>
         <IonContent>
 
         <ul id = "blockedList"></ul>
