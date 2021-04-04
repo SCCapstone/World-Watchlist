@@ -276,7 +276,7 @@ hidel() {
                 <IonLabel id = "welcome">Welcome to World Watchlist.</IonLabel>
                 <IonItem lines='none' className='loginItem'>
                 <IonLabel class='loginLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}} />
+                  <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}}  autofocus={true}/>
                 </IonItem>
                 <br/>
 

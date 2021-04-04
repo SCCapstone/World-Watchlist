@@ -31,15 +31,11 @@ interface readReceipt {
 
 
 interface MessageProps {
-  uid: string;
   photo: string;
   content: string;
   sender: string;
   read: readReceipt[];
   openProfile: (sender: string) => void;
-
-
-setSenderToView: (sender:string)=> void;
   closeProfile: () => void;
   isArticle: boolean;
   article: article | undefined;
@@ -49,7 +45,6 @@ setSenderToView: (sender:string)=> void;
  function Message(props: MessageProps) {
    const [readReceiptViewable, setReadReceiptViewable] = useState(false)
     return (
-
       props.article ? <div>
                         <IonLabel class='messageLabel text-wrap' position='stacked'>{props.sender}</IonLabel>
                         <IonItem>
@@ -58,10 +53,9 @@ setSenderToView: (sender:string)=> void;
                       </div> : <div>
             <IonLabel class='messageLabel text-wrap' position='stacked'>{props.sender}</IonLabel>
             <IonItem class='messageItem' onClick={() => {setReadReceiptViewable(!readReceiptViewable)}}>
-              <IonAvatar slot="start" onClick={()=>{props.setSenderToView(props.uid)}}>
+              <IonAvatar slot="start" onClick={() => {console.log('This is me clicking the avatar')}}>
                 <img src={props.photo !== '' ? props.photo : Placeholder} />
               </IonAvatar>
-
 
               <IonLabel class='messageContent ion-text-wrap'>{props.content}</IonLabel>
             </IonItem>

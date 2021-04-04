@@ -4,8 +4,9 @@
 }
 
 .messageItem {
-  --background: #e8e9ec;
+  --background: #73829a;
   color: #000;
+  border-radius: 20px;
 }
 
 .messageContent {

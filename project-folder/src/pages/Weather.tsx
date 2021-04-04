@@ -35,6 +35,7 @@ import { WeatherProps, WeatherState, weatherData } from '../components/WeatherTy
 import WeatherSubChildren from '../components/WeatherSubChildren';
 import { NewsDB } from '../config/config';
 import { Plugins, LocalNotification } from '@capacitor/core';
+import { isEnterKey } from '../components/TempFunctions';
 const {LocalNotifications, App} = Plugins;
 
 
@@ -316,7 +317,7 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       </IonToolbar>
       </IonHeader>
         <IonContent>
-        <IonSearchbar placeholder="State, City, address..." onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
+        <IonSearchbar placeholder="State, City, address..." onKeyUp={(e: any) => {if (isEnterKey(e)) this.geocode(this.state.req);}} onIonInput={(e: any) => this.setState({req:e.target.value})} animated></IonSearchbar>
         <IonButton id="searchButton" size="default" color="dark" type="submit" expand="full" shape="round" onClick={() => this.geocode(this.state.req)}>
           Search
         </IonButton>

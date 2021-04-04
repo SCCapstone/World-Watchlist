@@ -252,3 +252,7 @@ export const isValidPassword = (password: string) : string[] => {
     errors.push("Password must have 6-20 characters");
   return errors;
 }
+export const isEnterKey = (key_val: any): boolean => {
+  // console.log(key_val == 13 ? "Enter" : key_val.key)
+  return key_val.key === "Enter";
+}

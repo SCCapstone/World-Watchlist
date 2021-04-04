@@ -39,7 +39,7 @@ import {
 import Message from '../components/Message'
 import GroupFeed from '../components/GroupFeed';
 import { article, articleList } from '../components/ArticleTypes';
-import { hasTopics, tempapiSearch, tempGetSubscribedArticles, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
+import { hasTopics, isEnterKey, tempapiSearch, tempGetSubscribedArticles, tempremoveSubscription, tempsearchTopic, tempsubscribe, validTopic } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 import SearchModal from '../components/SearchModal';
 // import { NewsDB } from '../config/config';
@@ -54,7 +54,7 @@ import FeedList from '../components/FeedList';
 
 type MyState = {
   articles: article[],
-  
+
   blockedSources: string[],
   subscriptions: string[],
   subscriptionListener: any,
@@ -752,30 +752,25 @@ class GroupView extends React.Component<MyProps, MyState> {
           <IonContent className='groupViewMessageContainer' scrollY={true}>
           <div className='messageContainerDiv'>
             {this.state.messages.map((message) => {
-              
-
-               return <Message
-                  isArticle={message.isArticle}
-                  openProfile={this.openProfile}
-                  closeProfile={this.closeProfile}
-                  key={message.key}
-                  sender={this.state.nameDictionary[message.sender]}
-                  content={this.state.blockedList.includes(message.sender) ? 'This content is from a blocked user.' : message.content}
-                  photo={this.state.photoDictionary[message.sender]}
-                  article={message.article}
-                  read={message.read}
-                  openShareModal={this.props.openShareModal}
-                  uid={message.sender}
-                  setSenderToView={this.setSenderToView}
-                />
-                
-
+              return <Message
+              isArticle={message.isArticle}
+              openProfile={this.openProfile}
+              closeProfile={this.closeProfile}
+              key={message.key}
+              sender={this.state.nameDictionary[message.sender]}
+              article={message.article}
+              content={this.state.blockedList.includes(message.sender) ?
+                 'This content is from a blocked user.' : message.content}
+              photo={this.state.photoDictionary[message.sender]}
+              read={message.read}
+              openShareModal={this.props.openShareModal}
+            />
             })}
             <div className='groupViewAnchor'  />
             <div className='groupViewAnchor2' ref={this.anchorRef} />
           </div>
             <div className='groupViewMessageBox'>
-              <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='groupViewMessageInput' />
+              <IonInput value={this.state.currentMessage} onKeyDown={(e) => {if (isEnterKey(e)) this.sendMessage()}} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='groupViewMessageInput' />
               <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='groupViewMessageButton'>
                 <IonIcon slot="icon-only" className='groupViewMessageSend' icon={sendOutline} />
               </IonButton>
@@ -784,13 +779,7 @@ class GroupView extends React.Component<MyProps, MyState> {
           </IonContent>
           :
           <IonContent>
-            <SubscriptionModal
-      unsubButton={this.unsubscribeButton.bind(this)}
-      subscriptions={this.state.subscriptions}
-      articles={this.state.articles}
-      openShareModal={this.props.openShareModal}
-      mode={this.state.mode}
-      sort={this.state.sort}></SubscriptionModal>
+
           </IonContent>
   }
         </IonModal>

@@ -26,6 +26,7 @@ import {
   addCircleOutline,
   checkmarkOutline
 } from 'ionicons/icons'
+import { isEnterKey } from './TempFunctions';
 
 type MyState = {
   targetUserId: string;
@@ -94,7 +95,7 @@ class AddFriends extends React.Component<MyProps, MyState> {
         Please input the email of the user you wish to add.
         </IonLabel>
           <IonItem lines='none' id='searchFriendItem'>
-            <IonInput id='addFriendSearch' onIonChange={(e) => {this.setState({targetUserId: (e.target as HTMLInputElement).value, friendRequestSent: false})}} />
+            <IonInput id='addFriendSearch' onKeyPress={(e) => {if (isEnterKey(e)) this.addFriendLogic()}} onIonChange={(e) => {this.setState({targetUserId: (e.target as HTMLInputElement).value, friendRequestSent: false})}} />
             <IonButton onClick={() => {this.addFriendLogic()}} slot='end' id='addFriendButton' fill='clear'>
               <IonIcon id='addFriendButtonIcon' icon={this.state.friendRequestSent ? checkmarkOutline : addCircleOutline} />
             </IonButton>
