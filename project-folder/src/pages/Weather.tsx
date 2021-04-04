@@ -143,13 +143,6 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
     })
   }
 
-  async componentDidMount(){
-    await LocalNotifications.requestPermission()
-    // await LocalNotifications.requestPermission().then(res=>{
-    //   console.log("local notification granted: "+ res.granted)
-    // })
-  }
-
   async componentWillUnmount(){
     // fix Warning: Can't perform a React state update on an unmounted component
     this.setState = (state,callback)=>{

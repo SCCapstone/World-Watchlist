@@ -42,7 +42,7 @@ import FeedToolbar from '../components/FeedToolbar';
 import ShareModal from '../components/ShareModal'
 import { tempaddSubscription, tempremoveSubscription, tempapiSearch, tempsubscribe, isEnterKey,  } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
-const { Storage, PushNotifications, FCMPlugin, BackgroundTask, App, LocalNotifications   } = Plugins;
+const { Storage, App, LocalNotifications   } = Plugins;
 
 
 
@@ -70,18 +70,15 @@ class Feed extends React.Component<FeedProps, FeedState> {
     showErrorSubscribe:false,
     mode: "all",
     sort: "title",
+    muted:[]
   };
 
   constructor(props: FeedProps) {
     super(props)
     this.toggleWeatherModal = this.toggleWeatherModal.bind(this);
-  }
-
-  async componentDidMount(){
-    this.setState({subArticles:[]})
-    this.setState({subs:[]})
-    await LocalNotifications.requestPermission()
+    
     auth.onAuthStateChanged(async () => {
+      this.setState({subs:[], subArticles:[], articles:[]})
       if(auth.currentUser) {
         this.setState({CurrentUser:auth.currentUser?.uid})
         db.collection("profiles").doc(auth.currentUser?.uid)
@@ -93,6 +90,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
                 this.setState({blockedSources:  await doc.data()!.blockedSources});
               } else {
                 this.setState({blockedSources:  await doc.data()!.blockedSources});
+                this.setState({muted:await doc.data()!.muteNotification})
               }
             }
       })
@@ -112,13 +110,18 @@ class Feed extends React.Component<FeedProps, FeedState> {
         // end of getting data from server
       }
     })
+  }
+
+  async componentDidMount(){
+    await LocalNotifications.requestPermission()
+    
     // await LocalNotifications.requestPermission().then(res=>{
     //   console.log("local notification granted: "+ res.granted)
     // })
   }
 
   async getSubscribedArticles(){
-    this.setState({articles:[]})
+    this.setState({subArticles:[], articles:[]})
     // get blocked sources on firestore
     let aList : any[];
     if (this.state.subs) {
@@ -142,7 +145,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
             }
           })
           var source = snapshot.metadata.fromCache ? "local cache" : "server";
-          console.log("Sub Articles came from " + source);
           await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
           this.state.subArticles.push(aList)
           this.setState({articles:[...this.state.articles, ...aList]})
@@ -158,8 +160,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   // refresh articles on feed
   async doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    // this.setState({articles:[]})
-    this.setState({subArticles:[]})
+    this.setState({subArticles:[], articles:[]})
     // get blocked sources on firestore
     let aList : any[] = [];
     for (var i = 0; i < this.state.subs.length; i++) {
@@ -207,15 +208,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
   // check server collection for changes
   async checkCollection(collection:string,index:any){
     // Subscribe to a specific
-    const profile = db.collection('profiles').doc(auth.currentUser?.uid)
-    let profileDoc = await profile.get()
-
-    if (!( profileDoc).exists) {
-      return;
-    } else {
     NewsDB.collection(collection)
     .onSnapshot(async querySnapshot => {
-      console.log(querySnapshot.docChanges()[0])
       let newArticle:any = querySnapshot.docChanges()[0].doc?.id
         const LocalNotificationPendingList = await LocalNotifications.getPending()
         // console.log(change.doc)
@@ -225,30 +219,31 @@ class Feed extends React.Component<FeedProps, FeedState> {
           Storage.remove({key:collection})
           this.setState({isChanging:true})
           // if localnotification is not granted or notification is muted, don't send notifications.
-          if (!(await LocalNotifications.requestPermission()).granted || ( profileDoc).data()?.muteNotification.includes(collection))  return;
+          if (!(await LocalNotifications.requestPermission()).granted || this.state.muted.includes(collection))  return;
           else {
-          // send notification for every changes in collection
-            App.addListener('appStateChange', async (state) => {
-                  if (!state.isActive) {
-                    await LocalNotifications.schedule({
-                      notifications: [{
-                        title: newArticle,
-                        body: 'New article from the topic \'' +collection +'\' .',
-                        id: 1,
-                        schedule:{repeats:false, at: new Date(Date.now())}
-                      }]
-                    });
-                  }
-              })
-              await LocalNotifications.schedule({
-                notifications: [{
-                  title: newArticle,
-                  body: 'New article from the topic \'' +collection +'\' .',
-                  id: 1,
-                  schedule:{repeats:false, at: new Date(Date.now())}
-                }]
-              });
-          }
+            await LocalNotifications.schedule({
+              notifications: [{
+                title: newArticle,
+                body: 'New article from the topic \'' +collection +'\' .',
+                id: 1,
+                schedule:{repeats:false, at: new Date(Date.now())}
+              }]
+            });
+            // send notification for every changes in collection
+              App.addListener('appStateChange', async (state) => {
+                    if (!state.isActive) {
+                      await LocalNotifications.schedule({
+                        notifications: [{
+                          title: newArticle,
+                          body: 'New article from the topic \'' +collection +'\' .',
+                          id: 1,
+                          schedule:{repeats:false, at: new Date(Date.now())}
+                        }]
+                      });
+                    }
+                })
+            }
+              
     }
       // makes sure they can't be more than 1 notifications on single changes
       if (LocalNotificationPendingList.notifications.length>0) {
@@ -256,7 +251,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       }
     // })
     });
-    }
+    
   }
 
 

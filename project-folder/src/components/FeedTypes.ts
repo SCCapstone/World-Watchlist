@@ -23,6 +23,7 @@ export type FeedState = {
     showErrorAlert:boolean,
     mode: modeTypes,// "cards" | "all",
     sort: sortTypes// "title" | "pubDate" | "none"
+    muted:any[]
 }
 export type GroupFeedState = {
   articles: articleList;
