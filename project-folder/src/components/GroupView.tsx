@@ -161,7 +161,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     showSearchingModal: false,
     articlesSearched: [],
     showSubscribeAlert: false,
-    groupSegment: 'feed',
+    groupSegment: 'messages',
     groupViewPopoverEvent: undefined,
     isGroupViewPopoverOpen: false,
     isSettingsModalOpen: false,
