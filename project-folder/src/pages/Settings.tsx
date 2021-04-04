@@ -29,6 +29,7 @@ import "@codetrix-studio/capacitor-google-auth";
 
 import {addCircleOutline, closeOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
+import { isEnterKey } from '../components/TempFunctions';
  const { PushNotifications } = Plugins;
  const { Toast } = Plugins;
  const isPushAvailable = Capacitor.isPluginAvailable("PushNotifications");
@@ -452,7 +453,7 @@ isValidSite(siteName:string) {
         </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput class='addSource' onIonChange={(e) => {this.setState({sourceToBlock: (e.target as HTMLInputElement).value})}} />
+          <IonInput class='addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.blockSource(this.state.sourceToBlock)}} onIonChange={(e) => {this.setState({sourceToBlock: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.blockSource(this.state.sourceToBlock)}}  fill='clear'>
             <IonIcon id='addBlockIcon' icon={addCircleOutline} />
           </IonButton>
@@ -499,7 +500,7 @@ isValidSite(siteName:string) {
           </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
+          <IonInput class = 'addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.changePassword(this.state.newPassword)}} onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear' placeholder='Enter new password'>
             <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>
@@ -524,7 +525,7 @@ isValidSite(siteName:string) {
           </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput class = 'addSource' onIonChange={(e) => {this.setState({newUsername: (e.target as HTMLInputElement).value})}} />
+          <IonInput class = 'addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.changeUsername(this.state.newUsername)}} onIonChange={(e) => {this.setState({newUsername: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.changeUsername(this.state.newUsername)}}  fill='clear'>
             <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
           </IonButton>

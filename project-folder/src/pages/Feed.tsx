@@ -36,11 +36,11 @@ import { add, addCircle, archive, bookmarks, closeCircleOutline, cloud, notifica
 import { PushNotification, Plugins, LocalNotification } from '@capacitor/core';
 import ParentComponent from '../components/SubscriptionParent';
 import ChildrenComponent from '../components/SubscriptionChildren';
-import { FeedProps, FeedState } from '../components/FeedTypes';
+import { FeedProps, FeedState, sortTypes } from '../components/FeedTypes';
 import FeedList from '../components/FeedList';
 import FeedToolbar from '../components/FeedToolbar';
 import ShareModal from '../components/ShareModal'
-import { tempaddSubscription, tempremoveSubscription, tempapiSearch, tempsubscribe,  } from '../components/TempFunctions';
+import { tempaddSubscription, tempremoveSubscription, tempapiSearch, tempsubscribe, isEnterKey,  } from '../components/TempFunctions';
 import SubscriptionModal from '../components/SubscriptionModal';
 const { Storage, PushNotifications, FCMPlugin, BackgroundTask, App, LocalNotifications   } = Plugins;
 
@@ -338,6 +338,19 @@ class Feed extends React.Component<FeedProps, FeedState> {
     await this.removeSubscription(index);
   }
 
+  handleToggle() {
+    let current = this.state.mode;
+    this.setState({mode: current == 'cards' ? 'all' : 'cards'});
+  }
+
+  handleSort(option: sortTypes) {
+    this.setState({sort: option});
+    /*switch(option) {
+      case "title":
+        this.setState({})
+    }*/
+  }
+
   render() {
 
     return (
@@ -366,7 +379,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
         </IonToolbar> */}
         <FeedToolbar
          openWeather={() => this.setState({isWeatherModalOpen: true})}
-         showModal={() => {this.setState({showModal: true})}}></FeedToolbar>
+         showModal={() => {this.setState({showModal: true})}}
+         toggleMode={this.handleToggle.bind(this)}
+         toggleSort={this.handleSort.bind(this)}></FeedToolbar>
 
       </IonHeader>
       <IonContent>
@@ -397,7 +412,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
         </IonToolbar>
         </IonHeader>
         <IonContent>
-        <IonSearchbar placeholder="Enter a Topic or Location" value={this.state.topicSearched} onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
+        <IonSearchbar placeholder="Enter a Topic or Location" value={this.state.topicSearched} onKeyUp={(e: any) => {if (isEnterKey(e)) this.searchTopic(this.state.topicSearched);}} onIonInput={(e: any) => this.setState({topicSearched:e.target.value} )} animated>
       </IonSearchbar>
 
       <IonButton id="searchButton" expand="block" fill="outline" type="submit" shape="round" onClick={async () => await this.searchTopic(this.state.topicSearched)}>

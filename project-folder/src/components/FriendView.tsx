@@ -30,6 +30,7 @@ import {
 
 import Message from '../components/Message'
 import { article } from './ArticleTypes';
+import { isEnterKey } from './TempFunctions';
 
 
 
@@ -245,7 +246,7 @@ class FriendView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'onClick={()=>{console.log("here"); this.setState({isProfileModalOpen:true})}}>
             {this.state.messages.map((message) => {
 
-              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message isArticle={message.isArticle} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} openShareModal={this.props.openShareModal} article={message.article} ourUsername={this.props.ourUsername}/></div>
+              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message isArticle={message.isArticle} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} openShareModal={this.props.openShareModal} article={message.article}/></div>
               //console.log(db.collection('profiles').doc(message.sender))
 
             })}
@@ -253,7 +254,7 @@ class FriendView extends React.Component<MyProps, MyState> {
             <div className='friendViewAnchor2' onClick={() => {console.log("here")}} ref={this.anchorRef} />
           </div>
             <div className='friendViewMessageBox'>
-              <IonInput value={this.state.currentMessage} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='friendViewMessageInput' />
+              <IonInput value={this.state.currentMessage} onKeyDown={(e) => {if (isEnterKey(e)) this.sendMessage()}} onIonChange={(e) => {this.setState({currentMessage: (e.target as HTMLInputElement).value})}} className='friendViewMessageInput' />
               <IonButton onClick={() => {this.sendMessage()}} fill='clear' className='friendViewMessageButton'>
                 <IonIcon  slot="icon-only" className='friendViewMessageSend' icon={sendOutline} />
               </IonButton>
