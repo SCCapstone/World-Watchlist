@@ -246,7 +246,15 @@ class FriendView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'onClick={()=>{console.log("here"); this.setState({isProfileModalOpen:true})}}>
             {this.state.messages.map((message) => {
 
-              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message isArticle={message.isArticle} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} openShareModal={this.props.openShareModal} article={message.article}/></div>
+              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}>
+                 <Message isArticle={message.isArticle}
+                  openProfile={this.openProfile} closeProfile={this.closeProfile}
+                   key={message.key} sender={this.state.nameDictionary[message.sender]}
+                    content={message.message} photo={this.state.photoDictionary[message.sender]}
+                     read={message.read} openShareModal={this.props.openShareModal}
+                      article={message.article} ourUsername={this.props.ourUsername}
+                      uid={message.sender} setSenderToView={this.setSenderToView}/>
+                 </div>
               //console.log(db.collection('profiles').doc(message.sender))
 
             })}
