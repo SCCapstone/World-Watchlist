@@ -77,6 +77,8 @@ type Friend = {
 
 
 
+
+
 class FriendView extends React.Component<MyProps, MyState> {
 
   state: MyState = {
@@ -99,6 +101,8 @@ class FriendView extends React.Component<MyProps, MyState> {
   constructor(props: MyProps) {
     super(props)
     this.anchorRef = React.createRef()
+    this.setSenderToView = this.setSenderToView.bind(this)
+    this.openShareModal = this.openShareModal.bind(this)
 
     this.openProfile = this.openProfile.bind(this);
     this.closeProfile = this.closeProfile.bind(this);
@@ -109,23 +113,11 @@ class FriendView extends React.Component<MyProps, MyState> {
 
   }
 
-  /*setSenderToView(s:string) {
-    console.log(s)
-    console.log(firebase.auth().currentUser!.uid)
-    if(firebase.auth().currentUser!.uid == s) // It's you
+  setSenderToView(s:string) {
+    this.setState({senderToView:s})
+    this.props.setSenderToView(s)
 
-    this.setState({senderToView:this.state.nameDictionary[s]})
-     this.setState({senderImage: this.state.photoDictionary[s]})
-    db.collection('topicSubscription').doc(s).onSnapshot((snapshot) => {
-      this.setState({subs:snapshot.data()!.subList})
-    })
-    db.collection('profiles').doc(s).get().then(doc=>{
-
-     // lastMessageSender: this.props.ourUsername
-    })
-    console.log(this.state.subs)
-
-  }*/
+  }
 
   componentDidUpdate(prevProps: MyProps) {
     if(prevProps.friendDetails.uid !== this.props.friendDetails.uid) {
@@ -159,6 +151,10 @@ class FriendView extends React.Component<MyProps, MyState> {
         nameDictionary: nameDictionary
       })
     }
+  }
+
+  openShareModal(){
+
   }
 
   sendMessage() {
@@ -225,8 +221,8 @@ class FriendView extends React.Component<MyProps, MyState> {
         </IonPopover>
 
         <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isFriendModalOpen} onDidDismiss={this.props.toggleFriendModal}>
-          <IonHeader>
-            <IonToolbar>
+          <IonHeader id="friendHeader">
+            <IonToolbar color="primary">
               <IonButtons slot = 'start'>
                 <IonButton fill='clear' onClick={() => {this.props.toggleFriendModal()}}>
                   <IonIcon className='friendViewIcon' icon={closeCircleOutline}/>
@@ -250,7 +246,15 @@ class FriendView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'onClick={()=>{console.log("here"); this.setState({isProfileModalOpen:true})}}>
             {this.state.messages.map((message) => {
 
-              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}> <Message isArticle={message.isArticle} openProfile={this.openProfile} closeProfile={this.closeProfile} key={message.key} sender={this.state.nameDictionary[message.sender]} content={message.message} photo={this.state.photoDictionary[message.sender]} read={message.read} openShareModal={this.props.openShareModal} article={message.article}/></div>
+              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}>
+                 <Message isArticle={message.isArticle}
+                  openProfile={this.openProfile} closeProfile={this.closeProfile}
+                   key={message.key} sender={this.state.nameDictionary[message.sender]}
+                    content={message.message} photo={this.state.photoDictionary[message.sender]}
+                     read={message.read} openShareModal={this.props.openShareModal}
+                      article={message.article} ourUsername={this.props.ourUsername}
+                      uid={message.sender} setSenderToView={this.setSenderToView}/>
+                 </div>
               //console.log(db.collection('profiles').doc(message.sender))
 
             })}
