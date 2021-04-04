@@ -15,13 +15,19 @@ import {
 
 import './Landing.css'
 import firebase, {auth, db, signInWithGoogle} from '../firebase.js'
-import { isValidEmail, isValidPassword } from '../components/TempFunctions';
+import { isEnterKey, isValidEmail, isValidPassword } from '../components/TempFunctions';
 import Errors from '../components/Errors';
 import { Plugins } from '@capacitor/core';
 import "@codetrix-studio/capacitor-google-auth";
 import globe from "../images/globe.png"
 import google from "../images/google.png"
 
+  // let loginEmailRef = React.createRef<HTMLIonInputElement>();
+  let loginPasswordRef = React.createRef<HTMLIonInputElement>();
+  // let registrationEmailRef = React.createRef<HTMLIonInputElement>();
+  let registrationPasswordRef = React.createRef<HTMLIonInputElement>();
+  let registrationConfirmPasswordRef = React.createRef<HTMLIonInputElement>();
+  let registrationUsernameRef = React.createRef<HTMLIonInputElement>();
 type MyState = {
   loginEmail: string;
   loginPassword: string;
@@ -197,6 +203,13 @@ hidel() {
     }
   }
 
+  handleChangeFocus(e: any, theRef: React.RefObject<HTMLIonInputElement>) {
+    // console.log(e);
+    // console.log(e.currentTarget);
+    if(isEnterKey(e))
+      theRef.current?.setFocus();
+  }
+
   async googleLoginUploadDataToFirebase() {
       const createProfile : Promise<void> = db.collection('profiles').doc(auth.currentUser?.uid).set({
             blockedSources:[],
@@ -253,7 +266,6 @@ hidel() {
 
     return await Promise.all([createProfile, createSubs, createEmail, createOutgoingFriendRequests, createIncomingFriendRequests, createFriends])
   }
-
     render() {
       return (
       <IonPage>
@@ -276,13 +288,13 @@ hidel() {
                 <IonLabel id = "welcome">Welcome to World Watchlist.</IonLabel>
                 <IonItem lines='none' className='loginItem'>
                 <IonLabel class='loginLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.loginEmail} className='loginInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}}  autofocus={true}/>
+                  <IonInput value={this.state.loginEmail} className='loginInput' type='email' enterkeyhint="next" placeholder = 'Email Address' onKeyDown={(e) => this.handleChangeFocus(e, loginPasswordRef)} onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
                 <br/>
 
                 <IonItem lines='none' className='loginItem'>
                   <IonLabel className='loginLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.loginPassword}  className='loginInput' type='password' placeholder = 'Password' onIonChange={(e) => {this.setState({loginPassword: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput ref={loginPasswordRef} value={this.state.loginPassword}  className='loginInput' type='password' placeholder = 'Password' onKeyDown={(e) => {if (isEnterKey(e)) this.login()}} onIonChange={(e) => {this.setState({loginPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
               <br/>
@@ -297,22 +309,22 @@ hidel() {
               
                 <IonItem lines='none' className='registerItem'>
                 <IonLabel className='registerLabel' position='floating' id = 'email'></IonLabel>
-                  <IonInput value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
+                  <IonInput value={this.state.registerEmail} className='registerInput' type='email' placeholder = 'Email Address' onKeyDown={(e) => {this.handleChangeFocus(e, registrationPasswordRef)}} onIonChange={(e) => {this.setState({registerEmail: (e.target as HTMLInputElement).value})}} />
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
                   <IonLabel className='registerLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.registerPassword} className='registerInput' type='password' placeholder = 'Password' onIonChange={(e) => {this.setState({registerPassword: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput ref={registrationPasswordRef} value={this.state.registerPassword} className='registerInput' type='password' placeholder = 'Password' onKeyDown={(e) => {this.handleChangeFocus(e, registrationConfirmPasswordRef)}} onIonChange={(e) => {this.setState({registerPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
                   <IonLabel className='registerLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.registerConfirmPassword}  className='registerInput' type='password' placeholder = 'Confirm Password' onIonChange={(e) => {this.setState({registerConfirmPassword: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput ref={registrationConfirmPasswordRef} value={this.state.registerConfirmPassword}  className='registerInput' type='password' placeholder = 'Confirm Password' onKeyDown={(e) => {this.handleChangeFocus(e, registrationUsernameRef)}} onIonChange={(e) => {this.setState({registerConfirmPassword: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
 
                 <IonItem lines='none' className='registerItem'>
                   <IonLabel className='registerLabel' position='floating'></IonLabel>
-                  <IonInput value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
+                  <IonInput ref={registrationUsernameRef} value={this.state.username} className='registerInput' type='text' placeholder = 'Username' onKeyPress={(e) => {if (isEnterKey(e)) this.register()}} onIonChange={(e) => {this.setState({username: (e.target as HTMLInputElement).value})}}/>
                 </IonItem>
               </div>
               <IonButton shape = 'round' onClick={() => {this.register()}} className='registerButton'>Submit</IonButton>
