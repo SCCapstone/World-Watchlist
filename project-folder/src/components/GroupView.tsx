@@ -721,7 +721,7 @@ class GroupView extends React.Component<MyProps, MyState> {
 
         <IonModal cssClass='modalScroll' swipeToClose={true} isOpen={this.props.isGroupModalOpen} onDidDismiss={this.props.toggleGroupModal}>
           <IonHeader>
-            <IonToolbar>
+            <IonToolbar color="primary">
               <IonButtons slot = 'start'>
                 <IonButton fill='clear' onClick={() => {this.props.toggleGroupModal()}}>
                   <IonIcon className='groupViewIcon' icon={closeCircleOutline}/>
@@ -736,7 +736,7 @@ class GroupView extends React.Component<MyProps, MyState> {
 
               </IonButtons>
 
-              <IonTitle>{this.props.groupDetails ? this.props.groupDetails.nickname : undefined}</IonTitle>
+              <IonTitle className="groupTitle">{this.props.groupDetails ? this.props.groupDetails.nickname : undefined}</IonTitle>
             </IonToolbar>
           </IonHeader>
           {/* Pulled from Social Page */}
