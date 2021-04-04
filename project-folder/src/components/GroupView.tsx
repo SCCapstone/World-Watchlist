@@ -161,7 +161,7 @@ class GroupView extends React.Component<MyProps, MyState> {
     showSearchingModal: false,
     articlesSearched: [],
     showSubscribeAlert: false,
-    groupSegment: 'messages',
+    groupSegment: 'feed',
     groupViewPopoverEvent: undefined,
     isGroupViewPopoverOpen: false,
     isSettingsModalOpen: false,
@@ -181,7 +181,6 @@ class GroupView extends React.Component<MyProps, MyState> {
     mode: "cards",
     sort: "title",
     sentArray: []
-
   };
   realtime_db = firebase.database();
   anchorRef: React.RefObject<HTMLDivElement>;
@@ -469,7 +468,8 @@ class GroupView extends React.Component<MyProps, MyState> {
           db.collection("topicSubscription").doc(this.props.groupDetails.id).set({subList: []});
         }
         let newArticles = await tempGetSubscribedArticles(this.state.blockedSources, this.state.subscriptions, this.state.articles);
-        this.setState({articles: newArticles})
+        this.setState({subArticles: newArticles})
+        this.setState({articles: [...this.state.articles,...newArticles]})
       })
       this.setState({subscriptionListener: listener});
     } else {
@@ -810,8 +810,14 @@ class GroupView extends React.Component<MyProps, MyState> {
             <div className='bottomSpaceFiller' />
           </IonContent>
           :
-          <IonContent>
-
+          <IonContent><SubscriptionModal
+      unsubButton={this.unsubscribeButton.bind(this)}
+      subscriptions={this.state.subscriptions}
+      articles={this.state.subArticles}
+      allArticles={this.state.articles}
+      openShareModal={this.props.openShareModal}
+      mode={this.state.mode}
+      sort={this.state.sort}></SubscriptionModal>
           </IonContent>
   }
         </IonModal>
