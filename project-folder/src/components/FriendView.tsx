@@ -246,7 +246,7 @@ class FriendView extends React.Component<MyProps, MyState> {
           <div className='messageContainerDiv'onClick={()=>{console.log("here"); this.setState({isProfileModalOpen:true})}}>
             {this.state.messages.map((message) => {
 
-              return <div id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}>
+              return <div key={message.key} id = 'messageStyle' onClick={()=>{this.props.setSenderToView(message.sender);console.log("here"); this.openProfile(message.sender); this.setState({isProfileModalOpen:true})}}>
                  <Message isArticle={message.isArticle}
                   openProfile={this.openProfile} closeProfile={this.closeProfile}
                    key={message.key} sender={this.state.nameDictionary[message.sender]}

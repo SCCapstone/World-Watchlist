@@ -7,12 +7,11 @@ const fs = require("fs")
 const cheerio = require("cheerio")
 const request = require("request");
 const cors = require('cors')({origin: true});
-let currentDate = new Date();
-const waitTime = 3600000;
+var currentDate = new Date();
+const waitTime = 18000000;
 const day = 10
 const oldTime = day * 24 * 60 * 60 * 1000;  
 const app = express();
-let currentDate = new Date(); // placeholder for current date/time
 const timeFrame = 119400; // 1.99 minutes
 app.use(cors);
 
@@ -79,10 +78,10 @@ async function scrapeRSS(rssFeed){
       link = await f.getLink(item);
       console.log("title",title)
       console.log("link",link)
-
+      
       await getDesc(link).then(result=>{
         description = result
-      });
+      }).catch(error=>{description = error})
       var pathArray = await link.split( '/' );
       var protocol = pathArray[0];
       var host = pathArray[2];
@@ -105,20 +104,43 @@ async function scrapeRSS(rssFeed){
 
 /* go through rss feed and get article information*/
 async function getRSS(url, collection_name) {
-  let info2 = {}
-  const getRSSPromise = new Promise(async (resolve,reject)=>{
-    await axios.get(url).then(
-      async (response) => {
-        let result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
-        info2 = await JSON.parse(result2);
-        /* using set length of articles to get instead of getting all articles with info2.rss.channel.item.length */
-      }).catch((error) => {
-        console.log(error);
-      })
-      resolve(info2)
-  })
-    
-  return getRSSPromise
+  console.log("TEST",url, collection_name)
+  try {
+  await axios.get(url, {setTimeout: 2}).then(
+    async (response) => {
+      let article_info = [];
+      let result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
+      let info2 = await JSON.parse(result2);
+      /* using set length of articles to get instead of getting all articles with info2.rss.channel.item.length */
+      for ( i = 0 ; i < 10 ; ++i ) {
+        item = info2.rss.channel.item[i];
+        //console.log(info2.rss.channel.item[i]);
+        let title = link = description = image = date = null;
+        title = await f.getTitle(item);
+        link = await f.getLink(item);
+        description = await getDesc(link);
+        var pathArray = link.split( '/' );
+        var protocol = pathArray[0];
+        var host = pathArray[2];
+        var baseUrl = protocol + '//' + host;
+        pubDate = await f.getDate(item)
+        let pubDateObj = new Date(pubDate);
+        console.log("PubDate", pubDate)
+        console.log("pubDateObj", pubDateObj)
+        console.log("currentDate - pubDateObj < waitTime:", currentDate - pubDateObj < waitTime)
+        temp = new f.article(title, description, link, baseUrl, pubDate);
+        if (currentDate - pubDateObj < waitTime)
+          article_info.push(await temp);
+        }
+      console.log("TEST",article_info)
+      await writeDoc(article_info, collection_name);
+    }).catch((error) => {
+      console.log(error);
+    })
+    return null
+  }catch (error) {
+    console.log(Object.keys(error), error.message); 
+  }
 }
 
 async function getCollection() {
@@ -148,14 +170,10 @@ async function updateALL() {
     currentDate = new Date(Date.now());
       collectionArr.forEach(async collectionID => {
         url = "https://news.google.com/rss/search?q="+collectionID
-        await getRSS(url, collectionID).then(async info2=>{
-            scrapeRSS(info2).then(async res=>{
-              writeDoc(res, collectionID);
-            })
-        })
+        await getRSS(url, collectionID)
       })
     // url = "https://news.google.com/rss/search?q="+
-  })
+  }).catch(err=>console.log(err))
   return 0
 }
 // delete news that are over 10 days
@@ -179,7 +197,7 @@ async function deleteOldNews(){
         }
         console.log(pubDate2 - date2);
       });
-    });
+    }).catch(err=>console.log(err));
     
     // await deleteCollection(db,collectionID,10)
   })
@@ -265,7 +283,7 @@ async function getDesc(link) {
         }
       }
     }).catch((error) => {
-      console.log(error);
+      reject(error);
     })
     resolve(desc)
   })
@@ -277,7 +295,7 @@ async function getArticles(topic){
     var googleRSS = "https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
     var article_info = [];
     var title = link = description = image = date = null;
-    await axios.get(googleRSS).then(
+    await axios.get(googleRSS,{setTimeout: 2}).then(
       async (response) => {
         result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
         info2 = await JSON.parse(result2);
@@ -335,9 +353,10 @@ app.get('/url', async function(req,res)
   res.send({content:p.text().trim(),logo:logo})
   });
 })
-// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules} 
+// function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules}
+// updateALL().then(()=>{console.log('Checking for new articles')}) 
 // check and update every 10 minute to see if an article has been posted in the last 60 minute
-exports.scheduledUpdate = functions.pubsub.schedule('10 * * * *').onRun(async (context) => {
+exports.scheduledUpdate = functions.pubsub.schedule('15 * * * *').onRun(async (context) => {
   await updateALL().then(()=>{console.log('Checking for new articles')})
 })
 // delete old news if a news article has been posted more than 10 days every day

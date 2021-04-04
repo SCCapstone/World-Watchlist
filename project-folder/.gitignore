@@ -9,6 +9,8 @@
 /coverage
 
 # production
+/android
+/ios
 /build
 
 # misc
