@@ -46,6 +46,7 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true })
 async function writeDoc(articles, collection_name) {
   console.log(articles)
     let URL_ID, urlLink, title, description;
@@ -187,11 +188,11 @@ async function deleteOldNews(){
     var date = new Date(Date.now() - oldTime) 
     let date2 = new Date(date);
     console.log(date2)
-    // delete news article if older than 10 days.
     await col.get().then(doc=>{
       doc.forEach(async doc2 => {
         let pubDate = await doc2.data().pubDate
         let pubDate2 = new Date(pubDate);
+        // delete news article if older than 10 days.
         if (pubDate2-date2<=0) {
           await db.collection(collectionID).doc(doc2.id).delete();
         }
@@ -267,29 +268,25 @@ async function updateWeatherCollection(){
 
 // function get description using metadata module
 async function getDesc(link) {
-  descriptionPromise = new Promise(async (resolve,reject)=>{
-    let desc = ""
-    await axios.get(link,{setTimeout: 2}).then( (response) => {
-      const $ = cheerio.load(response.data);
-      data = $('meta[name="description"]').attr('content')
-      if (data || data !== null) {
-        desc = data 
-      } else {
-        var urlElems = $('p')
-        var urlSpan = $(urlElems[i])[0]
-        if (urlSpan || urlSpan !== null) {
-          urlText = $(urlSpan).text()
-          desc = urlText
-        }
+  let desc = ""
+  await axios.get(link,{setTimeout: 2}).then( (response) => {
+    const $ = cheerio.load(response.data);
+    data = $('meta[name="description"]').attr('content')
+    if (data || data !== null) {
+      desc = data 
+    } else {
+      var urlElems = $('p')
+      var urlSpan = $(urlElems[i])[0]
+      if (urlSpan || urlSpan !== null) {
+        urlText = $(urlSpan).text()
+        desc = urlText
       }
-    }).catch((error) => {
-      reject(error);
-    })
-    resolve(desc)
+    }
+  }).catch((error) => {
+    console.log(error);
   })
-  return descriptionPromise
+  return desc
 }
-
 async function getArticles(topic){
   const promise = new Promise(async (resolve, reject) => {
     var googleRSS = "https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
@@ -304,9 +301,7 @@ async function getArticles(topic){
           item = info2.rss.channel.item[i];
           title = await f.getTitle(item).replace(/\//g, "-");
           link = await f.getLink(item);
-          await getDesc(link).then(async result=>{
-            description = await result
-          });
+          description = await getDesc(link);
           if (!description) {
             description = "View the full coverage below."
           } 
@@ -354,10 +349,10 @@ app.get('/url', async function(req,res)
   });
 })
 // function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules}
-// updateALL().then(()=>{console.log('Checking for new articles')}) 
+// updateALL()
 // check and update every 10 minute to see if an article has been posted in the last 60 minute
-exports.scheduledUpdate = functions.pubsub.schedule('15 * * * *').onRun(async (context) => {
-  await updateALL().then(()=>{console.log('Checking for new articles')})
+exports.scheduledUpdate = functions.pubsub.schedule('10 * * * *').onRun(async (context) => {
+  await updateALL()
 })
 // delete old news if a news article has been posted more than 10 days every day
 exports.scheduledDelete = functions.pubsub.schedule('* 23 * * *').onRun(async (context) => {

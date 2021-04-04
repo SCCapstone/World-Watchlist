@@ -43,7 +43,7 @@ class ChildComponent extends React.Component<MyProp, MyState> {
         return (
             <>
             <IonItem button={true} onClick={() => this.setState({ isCollectionModalOpen: true })}>
-                <IonCard id="card" >
+                <IonCard >
                     <IonCardHeader>
                         <IonCardTitle>{this.props.subscription}</IonCardTitle>
                     </IonCardHeader>
