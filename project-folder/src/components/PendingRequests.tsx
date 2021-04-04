@@ -86,6 +86,9 @@ class PendingRequests extends React.Component<MyProps, MyState> {
   componentDidUpdate(prevProps: MyProps) {
 
     if(this.props.incomingRequests !== prevProps.incomingRequests) {
+      let oldLength = prevProps.incomingRequests.length;
+      let newLength = this.props.incomingRequests.length;
+      console.log(newLength+" "+oldLength);
       this.setState({
         incomingFriends: []
       })
@@ -98,6 +101,8 @@ class PendingRequests extends React.Component<MyProps, MyState> {
             }
           })
         })
+      if (newLength > oldLength) // likely new requests
+        alert("New Friend Request");
     }
     if(this.props.outgoingRequests !== prevProps.outgoingRequests) {
       this.setState({

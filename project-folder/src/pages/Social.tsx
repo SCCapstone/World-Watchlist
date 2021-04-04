@@ -17,7 +17,8 @@ import {
   IonListHeader,
   IonAvatar,
   IonSegment,
-  IonSegmentButton
+  IonSegmentButton,
+  IonBadge
 } from '@ionic/react'
 
 import GroupView from '../components/GroupView'
@@ -641,6 +642,7 @@ class Social extends React.Component<MyProps, MyState> {
               <IonButton class='socialHeaderButton' onClick={() => {this.setState({isPendingRequestsModalOpen: true})}}  fill='clear'>
                 <IonIcon icon={listOutline}/>
               </IonButton>
+              <IonBadge>{this.props.incomingRequests.length > 0 ? this.props.incomingRequests.length : ""}</IonBadge>
             </IonButtons>
             <IonButtons slot='end'>
               <IonButton class='socialHeaderButton' onClick={(event : any) => {event.persist(); this.setState({isSocialPopoverOpen: true, socialPopoverEvent: event})}} fill='clear'>
