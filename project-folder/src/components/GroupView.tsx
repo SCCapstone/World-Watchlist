@@ -742,10 +742,10 @@ class GroupView extends React.Component<MyProps, MyState> {
           {/* Pulled from Social Page */}
           <IonSegment id="groupSegment" onIonChange={this.handleSegmentSwitch.bind(this)} value={this.state.groupSegment}>
           <IonSegmentButton value='messages' class="groupSegmentButton">
-            <IonLabel>Messages</IonLabel>
+            <IonLabel className="groupToggle">Messages</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value='feed' class="groupSegmentButton">
-            <IonLabel>Feed</IonLabel>
+            <IonLabel className="groupToggle">Feed</IonLabel>
           </IonSegmentButton>
         </IonSegment>
           {(this.state.groupSegment === "messages") ?
