@@ -26,6 +26,8 @@ import {
   IonListHeader,
   IonRefresher,
   IonRefresherContent,
+  IonFab,
+  IonFabButton,
 } from '@ionic/react'
 import { RefresherEventDetail } from '@ionic/core';
 import './Weather.css'
@@ -92,7 +94,6 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                     let weatherData = change.doc.data()
                     let modifiedLocation = await change.doc.data().location
                     temp = temp.filter(e => e.location !== modifiedLocation)
-                    console.log(temp)
                     temp.push(change.doc.data());
                     this.setState({subscriptionData:temp})
                     await LocalNotifications.schedule({
@@ -137,7 +138,6 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
             })
           }
         })
-        console.log(this.state.subscription)
     }
     this.setState({subscriptionData:temp})
     })
@@ -296,11 +296,11 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
                 </IonButton>
             </IonButtons>
-            <IonButtons slot="end">
+            {/* <IonButtons slot="end">
               <IonButton id="feedButton" onClick={ ()=> this.setState({isSearching:true})}  fill='clear'>
                   <IonIcon icon={search} />
               </IonButton>
-              </IonButtons>
+              </IonButtons> */}
           </IonToolbar>
         </IonHeader>
           <IonModal isOpen={this.state.isSearching}>
@@ -377,6 +377,11 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
         <IonRefresher slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200} onIonRefresh={event=>this.doRefresh(event)}>
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
+      <IonFab id="fab" vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton onClick={() => {this.setState({isSearching: true})}}>
+            <IonIcon icon={search} />
+          </IonFabButton>
+        </IonFab>
           </IonContent>
         </IonModal>
       )

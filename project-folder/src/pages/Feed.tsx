@@ -22,7 +22,7 @@ import {
   IonCardSubtitle,
   IonItem,
   IonCheckbox,
-  IonList, IonListHeader, IonAlert, IonToast
+  IonList, IonListHeader, IonAlert, IonToast, IonFab
 } from '@ionic/react'
 import { RefresherEventDetail } from '@ionic/core';
 import './Feed.css'
@@ -101,11 +101,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
           .onSnapshot(async (sub_list) => {
             if (sub_list.exists) {
               this.setState({subs: await sub_list.data()!.subList});
-              console.log(sub_list.data()!.subList)
               // console.log("subs",this.state.subs)
               // get articles
               await this.getSubscribedArticles()
-              console.log("articles",this.state.articles)
             } else {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
               this.setState({subs: []});
@@ -120,7 +118,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
   }
 
   async getSubscribedArticles(){
-    // this.setState({articles:[]})
+    this.setState({articles:[]})
     // get blocked sources on firestore
     let aList : any[];
     if (this.state.subs) {
@@ -131,7 +129,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         var articlesLocal = await Storage.get({key:this.state.subs[i]})
         // check local storage if collection exist take from cache, if collection changes, get from server
         if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
-          console.log("local storage empty for", this.state.subs[i])
           await NewsDB.collection(this.state.subs[i]).get()
         .then(async (snapshot) => {
           snapshot.forEach(async doc => {
@@ -148,10 +145,11 @@ class Feed extends React.Component<FeedProps, FeedState> {
           console.log("Sub Articles came from " + source);
           await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
           this.state.subArticles.push(aList)
+          this.setState({articles:[...this.state.articles, ...aList]})
         })
         } else {
           this.state.subArticles.push(JSON.parse(articlesLocal.value))
-          console.log("taking from capacitor cache")
+          this.setState({articles:[...this.state.articles, ...JSON.parse(articlesLocal.value)]})
         }
         this.setState({isChanging:false})
       }
@@ -341,6 +339,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
   handleToggle() {
     let current = this.state.mode;
     this.setState({mode: current == 'cards' ? 'all' : 'cards'});
+    return this.state.mode
   }
 
   handleSort(option: sortTypes) {
@@ -379,7 +378,6 @@ class Feed extends React.Component<FeedProps, FeedState> {
         </IonToolbar> */}
         <FeedToolbar
          openWeather={() => this.setState({isWeatherModalOpen: true})}
-         showModal={() => {this.setState({showModal: true})}}
          toggleMode={this.handleToggle.bind(this)}
          toggleSort={this.handleSort.bind(this)}></FeedToolbar>
 
@@ -434,6 +432,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
       <IonModal isOpen={this.state.isSearchingModal} onDidDismiss={() => this.setState({isSearchingModal: false})}>
       <IonHeader>
       <IonToolbar id="newsToolbar">
+      
       <IonButtons slot='start'>
                 <IonButton onClick={() => this.setState({isSearchingModal: false})} fill='clear'>
                   <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
@@ -475,10 +474,16 @@ class Feed extends React.Component<FeedProps, FeedState> {
       unsubButton={this.unsubscribe.bind(this)}
       subscriptions={this.state.subs? this.state.subs : []}
       articles={(this.state.subArticles? this.state.subArticles : [])}
+      allArticles={(this.state.articles)}
       openShareModal={this.props.openShareModal}
       mode={this.state.mode}
       sort={this.state.sort}
     ></SubscriptionModal>
+    <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton onClick={() => {this.setState({showModal: true})}}>
+            <IonIcon icon={search} />
+          </IonFabButton>
+        </IonFab>
     {/*</IonContent><IonModal isOpen={this.state.showSubscription}>
         <IonHeader>
           <IonToolbar class='feedToolbar2'>

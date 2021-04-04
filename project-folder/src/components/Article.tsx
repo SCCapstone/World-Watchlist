@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { article } from './ArticleTypes';
 import { Plugins } from '@capacitor/core';
-import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonButton, IonItem, IonIcon, IonLoading } from '@ionic/react';
+import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonButton, IonItem, IonIcon, IonLoading, IonAlert } from '@ionic/react';
 import firebase, {db,auth} from '../firebase'
 import './Article.css'
 import { saveAs } from 'file-saver';
@@ -15,6 +15,8 @@ const { Browser , Storage } = Plugins;
 function Article(props: {theArticle: article, openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
 
   const [showLoading, setShowLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [showBlockAlert, setShowBlockAlert] = useState(false);
   async function openURL(url:any, title:any){
     await Browser.open({ url: url });
   }
@@ -58,12 +60,24 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
               {props.theArticle.description}
             </IonCardContent>
             <IonCardContent>
+            <IonAlert
+          isOpen={showBlockAlert}
+          onDidDismiss={() => setShowBlockAlert(false)}
+          subHeader={'Blocked!'}
+          message={'Check out your list of blocked sources in the settings.'}      
+        />
             <IonLoading
               isOpen={showLoading}
-              onDidDismiss={()=>{setShowLoading(false)}}
+              onDidDismiss={()=>{setShowLoading(false); setShowAlert(true)}}
               message={'Loading...'}
               duration={800000}
             />
+            <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          subHeader={'Bookmarked!'}
+          message={'Check them out in the bookmark tab.'}      
+        />
               <IonButton  onClick={()=>openURL(props.theArticle.link,props.theArticle.title)}>
               <IonIcon icon={newspaperOutline}> </IonIcon>
               </IonButton>
@@ -73,7 +87,7 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
             <IonButton onClick={()=>{props.openShareModal(props.theArticle, true)}}>
               <IonIcon icon={sendOutline}> </IonIcon>
             </IonButton>
-            <IonButton onClick={blockSource}>
+            <IonButton onClick={()=>{setShowBlockAlert(true);blockSource()}}>
             <IonIcon icon={handLeftOutline}> </IonIcon> {props.theArticle.source}</IonButton>
               </IonCardContent>
         </IonCard>
