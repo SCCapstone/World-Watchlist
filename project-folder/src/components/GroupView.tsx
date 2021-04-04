@@ -542,13 +542,13 @@ class GroupView extends React.Component<MyProps, MyState> {
       <div>
       <IonModal swipeToClose={false} isOpen={this.state.isMembersModalOpen} onDidDismiss={() => {this.setState({isMembersModalOpen: false})}}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar color="primary">
             <IonButtons slot = 'start'>
               <IonButton fill='clear' onClick={() => {this.setState({isMembersModalOpen: false})}}>
                 <IonIcon className='groupViewIcon' icon={chevronDownOutline}/>
               </IonButton>
             </IonButtons>
-            <IonTitle>Members</IonTitle>
+            <IonTitle class="memberTitle">Members</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent>
@@ -579,7 +579,7 @@ class GroupView extends React.Component<MyProps, MyState> {
 
       <IonModal swipeToClose={false} isOpen={this.state.isSettingsModalOpen} onDidDismiss={() => {this.setState({isSettingsModalOpen: false})}}>
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar color="primary">
             <IonButtons slot = 'start'>
               <IonButton fill='clear' onClick={() => {this.setState({isSettingsModalOpen: false})}}>
                 <IonIcon className='groupViewIcon' icon={chevronDownOutline}/>
@@ -633,7 +633,7 @@ class GroupView extends React.Component<MyProps, MyState> {
 
       <IonModal swipeToClose={false} isOpen={this.state.isFriendsListModalOpen} onDidDismiss={() => {this.setState({isFriendsListModalOpen: false})}}>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary">
           <IonButtons slot = 'start'>
             <IonButton fill='clear' onClick={() => {this.setState({isFriendsListModalOpen: false})}}>
               <IonIcon className='groupViewIcon' icon={chevronDownOutline}/>
