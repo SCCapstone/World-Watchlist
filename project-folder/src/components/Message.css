@@ -7,6 +7,8 @@
   --background: #73829a;
   color: #000;
   border-radius: 20px;
+  width: 90%;
+  padding: 5px;
 }
 
 .messageContent {
