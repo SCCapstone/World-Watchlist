@@ -1,23 +1,25 @@
 {
   "files": {
-    "main.css": "/World-Watchlist/static/css/main.9d5b29c0.chunk.css",
-    "main.js": "/World-Watchlist/static/js/main.9e147247.chunk.js",
-    "main.js.map": "/World-Watchlist/static/js/main.9e147247.chunk.js.map",
-    "runtime-main.js": "/World-Watchlist/static/js/runtime-main.37957a21.js",
-    "runtime-main.js.map": "/World-Watchlist/static/js/runtime-main.37957a21.js.map",
-    "static/js/2.ebc42a15.chunk.js": "/World-Watchlist/static/js/2.ebc42a15.chunk.js",
-    "static/js/2.ebc42a15.chunk.js.map": "/World-Watchlist/static/js/2.ebc42a15.chunk.js.map",
-    "static/js/3.0f508cf3.chunk.js": "/World-Watchlist/static/js/3.0f508cf3.chunk.js",
-    "static/js/3.0f508cf3.chunk.js.map": "/World-Watchlist/static/js/3.0f508cf3.chunk.js.map",
+    "main.css": "/World-Watchlist/static/css/main.48979d3d.chunk.css",
+    "main.js": "/World-Watchlist/static/js/main.28a4eb37.chunk.js",
+    "main.js.map": "/World-Watchlist/static/js/main.28a4eb37.chunk.js.map",
+    "runtime-main.js": "/World-Watchlist/static/js/runtime-main.8c80f132.js",
+    "runtime-main.js.map": "/World-Watchlist/static/js/runtime-main.8c80f132.js.map",
+    "static/css/2.4c97ca4f.chunk.css": "/World-Watchlist/static/css/2.4c97ca4f.chunk.css",
+    "static/js/2.d81efc04.chunk.js": "/World-Watchlist/static/js/2.d81efc04.chunk.js",
+    "static/js/2.d81efc04.chunk.js.map": "/World-Watchlist/static/js/2.d81efc04.chunk.js.map",
+    "static/js/3.4e4a6c5b.chunk.js": "/World-Watchlist/static/js/3.4e4a6c5b.chunk.js",
+    "static/js/3.4e4a6c5b.chunk.js.map": "/World-Watchlist/static/js/3.4e4a6c5b.chunk.js.map",
     "index.html": "/World-Watchlist/index.html",
-    "static/css/main.9d5b29c0.chunk.css.map": "/World-Watchlist/static/css/main.9d5b29c0.chunk.css.map",
-    "static/js/2.ebc42a15.chunk.js.LICENSE.txt": "/World-Watchlist/static/js/2.ebc42a15.chunk.js.LICENSE.txt",
-    "static/media/logo.6ce24c58.svg": "/World-Watchlist/static/media/logo.6ce24c58.svg"
+    "static/css/2.4c97ca4f.chunk.css.map": "/World-Watchlist/static/css/2.4c97ca4f.chunk.css.map",
+    "static/css/main.48979d3d.chunk.css.map": "/World-Watchlist/static/css/main.48979d3d.chunk.css.map",
+    "static/js/2.d81efc04.chunk.js.LICENSE.txt": "/World-Watchlist/static/js/2.d81efc04.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.37957a21.js",
-    "static/js/2.ebc42a15.chunk.js",
-    "static/css/main.9d5b29c0.chunk.css",
-    "static/js/main.9e147247.chunk.js"
+    "static/js/runtime-main.8c80f132.js",
+    "static/css/2.4c97ca4f.chunk.css",
+    "static/js/2.d81efc04.chunk.js",
+    "static/css/main.48979d3d.chunk.css",
+    "static/js/main.28a4eb37.chunk.js"
   ]
 }

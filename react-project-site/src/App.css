@@ -2,12 +2,14 @@
   text-align: center;
 }
 
-
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.nav {
+  font-size: 20px;
 }
+
+#navlink {
+  margin-top: 2px;
+}
+
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
