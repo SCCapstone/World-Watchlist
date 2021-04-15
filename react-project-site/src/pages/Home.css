@@ -1,0 +1,38 @@
+.home{
+    background-color: #eeeeee;
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: #444444;
+}
+
+#first-body{
+    margin: 50px;
+    margin-right: 300px;
+    margin-left: 300px;
+}
+
+#title{
+    margin-top:95px;
+    text-decoration:underline;
+}
+
+#paragraph{
+    font-size:21px;
+    margin-top: 25px;
+}
+
+.features{
+    margin-top: 85px;
+}
+
+#feature-header{
+    text-decoration: underline;
+}
+
+#list-features{
+    margin-top: 55px;
+}
