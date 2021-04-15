@@ -4,7 +4,8 @@ import { team } from "../data/teamInfo";
 
 function About() {
     return <div>
-        <AboutComponent members={team}></AboutComponent>
+        <h3>About Us</h3>
+        <AboutComponent teamMembers={team}></AboutComponent>
     </div>
 }
 export default About;
