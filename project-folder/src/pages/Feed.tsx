@@ -101,7 +101,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
               this.setState({subs: await sub_list.data()!.subList});
               // console.log("subs",this.state.subs)
               // get articles
-              await this.getSubscribedArticles()
+              await this.getSubscribedArticles('onload')
             } else {
               db.collection("topicSubscription").doc(this.getId()).set({subList: []});
               this.setState({subs: []});
@@ -120,14 +120,15 @@ class Feed extends React.Component<FeedProps, FeedState> {
     // })
   }
 
-  async getSubscribedArticles(){
+  async getSubscribedArticles(context:any){
     this.setState({subArticles:[], articles:[]})
     // get blocked sources on firestore
     let aList : any[];
     if (this.state.subs) {
       for (var i = 0; i < this.state.subs.length; i++) {
         /* Observe any changes in firestore and send a notification*/
-        await this.checkCollection(this.state.subs[i],i)
+        
+        await this.checkCollection(this.state.subs[i],i,context)
         aList = []
         var articlesLocal = await Storage.get({key:this.state.subs[i]})
         // check local storage if collection exist take from cache, if collection changes, get from server
@@ -160,35 +161,37 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   // refresh articles on feed
   async doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    this.setState({subArticles:[], articles:[]})
-    // get blocked sources on firestore
-    let aList : any[] = [];
-    for (var i = 0; i < this.state.subs.length; i++) {
-      /* Observe any changes in firestore and send a notification*/
-      await this.checkCollection(this.state.subs[i],i)
-      aList = []
-      var articlesLocal = await Storage.get({key:this.state.subs[i]})
-      // check local storage if collection exist take from cache, if collection changes, get from server
-      if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
-        console.log("local storage empty for", this.state.subs[i])
-        await NewsDB.collection(this.state.subs[i]).get()
-      .then(async (snapshot) => {
-        snapshot.forEach(async doc => {
-          if (doc.exists) {
-            let articleItem = doc.data();
-            var domain = (articleItem.source)
-            if(!this.state.blockedSources.includes(domain)) {
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:domain, pubDate: articleItem.pubDate})
+    this.setState({subs:[], subArticles:[], articles:[]})
+      if(auth.currentUser) {
+        this.setState({CurrentUser:auth.currentUser?.uid})
+        db.collection("profiles").doc(auth.currentUser?.uid)
+          .onSnapshot(async (doc) => {
+            if (doc.exists) {
+              if (await doc.data()!.blockedSources===undefined || await doc.data()!.muteNotification===undefined){
+                await db.collection("profiles").doc(this.state.CurrentUser).update({blockedSources: []});
+                await db.collection("profiles").doc(this.state.CurrentUser).update({muteNotification:[]});
+                this.setState({blockedSources:  await doc.data()!.blockedSources});
+              } else {
+                this.setState({blockedSources:  await doc.data()!.blockedSources});
+                this.setState({muted:await doc.data()!.muteNotification})
+              }
             }
-          } else {
-            console.log("Cannot find anything in database.")
-          }
-        })
-        this.state.subArticles.push(aList)
       })
-      this.setState({isChanging:false})
-    }
-  }
+          // everytime there is a new subscription, update news onto main feed
+          db.collection("topicSubscription").doc(this.state.CurrentUser)
+          .onSnapshot(async (sub_list) => {
+            if (sub_list.exists) {
+              this.setState({subs: await sub_list.data()!.subList});
+              // console.log("subs",this.state.subs)
+              // get articles
+              await this.getSubscribedArticles('refreshing')
+            } else {
+              db.collection("topicSubscription").doc(this.getId()).set({subList: []});
+              this.setState({subs: []});
+            }
+          })
+        // end of getting data from server
+      }
     setTimeout(() => {
       console.log('refreshing ended');
       event.detail.complete();
@@ -206,7 +209,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
 
   // check server collection for changes
-  async checkCollection(collection:string,index:any){
+  async checkCollection(collection:string,index:any, context:any){
     // Subscribe to a specific
     NewsDB.collection(collection)
     .onSnapshot(async querySnapshot => {
@@ -219,7 +222,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           Storage.remove({key:collection})
           this.setState({isChanging:true})
           // if localnotification is not granted or notification is muted, don't send notifications.
-          if (!(await LocalNotifications.requestPermission()).granted || this.state.muted.includes(collection))  return;
+          if (!(await LocalNotifications.requestPermission()).granted || this.state.muted.includes(collection) || context==='refreshing')  return;
           else {
             await LocalNotifications.schedule({
               notifications: [{
