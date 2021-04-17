@@ -1,6 +1,6 @@
 # World-Watchlist
 
-Our goal is to create a news-watchlist app that will allow users to denote keywords or topics and to receive live notifications when an article is published matching their keyword or topic. Check out our [wiki](https://github.com/SCCapstone/World-Watchlist/wiki/Project-Description) for a more in-depth description. 
+Our goal is to create a social news watchlist app that will allow users socialize and denote keywords or topics and to receive live notifications when an article is published matching their keyword or topic. Check out our [wiki](https://github.com/SCCapstone/World-Watchlist/wiki/Project-Description) for a more in-depth description. 
 
 #### External Requirements/ Technologies
 
@@ -10,7 +10,8 @@ Our goal is to create a news-watchlist app that will allow users to denote keywo
 - [Node.js](https://nodejs.org/en/)
 
 #### Setting up ionic-react and scrape server to test locally
-clone repo, change to project-folder directory, and install modules.
+- Testing locally requires linux command line.
+- Clone repo, change to project-folder directory, and install modules.
 
 ``` 
 git clone https://github.com/SCCapstone/World-Watchlist.git
@@ -83,13 +84,6 @@ open up new terminal to go into 'tests'
 ```
 ./behavioral_tests.sh
 ```
-	
-Tutorials used:
-
-- https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
-
-- https://linuxhint.com/using\_selenium\_firefox\_driver/
-
 
 ##### Running behavioral tests through SeleniumIDE
 ``` 
