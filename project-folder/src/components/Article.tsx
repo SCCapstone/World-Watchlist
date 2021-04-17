@@ -17,6 +17,8 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
   const [showLoading, setShowLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [showBlockAlert, setShowBlockAlert] = useState(false);
+  const [showErrorAlert, setshowErrorAlert] = useState(false);
+
   async function openURL(url:any, title:any){
     await Browser.open({ url: url });
   }
@@ -31,15 +33,21 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
     })
     .then(async (response) => {
       content = await response.data
-      if (!content || content.content=="") {
-        content.logo = "https://i.stack.imgur.com/6M513.png"
-        content.content = "Check out the full coverage from the source."
+      console.log(response)
+      if (!content || content.content=="" || content==='error') {
+        let logo = "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg"
+        let content = "Check out the full coverage from the source."
+        await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayUnion({title:title, description:description, pubDate:pubDate, content:content,logo:logo, url:url})})
+        setShowLoading(false)
+        setshowErrorAlert(true)
+      } else {
+        await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayUnion({title:title, description:description, pubDate:pubDate, content:content.content,logo:content.logo || "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg", url:url})})
+        setShowLoading(false)
       }
     }).catch((error) => {
       console.log(error)
     });
-    await db.collection("bookmarks").doc(auth.currentUser?.uid).update({bookmark: firebase.firestore.FieldValue.arrayUnion({title:title, description:description, pubDate:pubDate, content:content.content,logo:content.logo || "https://i.stack.imgur.com/6M513.png", url:url})})
-    setShowLoading(false)
+    
   }
 
     //console.log(props.theArticle);
@@ -77,6 +85,12 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
           onDidDismiss={() => setShowAlert(false)}
           subHeader={'Bookmarked!'}
           message={'Check them out in the bookmark tab.'}      
+        />
+        <IonAlert
+          isOpen={showErrorAlert}
+          onDidDismiss={() => setshowErrorAlert(false)}
+          subHeader={'Bookmarked!'}
+          message={'Unable to scrape content, checkout the coverage in the source page!'}      
         />
               <IonButton  onClick={()=>openURL(props.theArticle.link,props.theArticle.title)}>
               <IonIcon icon={newspaperOutline}> </IonIcon>

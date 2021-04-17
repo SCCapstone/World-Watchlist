@@ -14,7 +14,14 @@ const oldTime = day * 24 * 60 * 60 * 1000;
 const app = express();
 const timeFrame = 119400; // 1.99 minutes
 app.use(cors);
-
+app.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+});
+app.options('*', cors);
 app.get('/favicon.ico', function(req, res) { 
   res.status(204);
   res.end();    
@@ -107,7 +114,7 @@ async function scrapeRSS(rssFeed){
 async function getRSS(url, collection_name) {
   console.log("TEST",url, collection_name)
   try {
-  await axios.get(url, {setTimeout: 2}).then(
+  await axios.get(url).then(
     async (response) => {
       let article_info = [];
       let result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
@@ -269,7 +276,7 @@ async function updateWeatherCollection(){
 // function get description using metadata module
 async function getDesc(link) {
   let desc = ""
-  await axios.get(link,{setTimeout: 2}).then( (response) => {
+  await axios.get(link).then( (response) => {
     const $ = cheerio.load(response.data);
     data = $('meta[name="description"]').attr('content')
     if (data || data !== null) {
@@ -324,10 +331,16 @@ async function getArticles(topic){
 // rsstojson api! get rss feed and return it INTO JSON! YES NOW WE DON'T have to USE AN API AND WORRY ABOUT LIMIT
 app.get('/p', async function(req,res)
 {
-  var result2 = null
-  var info2 = null
+  
   var topic = req.query.topic
-  getArticles(topic).then(result=>{res.send(result)})
+  getArticles(topic).then(result=>
+    {
+      if (result!==undefined)
+        res.send(result)
+      else {
+        res.send('error')
+      }
+    })
 })
 
 
@@ -338,20 +351,22 @@ app.get('/url', async function(req,res)
   request(url, function(error, response, body) {
   if(error) {
     console.log("Error: " + error);
+    res.send('error')
+  } else {
+    console.log("Status code: " + response.statusCode);
+    var $ = cheerio.load(body); 
+    var article = $('article')
+    var p = article.find('p').children().remove().end()
+    var img =  $("body").find('img')
+    var logo = $(img[0]).attr('src')
+    res.send({content:p.text().trim(),logo:logo})
   }
-  console.log("Status code: " + response.statusCode);
-  var $ = cheerio.load(body); 
-  var article = $('article')
-  var p = article.find('p').children().remove().end()
-  var img =  $("body").find('img')
-  var logo = $(img[0]).attr('src')
-  res.send({content:p.text().trim(),logo:logo})
   });
 })
 // function schedules. {https://cloud.google.com/scheduler/docs/configuring/cron-job-schedules}
-// updateALL()
+
 // check and update every 10 minute to see if an article has been posted in the last 60 minute
-exports.scheduledUpdate = functions.pubsub.schedule('10 * * * *').onRun(async (context) => {
+exports.scheduledUpdate = functions.pubsub.schedule('* 1 * * *').onRun(async (context) => {
   await updateALL()
 })
 // delete old news if a news article has been posted more than 10 days every day
