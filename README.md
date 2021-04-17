@@ -14,6 +14,7 @@ clone repo, change to project-folder directory, and install modules.
 
 ``` 
 git clone https://github.com/SCCapstone/World-Watchlist.git
+cd World-Watchlist
 cd project-folder
 npm i
 ionic serve
