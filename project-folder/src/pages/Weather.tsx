@@ -28,11 +28,12 @@ import {
   IonRefresherContent,
   IonFab,
   IonFabButton,
+  IonAlert,
 } from '@ionic/react'
 import { RefresherEventDetail } from '@ionic/core';
 import './Weather.css'
 import firebase, {db, auth} from '../firebase'
-import { addCircle, arrowBack, closeCircleOutline, search } from 'ionicons/icons';
+import { addCircle, arrowBack, arrowBackCircleOutline, arrowBackCircleSharp, closeCircleOutline, search } from 'ionicons/icons';
 import { WeatherProps, WeatherState, weatherData } from '../components/WeatherTypes';
 import WeatherSubChildren from '../components/WeatherSubChildren';
 import { NewsDB } from '../config/config';
@@ -58,7 +59,8 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
       isweatherOpen:false,
       isSearching:false,
       isSubscribing:false,
-      weeklyData:[]
+      weeklyData:[],
+      isError:false
   };
 
 
@@ -243,8 +245,10 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
   /* get latitude and longitude of location */
   async geocode(location: any) {
     this.setState({showLoading: true })
-    if (location === null) {
+    if (location === null || location === "") {
       console.log("Please enter a valid location")
+      this.setState({isError:true})
+      this.setState({showLoading: false })
     } else {
       await axios.get('https://us1.locationiq.com/v1/search.php?key=pk.180fdf6168d1230db0cc5c937b7eaa98&q&q='+location+'&limit=1&countrycodes=US&namedetails=1&format=json')
     .then(async (response) => {
@@ -257,8 +261,8 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
     }).catch(err => {
       console.error(err);
     });
+      this.search(this.state.lat, this.state.long)
     }
-    this.search(this.state.lat, this.state.long)
   }
 
   handleUnsub(index: number) {
@@ -296,12 +300,12 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
               </IonButtons> */}
           </IonToolbar>
         </IonHeader>
-          <IonModal isOpen={this.state.isSearching}>
+          <IonModal isOpen={this.state.isSearching} onDidDismiss={()=>this.setState({isSearching:false, req:null})}>
           <IonHeader>
       <IonToolbar className="weatherToolbar">
       <IonButtons slot='start'>
                 <IonButton onClick={() => this.setState({isSearching: false})} fill='clear'>
-                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                  <IonIcon id='addFriendModalCloseIcon' icon={arrowBackCircleOutline}/>
                 </IonButton>
         </IonButtons>
       <IonTitle className="weatherTitle">
@@ -322,12 +326,12 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
         />
           </IonContent>
           </IonModal>
-          <IonModal isOpen={this.state.isSubscribing}>
+          <IonModal isOpen={this.state.isSubscribing}  onDidDismiss={()=>this.setState({isSubscribing:false})}>
           <IonHeader>
       <IonToolbar className="weatherToolbar">
       <IonButtons slot='start'>
                 <IonButton onClick={() => this.setState({isSubscribing: false})} fill='clear'>
-                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                <IonIcon id='addFriendModalCloseIcon' icon={arrowBackCircleOutline}/>
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
@@ -375,6 +379,11 @@ class Weather extends React.Component<WeatherProps,WeatherState> {
             <IonIcon icon={search} />
           </IonFabButton>
         </IonFab>
+        <IonAlert
+          isOpen={this.state.isError}
+          onDidDismiss={() => this.setState({isError:false})}
+          message="Enter state, city, or address."
+       />
           </IonContent>
         </IonModal>
       )

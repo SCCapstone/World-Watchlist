@@ -21,7 +21,8 @@ export type WeatherState = {
     isweatherOpen:boolean;
     isSearching:boolean,
     isSubscribing:boolean,
-    weeklyData:weatherData[] 
+    weeklyData:weatherData[],
+    isError:boolean
   }
 
 

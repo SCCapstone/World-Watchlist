@@ -1,5 +1,5 @@
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonModal, IonTitle, IonToolbar } from '@ionic/react';
-import { addCircle, closeCircleOutline, removeCircle, removeCircleOutline } from 'ionicons/icons';
+import { addCircle, arrowBackCircleOutline, closeCircleOutline, removeCircle, removeCircleOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import './WeatherSubChild.css'
 
@@ -25,7 +25,7 @@ function WeatherSubChild (props: {weather_code:any, temp:any, location: any, ind
       <IonToolbar className="weatherToolbar">
       <IonButtons slot='start'>
                 <IonButton onClick={() => setShowModal(false) } fill='clear'>
-                  <IonIcon id='addFriendModalCloseIcon' icon={closeCircleOutline}/>
+                <IonIcon id='addFriendModalCloseIcon' icon={arrowBackCircleOutline}/>
                 </IonButton>
         </IonButtons>
         <IonButtons slot='end'>
