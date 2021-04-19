@@ -50,8 +50,8 @@ function App() {
         <Element name="Home"><Home/></Element>
         <Element id="element" name="Images"><AppImages/></Element>
         <Element id="element" name="Demo"><Demo/></Element>
-        <Element name="Team"><About/></Element>
-      </div>          
+        <Element id="team-element" name="Team"><About/></Element>
+      </div>  
     </div>
     </body>
     </html>

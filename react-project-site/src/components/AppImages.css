@@ -1,3 +1,16 @@
 .Images-Section{
     height: auto;
 }
+
+#paragraph{
+    margin: auto;
+    margin-top: 75px;
+}
+
+#image {
+    margin-top:65px
+}
+
+#title {
+    margin-bottom: 75px;
+}
