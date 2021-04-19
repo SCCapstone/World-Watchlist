@@ -1,25 +1,32 @@
 {
   "files": {
-    "main.css": "/World-Watchlist/static/css/main.48979d3d.chunk.css",
-    "main.js": "/World-Watchlist/static/js/main.28a4eb37.chunk.js",
-    "main.js.map": "/World-Watchlist/static/js/main.28a4eb37.chunk.js.map",
-    "runtime-main.js": "/World-Watchlist/static/js/runtime-main.8c80f132.js",
-    "runtime-main.js.map": "/World-Watchlist/static/js/runtime-main.8c80f132.js.map",
+    "main.css": "/World-Watchlist/static/css/main.ae846468.chunk.css",
+    "main.js": "/World-Watchlist/static/js/main.227fa292.chunk.js",
+    "main.js.map": "/World-Watchlist/static/js/main.227fa292.chunk.js.map",
+    "runtime-main.js": "/World-Watchlist/static/js/runtime-main.083b74e2.js",
+    "runtime-main.js.map": "/World-Watchlist/static/js/runtime-main.083b74e2.js.map",
     "static/css/2.4c97ca4f.chunk.css": "/World-Watchlist/static/css/2.4c97ca4f.chunk.css",
-    "static/js/2.d81efc04.chunk.js": "/World-Watchlist/static/js/2.d81efc04.chunk.js",
-    "static/js/2.d81efc04.chunk.js.map": "/World-Watchlist/static/js/2.d81efc04.chunk.js.map",
-    "static/js/3.4e4a6c5b.chunk.js": "/World-Watchlist/static/js/3.4e4a6c5b.chunk.js",
-    "static/js/3.4e4a6c5b.chunk.js.map": "/World-Watchlist/static/js/3.4e4a6c5b.chunk.js.map",
+    "static/js/2.5e9c76be.chunk.js": "/World-Watchlist/static/js/2.5e9c76be.chunk.js",
+    "static/js/2.5e9c76be.chunk.js.map": "/World-Watchlist/static/js/2.5e9c76be.chunk.js.map",
+    "static/js/3.034c7396.chunk.js": "/World-Watchlist/static/js/3.034c7396.chunk.js",
+    "static/js/3.034c7396.chunk.js.map": "/World-Watchlist/static/js/3.034c7396.chunk.js.map",
     "index.html": "/World-Watchlist/index.html",
     "static/css/2.4c97ca4f.chunk.css.map": "/World-Watchlist/static/css/2.4c97ca4f.chunk.css.map",
-    "static/css/main.48979d3d.chunk.css.map": "/World-Watchlist/static/css/main.48979d3d.chunk.css.map",
-    "static/js/2.d81efc04.chunk.js.LICENSE.txt": "/World-Watchlist/static/js/2.d81efc04.chunk.js.LICENSE.txt"
+    "static/css/main.ae846468.chunk.css.map": "/World-Watchlist/static/css/main.ae846468.chunk.css.map",
+    "static/js/2.5e9c76be.chunk.js.LICENSE.txt": "/World-Watchlist/static/js/2.5e9c76be.chunk.js.LICENSE.txt",
+    "static/media/FeedTab.109e222b.png": "/World-Watchlist/static/media/FeedTab.109e222b.png",
+    "static/media/FriendsAndGroups.9099e4c3.png": "/World-Watchlist/static/media/FriendsAndGroups.9099e4c3.png",
+    "static/media/Settings.8874b57e.png": "/World-Watchlist/static/media/Settings.8874b57e.png",
+    "static/media/WeatherTab.353438ec.png": "/World-Watchlist/static/media/WeatherTab.353438ec.png",
+    "static/media/bookmark.43e890b1.PNG": "/World-Watchlist/static/media/bookmark.43e890b1.PNG",
+    "static/media/groupSubscriptions.fb18ec95.PNG": "/World-Watchlist/static/media/groupSubscriptions.fb18ec95.PNG",
+    "static/media/searchTopic.1af52683.PNG": "/World-Watchlist/static/media/searchTopic.1af52683.PNG"
   },
   "entrypoints": [
-    "static/js/runtime-main.8c80f132.js",
+    "static/js/runtime-main.083b74e2.js",
     "static/css/2.4c97ca4f.chunk.css",
-    "static/js/2.d81efc04.chunk.js",
-    "static/css/main.48979d3d.chunk.css",
-    "static/js/main.28a4eb37.chunk.js"
+    "static/js/2.5e9c76be.chunk.js",
+    "static/css/main.ae846468.chunk.css",
+    "static/js/main.227fa292.chunk.js"
   ]
 }
