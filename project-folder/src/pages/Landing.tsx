@@ -10,7 +10,7 @@ import {
   IonInput,
   IonTitle,
   IonButton,
-  IonLabel
+  IonLabel,
 } from '@ionic/react'
 
 import './Landing.css'
@@ -60,7 +60,7 @@ class Landing extends React.Component<MyProps, MyState> {
     username: '',
     btnText: '',
     login_error_messages: [],
-    registration_error_messages: []
+    registration_error_messages: [],
   };
 
 
@@ -96,6 +96,7 @@ class Landing extends React.Component<MyProps, MyState> {
             Storage.set({key:'isLoggedIn', value:JSON.stringify(true)});
             this.props.history.push("/main")
           }
+          this.setState({loginEmail:'', loginPassword:'', login_error_messages:['']})
         }).catch((error) => {
           //error handling
           console.log(error.message)
@@ -184,10 +185,16 @@ hidel() {
     if (guard) {
       firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
         auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
+            this.hideg();
+            this.hidel();
+            this.hidea(); 
+            if(this.state.btnText=='Create One!') 
+              this.state.btnText='Log In'; 
+            else this.state.btnText='Create One!';
+              this.setState({shouldLoginShow: !this.state.shouldLoginShow})
           //user successfully registers
           //reroute here
           this.uploadDataToFirebase().then((result) => {
-            this.props.history.push("/main")
           })
         //admin.storage.ref().child(this.state.username+'#'+this.state.usernameIdentifier.toString() + '/new.jpg').put('../images/placeholder.png')
         //firebase.put('asdf');
