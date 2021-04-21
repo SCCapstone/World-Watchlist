@@ -13,7 +13,7 @@ export const team = [
     },
     {
         name: "Kristina Matthews",
-        linkedin: "https://github.com/SCCapstone/World-Watchlist.git",
+        linkedin: "https://www.linkedin.com/in/kristina-matthews-a7bb87178/",
         pic: undefined,
         github:"https://github.com/kristinamatthews"
     },
