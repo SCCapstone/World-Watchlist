@@ -102,6 +102,7 @@ class Settings extends React.Component<MyProps, MyState> {
               var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
                 if(snapshot.data()) {
                  this.setState({blockedSources: snapshot.data()!.blockedSources})
+                 console.log(this.state.blockedSources)
                //  this.setState({topics: snapshot.data()!.subList})
                 // this.setState({currentUserName: snapshot.data()!.displayName})
                 }
@@ -205,20 +206,14 @@ class Settings extends React.Component<MyProps, MyState> {
 
 
   blockSource(sourceName:string) {
-
     if(sourceName!="" && sourceName.length > 3) { //makes sure the source is a valid site and isn't blank
       if(!this.state.localList.includes(sourceName))
         this.state.localList.push(sourceName);
       this.addToList(sourceName);
-      this.state.blockedSources.push(sourceName);
-      console.log(this.state.blockedSources);
-      db.collection('profiles').doc(firebase.auth().currentUser!.uid).get().then(document => {
-      if(document.exists && this.isValidSite(sourceName)) {
-        db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
-        blockedSources : firebase.firestore.FieldValue.arrayUnion(sourceName)
-        })
-      }
-    })
+      const ref = db.collection("profiles").doc(auth.currentUser?.uid)
+      const res = ref.update({
+        blockedSources: firebase.firestore.FieldValue.arrayUnion(sourceName)
+      });
   }
 }
 
@@ -410,12 +405,12 @@ changeDisplayName(newName: string) {
 
 addToList(name:string) {
   if(!this.state.localList.includes(name)) {
-  var list = document.getElementById("blockedList");
-  var entry = document.createElement("li");
-  entry.setAttribute("id", name);
-  entry.appendChild(document.createTextNode(name));
+    var list = document.getElementById("blockedList");
+    var entry = document.createElement("li");
+    entry.setAttribute("id", name);
+    entry.appendChild(document.createTextNode(name));
   if(list!=null)
-  list.appendChild(entry);
+    list.appendChild(entry);
   console.log(list);
 }
 
@@ -452,6 +447,7 @@ isValidSite(siteName:string) {
           </IonToolbar>
         </IonHeader>
         <IonContent>
+        <h4 id = 'blockedSourcesHeader'>(Please include https:// in your sources)</h4>
         <IonItem lines='none' id='block'>
           <IonInput class='addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.blockSource(this.state.sourceToBlock)}} onIonChange={(e) => {this.setState({sourceToBlock: (e.target as HTMLInputElement).value})}} />
           <IonButton onClick={() => {this.blockSource(this.state.sourceToBlock)}}  fill='clear'>
@@ -463,11 +459,9 @@ isValidSite(siteName:string) {
         Unblock a Source
         </IonTitle>
         <br/>
-        <br/>
        
-        <IonHeader id = 'blockedSourcesHeader'>You Won't See Content From:</IonHeader>
+        <IonHeader id = 'blockedSourcesHeader'>(Go to the feed page and refresh by scrolling down to see your sources blocked)</IonHeader>
         <br/>
-
         <ul id = "blockedList"></ul>
           {
             this.state.blockedSources.map(Blocked =>

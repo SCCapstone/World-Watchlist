@@ -72,7 +72,7 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
           isOpen={showBlockAlert}
           onDidDismiss={() => setShowBlockAlert(false)}
           subHeader={'Blocked!'}
-          message={'Check out your list of blocked sources in the settings.'}      
+          message={'Refresh the page by pulling down to update your list of articles and check out your list of blocked sources in the settings.'}      
         />
             <IonLoading
               isOpen={showLoading}

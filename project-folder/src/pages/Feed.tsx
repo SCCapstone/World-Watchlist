@@ -132,7 +132,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
         aList = []
         var articlesLocal = await Storage.get({key:this.state.subs[i]})
         // check local storage if collection exist take from cache, if collection changes, get from server
-        if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true) {
+        if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true || context==='refreshing') {
           await NewsDB.collection(this.state.subs[i]).get()
         .then(async (snapshot) => {
           snapshot.forEach(async doc => {
@@ -161,41 +161,19 @@ class Feed extends React.Component<FeedProps, FeedState> {
 
   // refresh articles on feed
   async doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    this.setState({subs:[], subArticles:[], articles:[]})
-      if(auth.currentUser) {
-        this.setState({CurrentUser:auth.currentUser?.uid})
-        db.collection("profiles").doc(auth.currentUser?.uid)
-          .onSnapshot(async (doc) => {
+        await db.collection("profiles").doc(auth.currentUser?.uid).get()
+          .then(async (doc) => {
             if (doc.exists) {
-              if (await doc.data()!.blockedSources===undefined || await doc.data()!.muteNotification===undefined){
-                await db.collection("profiles").doc(this.state.CurrentUser).update({blockedSources: []});
-                await db.collection("profiles").doc(this.state.CurrentUser).update({muteNotification:[]});
                 this.setState({blockedSources:  await doc.data()!.blockedSources});
-              } else {
-                this.setState({blockedSources:  await doc.data()!.blockedSources});
+                console.log(this.state.blockedSources)
                 this.setState({muted:await doc.data()!.muteNotification})
-              }
+                await this.getSubscribedArticles('refreshing')
             }
-      })
-          // everytime there is a new subscription, update news onto main feed
-          db.collection("topicSubscription").doc(this.state.CurrentUser)
-          .onSnapshot(async (sub_list) => {
-            if (sub_list.exists) {
-              this.setState({subs: await sub_list.data()!.subList});
-              // console.log("subs",this.state.subs)
-              // get articles
-              await this.getSubscribedArticles('refreshing')
-            } else {
-              db.collection("topicSubscription").doc(this.getId()).set({subList: []});
-              this.setState({subs: []});
-            }
-          })
-        // end of getting data from server
-      }
+        })
     setTimeout(() => {
       console.log('refreshing ended');
       event.detail.complete();
-    }, 500);
+    }, 1000);
   }
 
   getId() {
@@ -304,7 +282,8 @@ class Feed extends React.Component<FeedProps, FeedState> {
             var a = document.createElement("a");
             a.innerHTML = html;
             var text = a.textContent || a.innerText || "";
-            aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
+            if(!this.state.blockedSources.includes(articleItem.source)) 
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
           }
           this.setState({articlesSearched: aList})
         })
