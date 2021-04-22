@@ -7,7 +7,7 @@ export const team = [
     },
     {
         name: "Justin Taylor",
-        linkedin: undefined,
+        linkedin: 'https://www.linkedin.com/in/justinelijahtaylor/',
         pic: undefined,
         github:"https://github.com/justinelijahtaylor"
     },
