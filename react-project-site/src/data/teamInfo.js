@@ -25,7 +25,7 @@ export const team = [
     },
     {
         name: "Zhymir Thompson",
-        linkedin: undefined,
+        linkedin: 'https://www.linkedin.com/in/zhymir-thompson-204456a9/',
         pic: undefined,
         github:"https://github.com/zhymirt"
     }
