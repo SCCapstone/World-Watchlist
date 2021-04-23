@@ -108,8 +108,8 @@ module.exports = {
         }
         if ( "image" in itemObj) {
             image = itemObj["image"];
-        } else if ("") {
-
+        } else if (!image) {
+            return 'no image'
         } else {
             //console.log(itemObj);
             return null;
