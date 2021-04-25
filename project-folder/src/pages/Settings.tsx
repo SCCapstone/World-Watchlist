@@ -538,7 +538,7 @@ isValidSite(siteName:string) {
             </IonButtons>
 
             <IonTitle class='settingsTitle2'>
-              Change Username
+              Change Display Name
 
             </IonTitle>
             </IonToolbar>
