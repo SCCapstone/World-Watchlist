@@ -277,8 +277,10 @@ clicky(){
     
     if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
       await Plugins.GoogleAuth.signOut()
-    else 
+    else {
       auth.signOut()
+     
+    }
     await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
   }

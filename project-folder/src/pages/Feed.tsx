@@ -120,6 +120,15 @@ class Feed extends React.Component<FeedProps, FeedState> {
     // })
   }
 
+  async pullName(name: string){
+    if(name.substring(0, 12) == 'HTTPS://WWW.')
+        name = await name.substring(12)
+    else if(name.substring(0,8) == 'HTTPS://')
+        name = await name.substring(8)
+    console.log(name.substring(0,8))
+    return await name;
+  }
+
   async getSubscribedArticles(context:any){
     this.setState({subArticles:[], articles:[]})
     // get blocked sources on firestore
@@ -139,7 +148,16 @@ class Feed extends React.Component<FeedProps, FeedState> {
             if (doc.exists) {
               let articleItem = doc.data();
               if(!this.state.blockedSources.includes(articleItem.source)) {
-                aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:articleItem.source, pubDate: articleItem.pubDate})
+                var name = articleItem.source;
+                 if(name.substring(0, 12) == 'https://www.')
+        name = name.substring(12)
+    else if(name.substring(0,8) === 'https://'){
+        name = name.substring(8)
+        console.log("here")
+      }
+      console.log(name)
+    
+                aList.push({title: articleItem.Title, link: articleItem.Link, description: articleItem.Description, source:name, pubDate: articleItem.pubDate})
               }
             } else {
               console.log("Cannot find anything in database.")
@@ -282,8 +300,17 @@ class Feed extends React.Component<FeedProps, FeedState> {
             var a = document.createElement("a");
             a.innerHTML = html;
             var text = a.textContent || a.innerText || "";
-            if(!this.state.blockedSources.includes(articleItem.source)) 
-              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: articleItem.source, pubDate: articleItem.pubDate})
+            if(!this.state.blockedSources.includes(articleItem.source)) {
+              var name = articleItem.source;
+                 if(name.substring(0, 12) == 'https://www.')
+        name = name.substring(12)
+    else if(name.substring(0,8) === 'https://'){
+        name = name.substring(8)
+        console.log("here")
+      }
+      console.log(name)
+              aList.push({title: articleItem.Title, link: articleItem.Link, description: text, source: name, pubDate: articleItem.pubDate})
+            }
           }
           this.setState({articlesSearched: aList})
         })

@@ -8,9 +8,11 @@ interface articleType {
     pubDate:any;
 }
 
-function ArticleItem(props: {entry: articleType}) {
+
+async function ArticleItem(props: {entry: articleType}) {
     return (
         <div>
+
             <p>{props.entry.url}</p>
             <p>{props.entry.title}</p>
         </div>
