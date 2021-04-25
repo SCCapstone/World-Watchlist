@@ -90,7 +90,7 @@ class Tabs extends React.Component<MyProps, MyState> {
     super(props)
 
     this.openShareModal = this.openShareModal.bind(this);
-
+    this.signOutUser = this.signOutUser.bind(this);
     auth.onAuthStateChanged(() => {
       if(auth.currentUser) {
         //gets the username of our user
@@ -120,7 +120,6 @@ class Tabs extends React.Component<MyProps, MyState> {
                       stateFriendsList[index] = friendObj
                       sentinel = false
                     }
-
                   })
                   if(sentinel) {
                     stateFriendsList.push(friendObj)
@@ -223,6 +222,35 @@ class Tabs extends React.Component<MyProps, MyState> {
     tempList.push([groupId, subscription])
   }
 
+  signOutUser() {
+    if (auth.currentUser) {
+      auth.signOut()
+      this.setState({subscriptionFriendList: [],
+      subscriptionGroupList: [],
+      ourUsername: '',
+      friendsListSubscription: undefined,
+      friendsList: [],
+      unsubscribeBlockedUsers: [],
+      blockedUsers: [],
+      incomingRequests: [],
+      outgoingRequests: [],
+      numGroups: 0,
+      groupArray: [],
+      unsubscribeGroupArray: [],
+      unsubscribeIncomingRequests: undefined,
+      unsubscribeOutgoingRequests: undefined,
+      isShareModalOpen: false,
+      myArticle: {
+        title: '',
+        link: '',
+        description: '',
+        source: '',
+        pubDate: ''
+      }})
+      this.props.history.push("/landing")
+    }
+  }
+
   subscribeToFriend(subscription: any) {
 
   }
@@ -239,6 +267,8 @@ class Tabs extends React.Component<MyProps, MyState> {
     this.setState({isShareModalOpen: shouldOpen, myArticle: theArticle})
   }
 
+
+
   render() {
     return (
       <IonTabs>
@@ -246,7 +276,7 @@ class Tabs extends React.Component<MyProps, MyState> {
           <Route path="/main" exact render={() => <Redirect to="/main/feed"/>} />
           <Route path="/main/feed" render={() => <Feed {...this.props} groupArray={this.state.groupArray} openShareModal={this.openShareModal} isShareModalOpen={this.state.isShareModalOpen} ourUsername={this.state.ourUsername} myArticle={this.state.myArticle}/>} exact={true} />
           <Route path="/main/social" render={() => <Social {...this.props} friendsList={this.state.friendsList} groupArray={this.state.groupArray} ourUsername={this.state.ourUsername} incomingRequests={this.state.incomingRequests} outgoingRequests={this.state.outgoingRequests} openShareModal={this.openShareModal}/> } />
-          <Route path="/main/settings" component={Settings} exact={true}/>
+          <Route path="/main/settings" render={() => <Settings {...this.props} signOutUser={this.signOutUser} /> } />
           <Route path="/main/bookmark" component={Bookmark} exact={true}/>
         </IonRouterOutlet>
         <IonTabBar color='dark'class='tabToolbar' slot="bottom">

@@ -23,7 +23,7 @@ import {
   IonAlert
 
 } from '@ionic/react'
-
+import Placeholder from '../images/placeholder.png'
 import firebase, {db, auth, signInWithGoogle} from '../firebase'
 import "@codetrix-studio/capacitor-google-auth";
 
@@ -53,13 +53,14 @@ type MyState = {
   notifications: [{}];
   isSubbed:boolean;
   profileImage: string;
-
+  url: string;
 
 }
 
 type MyProps = {
   history: any;
   location: any;
+  signOutUser: any;
 }
 
 class Settings extends React.Component<MyProps, MyState> {
@@ -81,7 +82,8 @@ class Settings extends React.Component<MyProps, MyState> {
     isSubbed:false,
     newPassword:'',
     newUsername:'',
-    notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }]
+    notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
+    url: ''
   };
 
   constructor(props: MyProps) {
@@ -95,8 +97,11 @@ class Settings extends React.Component<MyProps, MyState> {
         if(auth.currentUser) { // gets the name of the current user
           db.collection("profiles").doc(auth.currentUser.uid).get().then(doc => {
             if(doc.data()) {
-              this.setState({currentUserName: doc.data()!.displayName})
-              this.setState({isSubbed: doc.data()!.isSubbed})
+              this.setState({
+                currentUserName: doc.data()!.displayName,
+                isSubbed: doc.data()!.isSubbed,
+                url: doc.data()!.photo
+              })
               console.log(this.state.isSubbed)
 
               var temp= db.collection('profiles').doc(firebase.auth().currentUser!.uid).onSnapshot((snapshot) => { //blockedSources not in firebase?
@@ -107,7 +112,7 @@ class Settings extends React.Component<MyProps, MyState> {
                 // this.setState({currentUserName: snapshot.data()!.displayName})
                 }
               })
-            
+
             }
           })
 
@@ -116,7 +121,7 @@ class Settings extends React.Component<MyProps, MyState> {
           this.props.history.push("/landing")
       })
        this.pullImage();
-      
+
   }
 
 
@@ -128,7 +133,7 @@ class Settings extends React.Component<MyProps, MyState> {
 }
 
   // push() { // This code is borrowed from https://enappd.com/blog/firebase-push-notification-in-ionic-react-capacitor/111/
-    
+
   //   PushNotifications.register();
   //   var temp = this.state.topics;
   //   for(var i = 0; i < temp.length; i++) {
@@ -263,13 +268,14 @@ changeDisplayName(newName: string) {
     })
   }
 
-    
+
 
 }
 
 clicky(){
   document.getElementById('fileSelect')!.click()
 }
+
 
 
   async signOutUser() {
@@ -283,10 +289,31 @@ clicky(){
     }
     await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.history.push("/landing")
-  }
-  const alert = document.createElement('IonAlert');
 
-}
+  signOutUser() {
+    this.setState({
+      profileImage:'',
+      isBlockSourceModalOpen: false,
+      isAccountSettingsModalOpen:false,
+      isChangePasswordModalOpen: false,
+      signOutAlert:false,
+      isChangeUsernameModalOpen: false,
+      isSignOutModalOpen: false,
+      blockedSources: [],
+      topics:[],
+      currentUserName :'',
+      sourceToBlock:"",
+      sourceToUnBlock:"",
+      localList: [],
+      isSubbed:false,
+      newPassword:'',
+      newUsername:'',
+      notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
+      url:''
+    })
+    this.props.signOutUser()
+
+  }
 
   changePassword(password:string) {
   if(auth.currentUser) {
@@ -304,16 +331,16 @@ clicky(){
 
 //   db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
 //           notifications:this.state.isSubbed,
-         
+
 //         })
-//   if(isPushAvailable&&this.state.isSubbed) 
+//   if(isPushAvailable&&this.state.isSubbed)
 //     this.push();
 //   else if(!this.state.isSubbed) {
 
 //   }
 
 
-    
+
 // }
 
 /*changeEmail(email:string) {
@@ -335,7 +362,7 @@ clicky(){
       if(document.exists) {
         db.collection('profiles').doc(firebase.auth().currentUser!.uid).update({
           displayName:newName,
-         
+
 
         })
         this.setState({currentUserName : newName});
@@ -467,7 +494,7 @@ isValidSite(siteName:string) {
         Unblock a Source
         </IonTitle>
         <br/>
-       
+
         <IonHeader id = 'blockedSourcesHeader'>(Go to the feed page and refresh by scrolling down to see your sources blocked)</IonHeader>
         <br/>
         <ul id = "blockedList"></ul>
@@ -555,16 +582,16 @@ isValidSite(siteName:string) {
             Sign Out
           <IonButtons slot='end'>
             <IonButton  fill='clear'>
-              
+
               </IonButton>
               <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
               <IonAlert
           isOpen= {this.state.signOutAlert}
           onDidDismiss={() => this.setState({signOutAlert:false})}
-          
+
           header={'Are you sure you want to sign out?'}
-         
-          
+
+
           buttons={[
             {
               text: 'No',
@@ -587,14 +614,14 @@ isValidSite(siteName:string) {
         />
               </IonButtons>
               </IonItem>
-        
-          
+
+
         <IonItem onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} id ='changeUsername'>
             Change Display Name
           <IonButtons slot='end'>
             <IonButton  fill='clear'>
 
-              
+
               </IonButton>
               <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
               </IonButtons>
@@ -605,7 +632,7 @@ isValidSite(siteName:string) {
         <IonButtons slot='end'>
           <IonButton  fill='clear'>
 
-            
+
           </IonButton>
           <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
           </IonButtons>
@@ -623,7 +650,7 @@ isValidSite(siteName:string) {
         <IonItem>
         <IonAvatar>
           <input type="file" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
-          <img id = 'myimg' />
+          <img id = 'myimg' src={this.state.url !== '' ? this.state.url : Placeholder}/>
         </IonAvatar>
         {this.state.currentUserName}
         </IonItem>
@@ -637,7 +664,7 @@ isValidSite(siteName:string) {
         Block Sources
         <IonButtons slot='end'>
           <IonButton  fill='clear'>
-            
+
           </IonButton>
           <IonIcon id = 'contentFilterButton' icon={newspaperOutline} />
         </IonButtons>
@@ -647,26 +674,20 @@ isValidSite(siteName:string) {
                Change Profile Picture
                <IonButtons slot = 'end'>
 
-                  <IonButton id = 'submit2'>
-
-
-        <input type="file" accept="image/x-png,image/gif,image/jpeg" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
-
-      
-        </IonButton>
- <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
-
-
+          <IonButton id = 'submit2'>
+            <input type="file" accept="image/x-png,image/gif,image/jpeg" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
+          </IonButton>
+          <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
         </IonButtons>
           </IonItem>
-            
+
 
               <IonItem onClick={() => {this.setState({isAccountSettingsModalOpen: true})}} id ='changeUsername'>
             Account Settings
           <IonButtons slot='end'>
             <IonButton  fill='clear'>
 
-              
+
               </IonButton>
               <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
               </IonButtons>
