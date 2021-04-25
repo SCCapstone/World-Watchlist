@@ -125,16 +125,6 @@ class Landing extends React.Component<MyProps, MyState> {
     }
   }
 
-  hideg() {
-  var x = document.getElementById("noaccountg");
-  if (x!.style.display === "none") {
-    x!.style.display = "block";
-  } else {
-    x!.style.display = "none";
-  }
-
-
-}
 
 hidea() {
   var x = document.getElementById("noaccount");
@@ -185,7 +175,6 @@ hidel() {
     if (guard) {
       firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
         auth.createUserWithEmailAndPassword(this.state.registerEmail, this.state.registerPassword).then(() => {
-            this.hideg();
             this.hidel();
             this.hidea(); 
             if(this.state.btnText=='Create One!') 
