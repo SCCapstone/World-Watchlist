@@ -302,6 +302,7 @@ clicky(){
       notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
       url: ''
     })
+    Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
     this.props.signOutUser()
   }
 
