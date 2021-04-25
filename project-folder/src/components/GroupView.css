@@ -146,8 +146,10 @@
   color: green;
 }
 .groupSegmentButton {
-  display: inline-block;
 }
-/* #groupSegment {
-  display: inline-block;
-} */
+.groupToggle {
+  color: black;
+}
+#groupSegment {
+  --background: #e8ecf0;
+}
