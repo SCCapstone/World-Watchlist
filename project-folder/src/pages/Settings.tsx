@@ -27,7 +27,7 @@ import Placeholder from '../images/placeholder.png'
 import firebase, {db, auth, signInWithGoogle} from '../firebase'
 import "@codetrix-studio/capacitor-google-auth";
 
-import {addCircleOutline, closeOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
+import {lockClosedOutline, addCircleOutline, closeOutline, closeCircleOutline, newspaperOutline, exitOutline, mailOutline, arrowBackOutline, arrowForwardOutline, personCircleOutline, cloudUploadOutline} from 'ionicons/icons'
 import './Settings.css'
 import { isEnterKey } from '../components/TempFunctions';
  const { PushNotifications } = Plugins;
@@ -36,6 +36,7 @@ import { isEnterKey } from '../components/TempFunctions';
  const { FCMPlugin, Storage } = Plugins;
 
 type MyState = {
+
   isBlockSourceModalOpen:boolean;
   isAccountSettingsModalOpen:boolean;
   isChangePasswordModalOpen:boolean;
@@ -49,6 +50,7 @@ type MyState = {
   sourceToUnBlock:string;
   localList:string[];
   newPassword:string;
+  newPassword2: string;
   newUsername:string;
   notifications: [{}];
   isSubbed:boolean;
@@ -81,6 +83,7 @@ class Settings extends React.Component<MyProps, MyState> {
     localList: [],
     isSubbed:false,
     newPassword:'',
+    newPassword2:'',
     newUsername:'',
     notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
     url: ''
@@ -307,7 +310,7 @@ clicky(){
   }
 
   changePassword(password:string) {
-  if(auth.currentUser) {
+  if(auth.currentUser&& this.state.newPassword == this.state.newPassword2) {
     auth.currentUser.updatePassword(password).then( () => {
         alert("Password change successful");
         this.setState({isChangePasswordModalOpen: false});
@@ -316,6 +319,8 @@ clicky(){
 
     })
   }
+  else if (this.state.newPassword!=this.state.newPassword2)
+    alert("Passwords must match")
 }
 
 // notify() {
@@ -520,11 +525,19 @@ isValidSite(siteName:string) {
           </IonHeader>
         <IonContent>
         <IonItem lines='none' id='block'>
-          <IonInput class = 'addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.changePassword(this.state.newPassword)}} onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.changePassword(this.state.newPassword)}}  fill='clear' placeholder='Enter new password'>
-            <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
-          </IonButton>
+          <IonInput type = 'password' id = "new1" class = 'addSource' onIonChange={(e) => {this.setState({newPassword2: (e.target as HTMLInputElement).value})}} />
+          
         </IonItem>
+        <br/>
+        <IonItem lines='none' id='block'>
+          <IonInput type = 'password' class = 'addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.changePassword(this.state.newPassword)}} onIonChange={(e) => {this.setState({newPassword: (e.target as HTMLInputElement).value})}} />
+          
+        </IonItem>
+        <br/>
+
+        <IonButton shape='round' id = 'changePass' onClick={() => {this.changePassword(this.state.newPassword)}}  placeholder='Enter new password'>
+            Submit
+          </IonButton>
         </IonContent>
       </IonModal>
 
@@ -546,10 +559,12 @@ isValidSite(siteName:string) {
         <IonContent>
         <IonItem lines='none' id='block'>
           <IonInput class = 'addSource' onKeyDown={(e) => {if (isEnterKey(e)) this.changeUsername(this.state.newUsername)}} onIonChange={(e) => {this.setState({newUsername: (e.target as HTMLInputElement).value})}} />
-          <IonButton onClick={() => {this.changeUsername(this.state.newUsername)}}  fill='clear'>
-            <IonIcon id='addBlockIcon' icon={arrowForwardOutline} />
-          </IonButton>
+          
         </IonItem>
+
+        <br/>
+
+        <IonButton shape = 'round' id = 'changePass' onClick={() => {this.changeUsername(this.state.newUsername)}} >Submit</IonButton>
         </IonContent>
 
       </IonModal>
@@ -625,7 +640,7 @@ isValidSite(siteName:string) {
 
 
           </IonButton>
-          <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
+          <IonIcon id = 'emailChangeButton' icon={lockClosedOutline}/>
           </IonButtons>
           </IonItem>
 
