@@ -278,17 +278,6 @@ clicky(){
 
 
 
-  async signOutUser() {
-  if (auth.currentUser) {
-    
-    if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
-      await Plugins.GoogleAuth.signOut()
-    else {
-      auth.signOut()
-     
-    }
-    await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
-    this.props.history.push("/landing")
 
   signOutUser() {
     this.setState({
@@ -309,7 +298,7 @@ clicky(){
       newPassword:'',
       newUsername:'',
       notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
-      url:''
+      url: ''
     })
     this.props.signOutUser()
 
