@@ -343,9 +343,9 @@ hidel() {
           <IonLabel id = "noaccount">Or log in with</IonLabel>
           <br/>
           
-         <img id = "noaccountg" src = {google} className = 'google' onClick= {()=> {this.googleLogin()}}/>
+         
          <br/>
-         <IonLabel id ="noaccountl">No Account?</IonLabel><IonButton shape = 'round' className = 'landingSwitch' onClick={() => {this.hideg();this.hidel();this.hidea(); if(this.state.btnText=='Create One!') this.state.btnText='Log In'; else this.state.btnText='Create One!';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
+         <IonLabel id ="noaccountl">No Account?</IonLabel><IonButton shape = 'round' className = 'landingSwitch' onClick={() => {this.hidel();this.hidea(); if(this.state.btnText=='Create One!') this.state.btnText='Log In'; else this.state.btnText='Create One!';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
         </IonContent>
       </IonPage>
       )
