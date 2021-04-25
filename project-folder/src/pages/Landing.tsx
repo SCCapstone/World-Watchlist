@@ -340,6 +340,9 @@ hidel() {
         }
 
           
+          <IonLabel id = "noaccount"></IonLabel>
+          <br/>
+          
          
          <br/>
          <IonLabel id ="noaccountl">No Account?</IonLabel><IonButton shape = 'round' className = 'landingSwitch' onClick={() => {this.hidel();this.hidea(); if(this.state.btnText=='Create One!') this.state.btnText='Log In'; else this.state.btnText='Create One!';this.setState({shouldLoginShow: !this.state.shouldLoginShow})}} >{this.state.btnText}</IonButton>
