@@ -276,20 +276,6 @@ clicky(){
   document.getElementById('fileSelect')!.click()
 }
 
-
-
-  async signOutUser() {
-  if (auth.currentUser) {
-    
-    if(firebase.auth.GoogleAuthProvider.PROVIDER_ID == "GOOGLE_SIGN_IN_METHOD")
-      await Plugins.GoogleAuth.signOut()
-    else {
-      auth.signOut()
-     
-    }
-    await Storage.set({key:'isLoggedIn', value:JSON.stringify(false)});
-    this.props.history.push("/landing")
-
   signOutUser() {
     this.setState({
       profileImage:'',
@@ -308,11 +294,9 @@ clicky(){
       isSubbed:false,
       newPassword:'',
       newUsername:'',
-      notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
-      url:''
+      notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }]
     })
     this.props.signOutUser()
-
   }
 
   changePassword(password:string) {

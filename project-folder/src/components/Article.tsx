@@ -12,17 +12,12 @@ import axios from 'axios';
 import { bookmarkOutline, handLeftOutline, newspaper, newspaperOutline, sendOutline } from 'ionicons/icons';
 const { Browser , Storage } = Plugins;
 
-
-
-
 function Article(props: {theArticle: article, openShareModal: (theArticle: article, shouldOpen: boolean) => void}) {
 
   const [showLoading, setShowLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [showBlockAlert, setShowBlockAlert] = useState(false);
   const [showErrorAlert, setshowErrorAlert] = useState(false);
-
-   
 
   async function openURL(url:any, title:any){
     await Browser.open({ url: url });
