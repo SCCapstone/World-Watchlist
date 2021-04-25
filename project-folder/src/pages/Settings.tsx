@@ -276,9 +276,12 @@ clicky(){
   document.getElementById('fileSelect')!.click()
 }
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> b19067da3f949a77c5e2135cc2b9aadac5ed6c68
   signOutUser() {
     this.setState({
       profileImage:'',
@@ -297,11 +300,14 @@ clicky(){
       isSubbed:false,
       newPassword:'',
       newUsername:'',
+<<<<<<< HEAD
       notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }],
       url: ''
+=======
+      notifications:[{ id: 'id', title: 'Test', body: "Test Notification" }]
+>>>>>>> b19067da3f949a77c5e2135cc2b9aadac5ed6c68
     })
     this.props.signOutUser()
-
   }
 
   changePassword(password:string) {
