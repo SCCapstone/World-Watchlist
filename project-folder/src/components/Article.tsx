@@ -102,7 +102,7 @@ function Article(props: {theArticle: article, openShareModal: (theArticle: artic
               <IonIcon icon={sendOutline}> </IonIcon>
             </IonButton>
             <IonButton onClick={()=>{setShowBlockAlert(true);blockSource()}}>
-            <IonIcon icon={handLeftOutline}> </IonIcon> {props.theArticle.source}</IonButton>
+            <IonIcon icon={handLeftOutline}> </IonIcon> {"Block "+props.theArticle.source}</IonButton>
               </IonCardContent>
         </IonCard>
 }
