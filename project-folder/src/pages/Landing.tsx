@@ -292,7 +292,7 @@ hidel() {
                
 
 
-                <IonLabel id = "welcome">Welcome to World Watchlist.</IonLabel>
+                <IonLabel id = "welcome">Welcome to World Watchlist</IonLabel>
                 <IonItem lines='none' className='loginItem'>
                 <IonLabel class='loginLabel' position='floating'></IonLabel>
                   <IonInput value={this.state.loginEmail} className='loginInput' type='email' enterkeyhint="next" placeholder = 'Email Address' onKeyDown={(e) => this.handleChangeFocus(e, loginPasswordRef)} onIonChange={(e) => {this.setState({loginEmail: (e.target as HTMLInputElement).value})}}/>
@@ -339,9 +339,6 @@ hidel() {
             </div>
         }
 
-          
-          <IonLabel id = "noaccount">Or log in with</IonLabel>
-          <br/>
           
          
          <br/>
