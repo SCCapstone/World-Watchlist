@@ -198,6 +198,7 @@ class Settings extends React.Component<MyProps, MyState> {
         this.pullImage();
       }
       else {
+        alert("File is too large");
         console.log("Image is too big")
       }
     }
@@ -263,6 +264,11 @@ changeDisplayName(newName: string) {
   }
 
     
+
+}
+
+clicky(){
+  document.getElementById('fileSelect')!.click()
 }
 
 
@@ -542,13 +548,14 @@ isValidSite(siteName:string) {
             </IonToolbar>
           </IonHeader>
         <IonContent>
-        <IonItem id ='changeUsername'>
+        <IonItem onClick={() => {this.setState({signOutAlert:true})}} id ='changeUsername'>
 
             Sign Out
           <IonButtons slot='end'>
-            <IonButton onClick={() => {this.setState({signOutAlert:true})}} fill='clear'>
-              <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
+            <IonButton  fill='clear'>
+              
               </IonButton>
+              <IonIcon id = 'userNameChangeButton' icon={exitOutline}/>
               <IonAlert
           isOpen= {this.state.signOutAlert}
           onDidDismiss={() => this.setState({signOutAlert:false})}
@@ -580,23 +587,25 @@ isValidSite(siteName:string) {
               </IonItem>
         
           
-        <IonItem id ='changeUsername'>
+        <IonItem onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} id ='changeUsername'>
             Change Display Name
           <IonButtons slot='end'>
-            <IonButton onClick={() => {this.setState({isChangeUsernameModalOpen: true})}} fill='clear'>
+            <IonButton  fill='clear'>
 
-              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
+              
               </IonButton>
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
               </IonButtons>
               </IonItem>
 
-               <IonItem id ='updateEmail'>
+               <IonItem onClick={() => {this.setState({isChangePasswordModalOpen: true})}} id ='updateEmail'>
           Change Password
         <IonButtons slot='end'>
-          <IonButton onClick={() => {this.setState({isChangePasswordModalOpen: true})}} fill='clear'>
+          <IonButton  fill='clear'>
 
-            <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
+            
           </IonButton>
+          <IonIcon id = 'emailChangeButton' icon={mailOutline}/>
           </IonButtons>
           </IonItem>
 
@@ -622,39 +631,42 @@ isValidSite(siteName:string) {
           </IonItem> */}
 
         <IonContent>
-        <IonItem>
-        Content Filter
+        <IonItem onClick={() => {this.setState({isBlockSourceModalOpen: true})}}>
+        Block Sources
         <IonButtons slot='end'>
-          <IonButton onClick={() => {this.setState({isBlockSourceModalOpen: true})}} fill='clear'>
-            <IonIcon id = 'contentFilterButton' icon={newspaperOutline} />
+          <IonButton  fill='clear'>
+            
           </IonButton>
+          <IonIcon id = 'contentFilterButton' icon={newspaperOutline} />
         </IonButtons>
         </IonItem>
 
-               <IonItem id ='updateEmail'>
+               <IonItem onClick={()=>{this.clicky()}} id ='updateEmail'>
                Change Profile Picture
                <IonButtons slot = 'end'>
 
-                  <IonButton id = 'submit'>
+                  <IonButton id = 'submit2'>
+
 
         <input type="file" accept="image/x-png,image/gif,image/jpeg" id = 'fileSelect' onChange={ (e) => (this.handleChange(e.target.files!)) } />
 
-       <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
+      
         </IonButton>
-
+ <IonIcon id = 'cloudUploadOutline' icon={cloudUploadOutline}/>
 
 
         </IonButtons>
           </IonItem>
             
 
-              <IonItem id ='changeUsername'>
+              <IonItem onClick={() => {this.setState({isAccountSettingsModalOpen: true})}} id ='changeUsername'>
             Account Settings
           <IonButtons slot='end'>
-            <IonButton onClick={() => {this.setState({isAccountSettingsModalOpen: true})}} fill='clear'>
+            <IonButton  fill='clear'>
 
-              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
+              
               </IonButton>
+              <IonIcon id = 'userNameChangeButton' icon={personCircleOutline}/>
               </IonButtons>
               </IonItem>
 

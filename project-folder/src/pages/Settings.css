@@ -7,11 +7,13 @@
 
 #fileSelect {
 
-  opacity:0;
+  
   
 float:right;
-width:30px;
+width:300px;
 position:absolute;
+display:block;
+
  
 
  
@@ -100,4 +102,14 @@ input {
   margin-left: 40px;
   margin-right: 20px;
   margin-bottom: 20px;
+}
+
+#submit{
+  margin-right:0;
+  padding-right:0;
+}
+
+#cloudUploadOutline{
+  padding-left: 0;
+  margin-left:0;
 }
