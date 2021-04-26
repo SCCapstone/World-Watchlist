@@ -1,13 +1,13 @@
 const functions = require('firebase-functions');
 const axios = require('axios');
-var convert = require('xml-js');
+let convert = require('xml-js');
 const express = require('express')
-var f = require("./scraper.js");
+let f = require("./scraper.js");
 const fs = require("fs")
 const cheerio = require("cheerio")
 const request = require("request");
 const cors = require('cors')({origin: true});
-var currentDate = new Date();
+let currentDate = new Date();
 const waitTime = 18000000;
 const day = 10
 const oldTime = day * 24 * 60 * 60 * 1000;  
@@ -31,7 +31,7 @@ app.get('/favicon.ico', function(req, res) {
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-var config = {
+let config = {
   apiKey: "AIzaSyCiQa3wPMFOp_PidtF-8arljaCT3XFMLhc",
   authDomain: "world-watchlist-server-8f86e.firebaseapp.com",
   databaseURL: "https://world-watchlist-server-8f862.firebaseio.com",
@@ -76,38 +76,38 @@ async function writeDoc(articles, collection_name) {
   return null
 }
 
-async function scrapeRSS(rssFeed){
-  let article_info = [];
-  const scrapePromise = new Promise(async (resolve,reject)=>{
-    let title = link = description = image = date = null;
-    for ( i = 0 ; i < 10 ; ++i ) {
-      item = await rssFeed.rss.channel.item[i];
-      title = await f.getTitle(item);
-      link = await f.getLink(item);
-      console.log("title",title)
-      console.log("link",link)
+// async function scrapeRSS(rssFeed){
+//   let article_info = [];
+//   const scrapePromise = new Promise(async (resolve,reject)=>{
+//     let title = link = description = image = date = null;
+//     for ( i = 0 ; i < 10 ; ++i ) {
+//       item = await rssFeed.rss.channel.item[i];
+//       title = await f.getTitle(item);
+//       link = await f.getLink(item);
+//       console.log("title",title)
+//       console.log("link",link)
       
-      await getDesc(link).then(result=>{
-        description = result
-      }).catch(error=>{description = error})
-      var pathArray = await link.split( '/' );
-      var protocol = pathArray[0];
-      var host = pathArray[2];
-      var baseUrl = protocol + '//' + host;
-      pubDate = await f.getDate(item)
-      let pubDateObj = new Date(pubDate);
-      console.log("PubDate", pubDate)
-      console.log("pubDateObj", pubDateObj)
-      console.log("currentDate - pubDateObj < waitTime:", currentDate - pubDateObj < waitTime)
-      temp = new f.article(title, description, link, baseUrl, pubDate);
-      if (currentDate - pubDateObj < waitTime)
-        article_info.push(temp);
-      }
-    console.log("rssScrape",article_info)
-    resolve(article_info)
-  })
-  return scrapePromise
-}
+//       await getDesc(link).then(result=>{
+//         description = result
+//       }).catch(error=>{description = error})
+//       let pathArray = await link.split( '/' );
+//       let protocol = pathArray[0];
+//       let host = pathArray[2];
+//       let baseUrl = protocol + '//' + host;
+//       pubDate = await f.getDate(item)
+//       let pubDateObj = new Date(pubDate);
+//       console.log("PubDate", pubDate)
+//       console.log("pubDateObj", pubDateObj)
+//       console.log("currentDate - pubDateObj < waitTime:", currentDate - pubDateObj < waitTime)
+//       temp = new f.article(title, description, link, baseUrl, pubDate);
+//       if (currentDate - pubDateObj < waitTime)
+//         article_info.push(temp);
+//       }
+//     console.log("rssScrape",article_info)
+//     resolve(article_info)
+//   })
+//   return scrapePromise
+// }
 
 
 /* go through rss feed and get article information*/
@@ -195,7 +195,7 @@ async function deleteOldNews(){
   collectionArr.forEach(async collectionID => {
     const col = db.collection(collectionID)
     // console.log(oldTime)
-    var date = new Date(Date.now() - oldTime) 
+    let date = new Date(Date.now() - oldTime) 
     let date2 = new Date(date);
     console.log(date2)
     await col.get().then(doc=>{
@@ -252,7 +252,7 @@ async function getWeatherInfo(long,lat,location){
   .then(async (response) => {
     const dailyWeather = await response.data.daily
     const currentWeather = await response.data.current
-    for (var i = 1; i < dailyWeather.length; i++) {
+    for (let i = 1; i < dailyWeather.length; i++) {
       dailyData.push({date:new Date(await dailyWeather[i].dt*1000).toString().substring(0,3), forecast:await dailyWeather[i].weather[0].description, temp:await dailyWeather[i].feels_like.day, dt:await dailyWeather[i].dt})
     }
     await db.collection('weather').doc(location).update({lat:lat, long:long, location:location ,temperature:currentWeather.temp+'F',weather_code: currentWeather.weather[0].description, weeklyForecast:dailyData})
@@ -285,8 +285,8 @@ async function getDesc(link) {
     if (data || data !== null) {
       desc = data 
     } else {
-      var urlElems = $('p')
-      var urlSpan = $(urlElems[i])[0]
+      let urlElems = $('p')
+      let urlSpan = $(urlElems[i])[0]
       if (urlSpan || urlSpan !== null) {
         urlText = $(urlSpan).text()
         desc = urlText
@@ -299,9 +299,9 @@ async function getDesc(link) {
 }
 async function getArticles(topic){
   const promise = new Promise(async (resolve, reject) => {
-    var googleRSS = "https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
-    var article_info = [];
-    var title = link = description = image = date = null;
+    let googleRSS = "https://news.google.com/rss/search?q="+topic+"&hl=en-US&gl=US&ceid=US:en"
+    let article_info = [];
+    let title = link = description = image = date = null;
     await axios.get(googleRSS,{setTimeout: 2}).then(
       async (response) => {
         result2 = convert.xml2json(await response.data, {compact: true, spaces: 4});
@@ -315,10 +315,10 @@ async function getArticles(topic){
           if (!description) {
             description = "View the full coverage below."
           } 
-          var pathArray = link.split( '/' );
-          var protocol = pathArray[0];
-          var host = pathArray[2];
-          var baseUrl = protocol + '//' + host;
+          let pathArray = link.split( '/' );
+          let protocol = pathArray[0];
+          let host = pathArray[2];
+          let baseUrl = protocol + '//' + host;
           pubDate = await f.getDate(item)
           temp = new f.article(title, description, link, baseUrl, pubDate);
           article_info.push(temp);
@@ -335,7 +335,7 @@ async function getArticles(topic){
 app.get('/p', async function(req,res)
 {
   
-  var topic = req.query.topic
+  let topic = req.query.topic
   getArticles(topic).then(result=>
     {
       if (result!==undefined)
@@ -350,18 +350,18 @@ app.get('/p', async function(req,res)
 // get content of articles from
 app.get('/url', async function(req,res)
 {
-  var url = req.query.url
+  let url = req.query.url
   request(url, function(error, response, body) {
   if(error) {
     console.log("Error: " + error);
     res.send('error')
   } else {
     console.log("Status code: " + response.statusCode);
-    var $ = cheerio.load(body); 
-    var article = $('article')
-    var p = article.find('p').children().remove().end()
-    var img =  $("body").find('img')
-    var logo = $(img[0]).attr('src')
+    let $ = cheerio.load(body); 
+    let article = $('article')
+    let p = article.find('p').children().remove().end()
+    let img =  $("body").find('img')
+    let logo = $(img[0]).attr('src')
     res.send({content:p.text().trim(),logo:logo})
   }
   });
