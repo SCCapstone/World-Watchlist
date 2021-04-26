@@ -7,13 +7,13 @@ export const team = [
     },
     {
         name: "Justin Taylor",
-        linkedin: undefined,
+        linkedin: 'https://www.linkedin.com/in/justinelijahtaylor/',
         pic: undefined,
         github:"https://github.com/justinelijahtaylor"
     },
     {
         name: "Kristina Matthews",
-        linkedin: undefined,
+        linkedin: "https://www.linkedin.com/in/kristina-matthews-a7bb87178/",
         pic: undefined,
         github:"https://github.com/kristinamatthews"
     },
@@ -25,7 +25,7 @@ export const team = [
     },
     {
         name: "Zhymir Thompson",
-        linkedin: undefined,
+        linkedin: 'https://www.linkedin.com/in/zhymir-thompson-204456a9/',
         pic: undefined,
         github:"https://github.com/zhymirt"
     }
