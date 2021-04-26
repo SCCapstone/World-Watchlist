@@ -112,7 +112,7 @@ async function scrapeRSS(rssFeed){
 
 /* go through rss feed and get article information*/
 async function getRSS(url, collection_name) {
-  console.log("TEST",url, collection_name)
+  // console.log("TEST",url, collection_name)
   try {
   await axios.get(url).then(
     async (response) => {
@@ -127,21 +127,24 @@ async function getRSS(url, collection_name) {
         title = await f.getTitle(item);
         link = await f.getLink(item);
         description = await getDesc(link);
-        var pathArray = link.split( '/' );
-        var protocol = pathArray[0];
-        var host = pathArray[2];
-        var baseUrl = protocol + '//' + host;
-        pubDate = await f.getDate(item)
+        let pathArray = link.split( '/' );
+        let protocol = pathArray[0];
+        let host = pathArray[2];
+        let baseUrl = protocol + '//' + host;
+        let pubDate = await f.getDate(item)
         let pubDateObj = new Date(pubDate);
-        console.log("PubDate", pubDate)
-        console.log("pubDateObj", pubDateObj)
-        console.log("currentDate - pubDateObj < waitTime:", currentDate - pubDateObj < waitTime)
-        temp = new f.article(title, description, link, baseUrl, pubDate);
+        // console.log("PubDate", pubDate)
+        // console.log("pubDateObj", pubDateObj)
+        // console.log("currentDate - pubDateObj < waitTime:", currentDate - pubDateObj < waitTime)
+        let temp = new f.article(title, description, link, baseUrl, pubDate);
         if (currentDate - pubDateObj < waitTime)
           article_info.push(await temp);
+        item = title = link = description = image = date = pathArray = null;
+        protocol = host = baseUrl = pubDate = pubDateObj = temp = null;
         }
       console.log("TEST",article_info)
       await writeDoc(article_info, collection_name);
+      article_info = result2 = info2 = null;
     }).catch((error) => {
       console.log(error);
     })
@@ -174,7 +177,7 @@ async function getCollection() {
 async function updateALL() {
   console.log('Run update all test')
   await getCollection().then(async collectionArr=>{
-    console.log(collectionArr)
+    // console.log(collectionArr)
     currentDate = new Date(Date.now());
       collectionArr.forEach(async collectionID => {
         url = "https://news.google.com/rss/search?q="+collectionID
