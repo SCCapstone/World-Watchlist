@@ -135,6 +135,9 @@ class Feed extends React.Component<FeedProps, FeedState> {
         if ((articlesLocal.value)?.length === undefined || JSON.parse((articlesLocal.value)).length === 0 || this.state.isChanging===true || context==='refreshing') {
           await NewsDB.collection(this.state.subs[i]).get()
         .then(async (snapshot) => {
+          if ( snapshot.empty) {
+            
+          } else {
           snapshot.forEach(async doc => {
             if (doc.exists) {
               let articleItem = doc.data();
@@ -149,6 +152,7 @@ class Feed extends React.Component<FeedProps, FeedState> {
           await Storage.set({ key: this.state.subs[i], value: JSON.stringify(aList)});
           this.state.subArticles.push(aList)
           this.setState({articles:[...this.state.articles, ...aList]})
+        }
         })
         } else {
           this.state.subArticles.push(JSON.parse(articlesLocal.value))
@@ -191,6 +195,10 @@ class Feed extends React.Component<FeedProps, FeedState> {
     // Subscribe to a specific
     NewsDB.collection(collection)
     .onSnapshot(async querySnapshot => {
+      if ( querySnapshot.empty ) {
+        console.log('empty');
+        return;
+      }
       let newArticle:any = querySnapshot.docChanges()[0].doc?.id
         const LocalNotificationPendingList = await LocalNotifications.getPending()
         // console.log(change.doc)
