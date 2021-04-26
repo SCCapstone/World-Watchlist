@@ -1,0 +1,624 @@
+{
+  "id": "861cf7ef-3030-4665-8a4a-04f88926f3cc",
+  "version": "2.0",
+  "name": "WorldWatchlist",
+  "url": "http://localhost:8100",
+  "tests": [{
+    "id": "b5f4e71d-20d5-42a2-8f0c-b363c5cbf68e",
+    "name": "Profile Picture Change",
+    "commands": [{
+      "id": "4bac5afa-ee63-486a-93c0-8c77aa981ea4",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5383eb4c-bd87-4d71-a2e4-b9423a36f96d",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "72dffa34-851a-4b8e-9b74-05354d4d122f",
+      "comment": "",
+      "command": "click",
+      "target": "id=tab-button-settings",
+      "targets": [
+        ["id=tab-button-settings", "id"],
+        ["css=#tab-button-settings", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-settings']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/ion-tab-bar/ion-tab-button[4]", "xpath:idRelative"],
+        ["xpath=//ion-tab-button[4]", "xpath:position"],
+        ["xpath=//ion-tab-button[contains(.,'Settings')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "9fb61622-eb13-41c8-924a-2c67ddffdd22",
+      "comment": "",
+      "command": "click",
+      "target": "id=updateEmail",
+      "targets": [
+        ["id=updateEmail", "id"],
+        ["css=#updateEmail", "css:finder"],
+        ["xpath=//ion-item[@id='updateEmail']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-content/ion-item[2]", "xpath:idRelative"],
+        ["xpath=//ion-item[2]", "xpath:position"],
+        ["xpath=//ion-item[contains(.,'Change Profile Picture')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "2708ee5a-39ac-42ac-a162-9ba16e3f7453",
+      "comment": "",
+      "command": "type",
+      "target": "id=fileSelect",
+      "targets": [
+        ["id=fileSelect", "id"],
+        ["css=.item > .md > #fileSelect", "css:finder"],
+        ["xpath=//input[@id='fileSelect']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-item/ion-avatar/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "C:\\fakepath\\Capture.PNG"
+    }]
+  }, {
+    "id": "df5bcac9-10b2-48c2-bbfe-3e9fb67d7bb8",
+    "name": "Block Source",
+    "commands": [{
+      "id": "0b84c280-b836-4854-a61c-97937952bd8b",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "57f925fd-a3db-4a66-a9a2-36403edb09d1",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "36acd439-d08d-4fe0-b531-2e345eda0e79",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-content/ion-list/div/div/ion-card/ion-card-content[2]/ion-button[4]", "xpath:idRelative"],
+        ["xpath=//ion-button[4]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "cd8d6068-db09-4251-b8cc-c8f21ba34f22",
+      "comment": "",
+      "command": "click",
+      "target": "css=#ion-overlay-1 > .md",
+      "targets": [
+        ["css=#ion-overlay-1 > .md", "css:finder"],
+        ["xpath=//ion-alert[@id='ion-overlay-1']/ion-backdrop", "xpath:idRelative"],
+        ["xpath=//ion-backdrop", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e5c5c855-289b-4758-bbfc-ad1a2f196ba7",
+      "comment": "",
+      "command": "click",
+      "target": "css=html",
+      "targets": [
+        ["css=html", "css:finder"],
+        ["xpath=//html", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "756655b3-970c-48c2-a8fc-9c3ad9383864",
+    "name": "Block Sources",
+    "commands": [{
+      "id": "c2d0f0cf-10be-4989-b2f4-a1d9a8b03ea6",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f4fc35f6-90b0-46e2-8dfe-7d29fdcd77c3",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "25e6fd78-08c9-448e-8c31-7942d31cc9f4",
+      "comment": "",
+      "command": "click",
+      "target": "css=#tab-button-settings > .sc-ion-label-md-h",
+      "targets": [
+        ["css=#tab-button-settings > .sc-ion-label-md-h", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-settings']/ion-label", "xpath:idRelative"],
+        ["xpath=//ion-tab-button[4]/ion-label", "xpath:position"],
+        ["xpath=//ion-label[contains(.,'Settings')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "53ead2ae-39a7-4a26-9b83-6194a576e35c",
+      "comment": "",
+      "command": "click",
+      "target": "css=#tab-button-feed > .md:nth-child(1)",
+      "targets": [
+        ["css=#tab-button-feed > .md:nth-child(1)", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-feed']/ion-icon", "xpath:idRelative"],
+        ["xpath=//ion-tab-button/ion-icon", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e79393f4-5bda-4b5c-884b-494f19d155d5",
+      "comment": "",
+      "command": "click",
+      "target": "css=#tab-button-settings > .md:nth-child(1)",
+      "targets": [
+        ["css=#tab-button-settings > .md:nth-child(1)", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-settings']/ion-icon", "xpath:idRelative"],
+        ["xpath=//ion-tab-button[4]/ion-icon", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "6edc4795-7fbb-484d-8d56-db21a6feca6b",
+      "comment": "",
+      "command": "click",
+      "target": "id=contentFilterButton",
+      "targets": [
+        ["id=contentFilterButton", "id"],
+        ["css=#contentFilterButton", "css:finder"],
+        ["xpath=//ion-icon[@id='contentFilterButton']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-content/ion-item/ion-buttons/ion-icon", "xpath:idRelative"],
+        ["xpath=//ion-buttons/ion-icon", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "33577f22-911a-4926-a29c-44a1beab4978",
+      "comment": "",
+      "command": "click",
+      "target": "name=ion-input-0",
+      "targets": [
+        ["name=ion-input-0", "name"],
+        ["css=.native-input", "css:finder"],
+        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
+        ["xpath=//ion-item[@id='block']/ion-input/input", "xpath:idRelative"],
+        ["xpath=//ion-input/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "c17cbd83-d2d7-4707-9f2d-69349263ad76",
+      "comment": "",
+      "command": "type",
+      "target": "name=ion-input-0",
+      "targets": [
+        ["name=ion-input-0", "name"],
+        ["css=.native-input", "css:finder"],
+        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
+        ["xpath=//ion-item[@id='block']/ion-input/input", "xpath:idRelative"],
+        ["xpath=//ion-input/input", "xpath:position"]
+      ],
+      "value": "https://www.cnn.com"
+    }, {
+      "id": "66a5811f-37af-45a9-aea9-67cab2de8c5b",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//ion-item[@id='block']/ion-button", "xpath:idRelative"],
+        ["xpath=//ion-item/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e138499c-b407-49e6-8803-6aa528f02b40",
+      "comment": "",
+      "command": "click",
+      "target": "name=ion-input-0",
+      "targets": [
+        ["name=ion-input-0", "name"],
+        ["css=.native-input", "css:finder"],
+        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
+        ["xpath=//ion-item[@id='block']/ion-input/input", "xpath:idRelative"],
+        ["xpath=//ion-input/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "665d2d5d-a059-4c47-b471-06cab96c0dc5",
+      "comment": "",
+      "command": "type",
+      "target": "name=ion-input-0",
+      "targets": [
+        ["name=ion-input-0", "name"],
+        ["css=.native-input", "css:finder"],
+        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
+        ["xpath=//ion-item[@id='block']/ion-input/input", "xpath:idRelative"],
+        ["xpath=//ion-input/input", "xpath:position"]
+      ],
+      "value": "https://www.nbcnews.com"
+    }, {
+      "id": "e5c30a33-0e7c-4fd1-b6e6-dcd39afd68ed",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//ion-item[@id='block']/ion-button", "xpath:idRelative"],
+        ["xpath=//ion-item/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "311950de-4c73-4371-918c-c26bf3c97501",
+      "comment": "",
+      "command": "click",
+      "target": "id=toBlock",
+      "targets": [
+        ["id=toBlock", "id"],
+        ["css=#toBlock", "css:finder"],
+        ["xpath=//ion-button[@id='toBlock']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-header/ion-toolbar/ion-buttons/ion-button", "xpath:idRelative"],
+        ["xpath=//div[2]/div/ion-header/ion-toolbar/ion-buttons/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "9d36a7b7-da57-4129-94b7-0b0ded08437a",
+      "comment": "",
+      "command": "click",
+      "target": "css=#tab-button-feed > .md:nth-child(1)",
+      "targets": [
+        ["css=#tab-button-feed > .md:nth-child(1)", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-feed']/ion-icon", "xpath:idRelative"],
+        ["xpath=//ion-tab-button/ion-icon", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7f8c7dd6-5c17-4a3e-ab30-5482616dd1d5",
+      "comment": "",
+      "command": "click",
+      "target": "css=html",
+      "targets": [
+        ["css=html", "css:finder"],
+        ["xpath=//html", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "6aaa6f61-ced4-4942-a2a2-ed8508f758e3",
+    "name": "Send Message",
+    "commands": [{
+      "id": "6dd11d3c-d089-4f0e-9f77-95609fb8b9b2",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3e71c68d-394a-4e83-b7c4-28020eac1057",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "68733328-1875-42d2-bd35-7c14a6b25e44",
+      "comment": "",
+      "command": "click",
+      "target": "id=tab-button-social",
+      "targets": [
+        ["id=tab-button-social", "id"],
+        ["css=#tab-button-social", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-social']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/ion-tab-bar/ion-tab-button[2]", "xpath:idRelative"],
+        ["xpath=//ion-tab-button[2]", "xpath:position"],
+        ["xpath=//ion-tab-button[contains(.,'Social')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "d3e7f021-b259-42e0-9e15-69f8f54018fc",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "id=tab-button-social",
+      "targets": [
+        ["id=tab-button-social", "id"],
+        ["css=#tab-button-social", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-social']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/ion-tab-bar/ion-tab-button[2]", "xpath:idRelative"],
+        ["xpath=//ion-tab-button[2]", "xpath:position"],
+        ["xpath=//ion-tab-button[contains(.,'Social')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "5e50a96c-0e51-42b3-a793-318ac7d6ba19",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "id=tab-button-social",
+      "targets": [
+        ["id=tab-button-social", "id"],
+        ["css=#tab-button-social", "css:finder"],
+        ["xpath=//ion-tab-button[@id='tab-button-social']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/ion-tab-bar/ion-tab-button[2]", "xpath:idRelative"],
+        ["xpath=//ion-tab-button[2]", "xpath:position"],
+        ["xpath=//ion-tab-button[contains(.,'Social')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "037441e4-ce9d-468b-84ef-e8d74628f002",
+      "comment": "",
+      "command": "click",
+      "target": "css=.socialGroupMessagePreview",
+      "targets": [
+        ["css=.socialGroupMessagePreview", "css:finder"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div[2]/ion-content/div/ion-item/div/ion-label[2]", "xpath:idRelative"],
+        ["xpath=//ion-label[2]", "xpath:position"],
+        ["xpath=//ion-label[contains(.,'hi')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "e92e2781-18c8-4323-8f4b-6a9a6e15ed17",
+      "comment": "",
+      "command": "click",
+      "target": "css=.groupSegmentButton:nth-child(1)",
+      "targets": [
+        ["css=.groupSegmentButton:nth-child(1)", "css:finder"],
+        ["xpath=//ion-segment-button[@value='messages']", "xpath:attributes"],
+        ["xpath=//ion-segment[@id='groupSegment']/ion-segment-button", "xpath:idRelative"],
+        ["xpath=//div/ion-segment/ion-segment-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f53f29ac-f2a3-494e-95b6-deb961b11c60",
+      "comment": "",
+      "command": "click",
+      "target": "name=ion-input-0",
+      "targets": [
+        ["name=ion-input-0", "name"],
+        ["css=.native-input", "css:finder"],
+        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/div[2]/ion-input/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "c293811d-5286-4400-82b6-e9b93bf36d72",
+      "comment": "",
+      "command": "type",
+      "target": "name=ion-input-0",
+      "targets": [
+        ["name=ion-input-0", "name"],
+        ["css=.native-input", "css:finder"],
+        ["xpath=//input[@name='ion-input-0']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/div[2]/ion-input/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "Test Message"
+    }, {
+      "id": "1b6fa3f0-670e-4f19-ab2f-a58b23b31b24",
+      "comment": "",
+      "command": "click",
+      "target": "css=.groupViewMessageButton",
+      "targets": [
+        ["css=.groupViewMessageButton", "css:finder"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/div[2]/ion-button", "xpath:idRelative"],
+        ["xpath=//div[2]/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "9edc9ea2-4b4d-48e1-9f50-912e44068e75",
+    "name": "Share Article",
+    "commands": [{
+      "id": "cd90772e-45a6-4314-9c2b-ee993747a949",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b29a37c0-34f9-4dde-9dc1-0bc90e1f17d3",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3d4fd0f0-0259-414e-b0fc-bf48eda5d401",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-content/ion-list/div/div/ion-card/ion-card-content[2]/ion-button[3]", "xpath:idRelative"],
+        ["xpath=//ion-button[3]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "9b2878e9-cdc1-4cd3-a4b1-0703bd959dab",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/div/ion-item/ion-button", "xpath:idRelative"],
+        ["xpath=//ion-item/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b380657c-aa83-4497-ac85-a7559b626842",
+      "comment": "",
+      "command": "click",
+      "target": "id=shareModalCloseButton",
+      "targets": [
+        ["id=shareModalCloseButton", "id"],
+        ["css=#shareModalCloseButton", "css:finder"],
+        ["xpath=//ion-button[@id='shareModalCloseButton']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-header/ion-toolbar/ion-buttons/ion-button", "xpath:idRelative"],
+        ["xpath=//div[2]/div/ion-header/ion-toolbar/ion-buttons/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "cec55b53-6eac-4e85-8e36-44ae17d78d90",
+    "name": "Bookmark Article",
+    "commands": [{
+      "id": "29264336-692c-4b5c-ad9f-666447e623de",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2b35f21a-a71f-4491-b823-69f655c9fb50",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d7def63a-2c6f-4c4c-9b26-4fec787325be",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-content/ion-list/div/div/ion-card/ion-card-content[2]/ion-button[2]", "xpath:idRelative"],
+        ["xpath=//ion-button[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "fef2bfde-be99-429a-9370-10e7b2c086e5",
+      "comment": "",
+      "command": "click",
+      "target": "css=#ion-overlay-2 > .md",
+      "targets": [
+        ["css=#ion-overlay-2 > .md", "css:finder"],
+        ["xpath=//ion-alert[@id='ion-overlay-2']/ion-backdrop", "xpath:idRelative"],
+        ["xpath=//ion-backdrop", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "5100456c-9f10-4c07-825d-d020fd56e102",
+    "name": "Add Subscription",
+    "commands": [{
+      "id": "a6b64215-094c-4c0e-a222-f7779b697f19",
+      "comment": "",
+      "command": "open",
+      "target": "/main/feed",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "824e483c-8984-4c24-8988-a94091e66cf8",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "782x824",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b69c0e2a-6fe0-404b-810d-3a95f0735e82",
+      "comment": "",
+      "command": "click",
+      "target": "css=.sc-ion-buttons-md-h:nth-child(3) > #feedButton",
+      "targets": [
+        ["css=.sc-ion-buttons-md-h:nth-child(3) > #feedButton", "css:finder"],
+        ["xpath=(//ion-button[@id='feedButton'])[2]", "xpath:attributes"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-header/ion-toolbar/ion-buttons[2]/ion-button", "xpath:idRelative"],
+        ["xpath=//ion-buttons[2]/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "bc394512-c1a5-42ee-bbbf-7f017bb5141a",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated > .md",
+      "targets": [
+        ["css=.ion-activated > .md", "css:finder"],
+        ["xpath=//div[@id='root']/ion-app/ion-router-outlet/div/ion-tabs/div/ion-router-outlet/div/ion-content/ion-fab/ion-fab-button/ion-icon", "xpath:idRelative"],
+        ["xpath=//ion-fab-button/ion-icon", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "10535a21-468d-411d-a14e-84a5f2ad3725",
+      "comment": "",
+      "command": "click",
+      "target": "css=.searchbar-input",
+      "targets": [
+        ["css=.searchbar-input", "css:finder"],
+        ["xpath=//input[@type='search']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/ion-searchbar/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "6d50a46d-de3a-4a06-ac2c-5264f086b3b0",
+      "comment": "",
+      "command": "type",
+      "target": "css=.searchbar-input",
+      "targets": [
+        ["css=.searchbar-input", "css:finder"],
+        ["xpath=//input[@type='search']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/ion-searchbar/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "lego"
+    }, {
+      "id": "5737c766-0785-4fd6-990e-4041896fe5bc",
+      "comment": "",
+      "command": "click",
+      "target": "id=searchButton",
+      "targets": [
+        ["id=searchButton", "id"],
+        ["css=#searchButton", "css:finder"],
+        ["xpath=//ion-button[@id='searchButton']", "xpath:attributes"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-content/ion-button", "xpath:idRelative"],
+        ["xpath=//ion-content/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "a87a80e0-db0a-4520-ae95-527ee6b1abc5",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//ion-toolbar[@id='newsToolbar']/ion-buttons[2]/ion-button", "xpath:idRelative"],
+        ["xpath=//div[2]/div/ion-header/ion-toolbar/ion-buttons[2]/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "00b45381-acdb-4221-bfbd-763ac029f77c",
+      "comment": "",
+      "command": "click",
+      "target": "css=#ion-overlay-4 > .md",
+      "targets": [
+        ["css=#ion-overlay-4 > .md", "css:finder"],
+        ["xpath=//ion-alert[@id='ion-overlay-4']/ion-backdrop", "xpath:idRelative"],
+        ["xpath=//ion-alert/ion-backdrop", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "df561714-74b5-4adb-859d-d298158ddf8a",
+      "comment": "",
+      "command": "click",
+      "target": "css=.ion-activated",
+      "targets": [
+        ["css=.ion-activated", "css:finder"],
+        ["xpath=//ion-modal[@id='ion-overlay-1']/div[2]/div/ion-header/ion-toolbar/ion-buttons/ion-button", "xpath:idRelative"],
+        ["xpath=//div[2]/div/ion-header/ion-toolbar/ion-buttons/ion-button", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "da325e72-749f-4a1a-8845-08253e5c86b5",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["b5f4e71d-20d5-42a2-8f0c-b363c5cbf68e"]
+  }],
+  "urls": ["http://localhost:8100/"],
+  "plugins": []
+}

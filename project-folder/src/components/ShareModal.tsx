@@ -14,7 +14,8 @@ import {
   IonListHeader,
   IonLabel,
   IonItem,
-  IonInput
+  IonInput,
+  IonAlert
 } from '@ionic/react'
 
 import './ShareModal.css'
@@ -41,7 +42,8 @@ type Group = {
 }
 
 type MyState = {
-  sentArray: boolean[]
+  sentArray: boolean[],
+  shareAlert:boolean
 }
 
 type MyProps = {
@@ -58,6 +60,7 @@ type MyProps = {
 class ShareModal extends React.Component<MyProps, MyState> {
   realtime_db = firebase.database();
   state: MyState = {
+    shareAlert:false,
     sentArray: []
   };
 
@@ -75,9 +78,10 @@ class ShareModal extends React.Component<MyProps, MyState> {
   }
 
   sendArticle(displayGroup: Group, index: number) {
+    
     let tempArray = this.state.sentArray
     tempArray[index] = true
-    this.setState({sentArray: tempArray})
+    this.setState({shareAlert:true,sentArray: tempArray})
     let timestamp = Date.now()
 
     this.realtime_db.ref(displayGroup.id).child(timestamp.toString()).set(
@@ -115,6 +119,11 @@ class ShareModal extends React.Component<MyProps, MyState> {
           </IonToolbar>
         </IonHeader>
         <IonContent>
+        <IonAlert
+          isOpen={this.state.shareAlert}
+          onDidDismiss={() => this.setState({shareAlert:false})}
+          message="sent!"
+       />
         <div>
           {
             this.props.groupArray.map((displayGroup : Group, index: number) => {
